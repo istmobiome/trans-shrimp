@@ -1,0 +1,12 @@
+```{mermaid}
+flowchart LR
+    A(Start with raw</br>sequence data)
+    A --> B(plotQualityProfile)
+    B --> C(filterAndTrim)
+    C --> D(plotErrors)
+    C --> E(learnErrors)
+    E --> F(derepFastq)
+    F --> G(dada)
+    G --> I(mergePairs) 
+    I --> J(makeSequenceTable)
+```

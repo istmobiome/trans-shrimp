@@ -1,0 +1,15 @@
+```{mermaid}
+flowchart LR
+    I(get.lineage) --> J(list.seqs)
+    J --> K(get.seqs)
+    K --> L(deunique.seqs)
+    L --> END:::hidden
+```
+
+```{mermaid}
+flowchart LR
+    BEGIN:::hidden --> M
+    M(mothur2oligo<br/>header rename)
+    M --> N(o-trim-uninformative-columns-from-alignment)
+    N --> O(decompose)
+```

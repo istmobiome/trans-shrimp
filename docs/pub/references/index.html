@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="description" content="Quick access to references for metagenomic and 16S RNA processing.">
+<title>Workflow References – TransIsthmian Shrimp</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../docs/pub/submitdata/index.html" rel="next">
+<link href="../../../docs/pub/index.html" rel="prev">
+<script src="../../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-references-listings .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: ['listing-name','listing-version','listing-workflow','listing-type','listing-reference',{ data: ['index'] },{ data: ['categories'] }],
+      
+      searchColumns: ["listing-name","listing-version","listing-workflow","listing-type","listing-reference"],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-references-listings'] = new List('listing-references-listings', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script><style>
+
+      .quarto-title-block .quarto-title-banner {
+        background: #113858;
+      }
+</style>
+<script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script><script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script><script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script><link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../assets/icon.png" alt="" class="navbar-logo"></a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="../../../index.html"> <i class="bi bi-home" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../docs/data/index.html" aria-current="page"> 
+<span class="menu-text">Data &amp; Scripts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../docs/ssu-workflows/index.html"> 
+<span class="menu-text">16S rRNA</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../docs/mg-workflows/index.html"> 
+<span class="menu-text">Metagenomics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../docs/pub/index.html"> 
+<span class="menu-text">Paper</span></a>
+  </li>  
+</ul>
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/istmobiome/trans-shrimp/"> <i class="bi bi-github" role="img" aria-label="TransI-Shrimp">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../about.html"> <i class="bi bi-lightbulb-fill" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+</div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/pub/index.html">Publication Material</a></li><li class="breadcrumb-item"><a href="../../../docs/pub/references/index.html">Workflow References</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-page-right"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/pub/index.html">Publication Material</a></li><li class="breadcrumb-item"><a href="../../../docs/pub/references/index.html">Workflow References</a></li></ol></nav>
+      <div class="quarto-title-block"><div><h1 class="title">Workflow References</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+                  <div>
+        <div class="description">
+          <p>Quick access to references for metagenomic and 16S RNA processing.</p>
+        </div>
+      </div>
+                </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta column-page-right">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/data/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data &amp; Scripts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/ssu-workflows/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16S rRNA Processing</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/sampledata/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. Sample Metadata</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/asv/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. ASV Workflow</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/otu/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. OTU Workflow</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/med/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. MED Workflow</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/mg-workflows/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Metagenomics</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/mg-workflows/setup/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. Annotation Databases</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/mg-workflows/assembly/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Co-Assembly &amp; Annotations</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/pub/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Publication Material</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/pub/references/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Workflow References</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/pub/submitdata/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Submitting Data</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content quarto-banner-title-block page-columns page-full column-page-right" id="quarto-document-content"><div id="listing-references-listings" class="column-body-outset-right quarto-listing quarto-listing-container-table">
+<div class="listing-actions-group">
+   <div class="input-group input-group-sm quarto-listing-sort">
+     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
+     <select id="listing-references-listings-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-references-listings'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})"><option value="" disabled="" selected="" hidden="">Order By</option>
+<option value="index" data-direction="asc">Default</option>
+<option value="listing-workflow" data-direction="asc">
+          Workflow
+        </option>
+<option value="listing-type" data-direction="asc">
+          Type
+        </option></select>
+</div>
+    <div class="input-group input-group-sm quarto-listing-filter">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text" class="search form-control" placeholder="Filter">
+</div>
+</div>
+<table class="quarto-listing-table table">
+<thead><tr>
+<th>
+Name
+</th>
+<th>
+Version
+</th>
+<th>
+<a class="sort" data-sort="listing-workflow" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Workflow</a>
+</th>
+<th>
+<a class="sort" data-sort="listing-type" onclick="if (this.classList.contains('sort-asc')) { this.classList.add('sort-desc'); this.classList.remove('sort-asc') } else { this.classList.add('sort-asc'); this.classList.remove('sort-desc')} return false;">Type</a>
+</th>
+<th>
+Reference
+</th>
+</tr></thead>
+<tbody class="list">
+<tr data-index="0" data-listing-name-sort="dada2">
+<td>
+<a href="https://github.com/benjjneb/dada2" class="name listing-name">dada2</a>
+</td>
+<td>
+<span class="listing-version">v1.26.0</span>
+</td>
+<td>
+<span class="listing-workflow">16S rRNA</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="callahan2016dada2">(<a href="#ref-callahan2016dada2" role="doc-biblioref">Callahan et al. 2016</a>)</span></span>
+</td>
+</tr>
+<tr data-index="1" data-listing-name-sort="mothur">
+<td>
+<a href="https://mothur.org/" class="name listing-name">mothur</a>
+</td>
+<td>
+<span class="listing-version">v.1.43.0</span>
+</td>
+<td>
+<span class="listing-workflow">16S rRNA</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="schloss2009mothur">(<a href="#ref-schloss2009mothur" role="doc-biblioref">Schloss et al. 2009</a>)</span></span>
+</td>
+</tr>
+<tr data-index="2" data-listing-name-sort="MED/Oligotyping">
+<td>
+<a href="https://merenlab.org/software/oligotyping/" class="name listing-name">MED/Oligotyping</a>
+</td>
+<td>
+<span class="listing-version">v3.2-dev</span>
+</td>
+<td>
+<span class="listing-workflow">16S rRNA</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="eren2015minimum">(<a href="#ref-eren2015minimum" role="doc-biblioref">Eren et al. 2015</a>)</span></span>
+</td>
+</tr>
+<tr data-index="3" data-listing-name-sort="Microeco">
+<td>
+<a href="https://github.com/ChiLiubio/microeco" class="name listing-name">Microeco</a>
+</td>
+<td>
+<span class="listing-version">v1.9.1</span>
+</td>
+<td>
+<span class="listing-workflow">16S rRNA</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="liu2021microeco">(<a href="#ref-liu2021microeco" role="doc-biblioref">Liu et al. 2021</a>)</span></span>
+</td>
+</tr>
+<tr data-index="4" data-listing-name-sort="SeqKit">
+<td>
+<a href="https://github.com/shenwei356/seqkit" class="name listing-name">SeqKit</a>
+</td>
+<td>
+<span class="listing-version">v2.8.2</span>
+</td>
+<td>
+<span class="listing-workflow">16S rRNA</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="shen2016seqkit">(<a href="#ref-shen2016seqkit" role="doc-biblioref">Shen et al. 2016</a>)</span></span>
+</td>
+</tr>
+<tr data-index="5" data-listing-name-sort="GSRDB">
+<td>
+<a href="https://manichanh.vhir.org/gsrdb/" class="name listing-name">GSRDB</a>
+</td>
+<td>
+<span class="listing-version">&nbsp;</span>
+</td>
+<td>
+<span class="listing-workflow">16S rRNA</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="molano2024gsr">(<a href="#ref-molano2024gsr" role="doc-biblioref">Molano, Vega-Abellaneda, and Manichanh 2024</a>)</span></span>
+</td>
+</tr>
+<tr data-index="6" data-listing-name-sort="anvi'o">
+<td>
+<a href="https://anvio.org/" class="name listing-name">anvi’o</a>
+</td>
+<td>
+<span class="listing-version">marie (v8dev)</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="eren2021community">(<a href="#ref-eren2021community" role="doc-biblioref">Eren et al. 2021</a>)</span></span>
+</td>
+</tr>
+<tr data-index="7" data-listing-name-sort="kraken2">
+<td>
+<a href="https://github.com/DerrickWood/kraken2" class="name listing-name">kraken2</a>
+</td>
+<td>
+<span class="listing-version">v2.1.3</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="wood2019kraken2">(<a href="#ref-wood2019kraken2" role="doc-biblioref">Wood, Lu, and Langmead 2019</a>)</span></span>
+</td>
+</tr>
+<tr data-index="8" data-listing-name-sort="megahit">
+<td>
+<a href="https://github.com/voutcn/megahit" class="name listing-name">megahit</a>
+</td>
+<td>
+<span class="listing-version">v1.2.9</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="li2015megahit">(<a href="#ref-li2015megahit" role="doc-biblioref">D. Li et al. 2015</a>)</span></span>
+</td>
+</tr>
+<tr data-index="9" data-listing-name-sort="snakemake">
+<td>
+<a href="https://snakemake.readthedocs.io/en/stable/" class="name listing-name">snakemake</a>
+</td>
+<td>
+<span class="listing-version">v7.32.4</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="koster2012snakemake">(<a href="#ref-koster2012snakemake" role="doc-biblioref">Köster and Rahmann 2012</a>)</span></span>
+</td>
+</tr>
+<tr data-index="10" data-listing-name-sort="BOWTIE2">
+<td>
+<a href="https://github.com/BenLangmead/bowtie2" class="name listing-name">BOWTIE2</a>
+</td>
+<td>
+<span class="listing-version">v2.5.2</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="langmead2012bowtie">(<a href="#ref-langmead2012bowtie" role="doc-biblioref">Langmead and Salzberg 2012</a>)</span></span>
+</td>
+</tr>
+<tr data-index="11" data-listing-name-sort="SAMtools">
+<td>
+<a href="https://github.com/samtools/samtools" class="name listing-name">SAMtools</a>
+</td>
+<td>
+<span class="listing-version">v1.18</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="li2009samtools">(<a href="#ref-li2009samtools" role="doc-biblioref">H. Li et al. 2009</a>)</span></span>
+</td>
+</tr>
+<tr data-index="12" data-listing-name-sort="IU  filter<br/>quality    Minoche">
+<td>
+<a href="https://github.com/merenlab/illuminautils/" class="name listing-name">IU filter<br>quality Minoche</a>
+</td>
+<td>
+<span class="listing-version">v2.13</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="eren2013filtering">(<a href="#ref-eren2013filtering" role="doc-biblioref">Eren et al. 2013</a>)</span></span>
+</td>
+</tr>
+<tr data-index="13" data-listing-name-sort="KAIJU">
+<td>
+<a href="https://github.com/bioinformaticscentre/kaiju" class="name listing-name">KAIJU</a>
+</td>
+<td>
+<span class="listing-version">v1.10.1</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="menzel2016kaiju">(<a href="#ref-menzel2016kaiju" role="doc-biblioref">Menzel, Ng, and Krogh 2016</a>)</span></span>
+</td>
+</tr>
+<tr data-index="14" data-listing-name-sort="PRODIGAL">
+<td>
+<a href="https://github.com/hyattpd/Prodigal" class="name listing-name">PRODIGAL</a>
+</td>
+<td>
+<span class="listing-version">V2.6.3</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="hyatt2010prodigal">(<a href="#ref-hyatt2010prodigal" role="doc-biblioref">Hyatt et al. 2010</a>)</span></span>
+</td>
+</tr>
+<tr data-index="15" data-listing-name-sort="Virsorter2">
+<td>
+<a href="https://github.com/jiarong/VirSorter2" class="name listing-name">Virsorter2</a>
+</td>
+<td>
+<span class="listing-version">v2.2.4</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="guo2021virsorter2">(<a href="#ref-guo2021virsorter2" role="doc-biblioref">Guo et al. 2021</a>)</span></span>
+</td>
+</tr>
+<tr data-index="16" data-listing-name-sort="CONCOCT">
+<td>
+<a href="https://github.com/BinPro/CONCOCT" class="name listing-name">CONCOCT</a>
+</td>
+<td>
+<span class="listing-version">v1.1.0</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="alneberg2014concoct">(<a href="#ref-alneberg2014concoct" role="doc-biblioref">Alneberg et al. 2014</a>)</span></span>
+</td>
+</tr>
+<tr data-index="17" data-listing-name-sort="DASTOOL">
+<td>
+<a href="https://github.com/cmks/DAS_Tool" class="name listing-name">DASTOOL</a>
+</td>
+<td>
+<span class="listing-version">v1.1.7</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="sieber2018dastool">(<a href="#ref-sieber2018dastool" role="doc-biblioref">Sieber et al. 2018</a>)</span></span>
+</td>
+</tr>
+<tr data-index="18" data-listing-name-sort="METABAT2">
+<td>
+<a href="https://bitbucket.org/berkeleylab/metabat/src/master/" class="name listing-name">METABAT2</a>
+</td>
+<td>
+<span class="listing-version">v2.17</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="kang2019metabat2">(<a href="#ref-kang2019metabat2" role="doc-biblioref">Kang et al. 2019</a>)</span></span>
+</td>
+</tr>
+<tr data-index="19" data-listing-name-sort="MAXBIN2">
+<td>
+<a href="https://sourceforge.net/projects/maxbin2/" class="name listing-name">MAXBIN2</a>
+</td>
+<td>
+<span class="listing-version">2.2.7</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">software</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="wu2016maxbin2">(<a href="#ref-wu2016maxbin2" role="doc-biblioref">Wu, Simmons, and Singer 2016</a>)</span></span>
+</td>
+</tr>
+<tr data-index="20" data-listing-name-sort="COG">
+<td>
+<a href="https://www.ncbi.nlm.nih.gov/research/cogproject/" class="name listing-name">COG</a>
+</td>
+<td>
+<span class="listing-version">COG20</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="galperin2021cog">(<a href="#ref-galperin2021cog" role="doc-biblioref">Galperin et al. 2021</a>)</span></span>
+</td>
+</tr>
+<tr data-index="21" data-listing-name-sort="KEGG">
+<td>
+<a href="https://www.genome.jp/tools/kofamkoala/" class="name listing-name">KEGG</a>
+</td>
+<td>
+<span class="listing-version">&nbsp;</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="aramaki2020kegg">(<a href="#ref-aramaki2020kegg" role="doc-biblioref">Aramaki et al. 2020</a>)</span></span>
+</td>
+</tr>
+<tr data-index="22" data-listing-name-sort="CAZymes">
+<td>
+<a href="http://www.cazy.org/" class="name listing-name">CAZymes</a>
+</td>
+<td>
+<span class="listing-version">v11</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="drula2022cazyme">(<a href="#ref-drula2022cazyme" role="doc-biblioref">Drula et al. 2022</a>)</span></span>
+</td>
+</tr>
+<tr data-index="23" data-listing-name-sort="Pfams">
+<td>
+<a href="https://pfam.xfam.org/" class="name listing-name">Pfams</a>
+</td>
+<td>
+<span class="listing-version">v37.0</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="mistry2021pfam">(<a href="#ref-mistry2021pfam" role="doc-biblioref">Mistry et al. 2021</a>)</span></span>
+</td>
+</tr>
+<tr data-index="24" data-listing-name-sort="GTDB<br/>(SCG taxonomy)">
+<td>
+<a href="https://gtdb.ecogenomic.org/" class="name listing-name">GTDB<br>(SCG taxonomy)</a>
+</td>
+<td>
+<span class="listing-version">v214.1</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="chaumeil2019gtdb">(<a href="#ref-chaumeil2019gtdb" role="doc-biblioref">Chaumeil et al. 2019</a>)</span></span>
+</td>
+</tr>
+<tr data-index="25" data-listing-name-sort="GTDB<br/>(tRNA taxonomy)">
+<td>
+<a href="https://gtdb.ecogenomic.org/" class="name listing-name">GTDB<br>(tRNA taxonomy)</a>
+</td>
+<td>
+<span class="listing-version">v89</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="chaumeil2019gtdb">(<a href="#ref-chaumeil2019gtdb" role="doc-biblioref">Chaumeil et al. 2019</a>)</span></span>
+</td>
+</tr>
+<tr data-index="26" data-listing-name-sort="Archaea_76 &amp;<br/>Bacteria_71">
+<td>
+<span class="listing-name">Archaea_76 &amp;<br>Bacteria_71</span>
+</td>
+<td>
+<span class="listing-version">&nbsp;</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">HMM database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="lee2019gtotree">(<a href="#ref-lee2019gtotree" role="doc-biblioref">Lee 2019</a>)</span></span>
+</td>
+</tr>
+<tr data-index="27" data-listing-name-sort="Bacteria_71">
+<td>
+<span class="listing-name">Bacteria_71</span>
+</td>
+<td>
+<span class="listing-version">&nbsp;</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">HMM database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="lee2019gtotree">(<a href="#ref-lee2019gtotree" role="doc-biblioref">Lee 2019</a>)</span></span>
+</td>
+</tr>
+<tr data-index="28" data-listing-name-sort="Protista_83">
+<td>
+<a href="https://merenlab.org/2018/05/05/eukaryotic-single-copy-core-genes/" class="name listing-name">Protista_83</a>
+</td>
+<td>
+<span class="listing-version">0.9</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">HMM database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="seemann2018barnap">(<a href="#ref-seemann2018barnap" role="doc-biblioref">Seemann 2018</a>)</span></span>
+</td>
+</tr>
+<tr data-index="29" data-listing-name-sort="Ribosomal RNA <br/>(12S, 16S, 18S,<br/>23S, 28S, 5S)">
+<td>
+<a href="https://github.com/tseemann/barrnap" class="name listing-name">Ribosomal RNA <br>(12S, 16S, 18S,<br>23S, 28S, 5S)</a>
+</td>
+<td>
+<span class="listing-version">0.9</span>
+</td>
+<td>
+<span class="listing-workflow">metagenomic</span>
+</td>
+<td>
+<span class="listing-type">HMM database</span>
+</td>
+<td>
+<span class="listing-reference"><span class="citation" data-cites="seemann2018barnap">(<a href="#ref-seemann2018barnap" role="doc-biblioref">Seemann 2018</a>)</span></span>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div>
+<div class="column-body-outset-right">
+
+</div>
+<section id="references" class="level3"><h3 data-anchor-id="references">References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-alneberg2014concoct" class="csl-entry" role="listitem">
+Alneberg, Johannes, Brynjar Smári Bjarnason, Ino De Bruijn, Melanie Schirmer, Joshua Quick, Umer Z Ijaz, Leo Lahti, Nicholas J Loman, Anders F Andersson, and Christopher Quince. 2014. <span>“Binning Metagenomic Contigs by Coverage and Composition.”</span> <em>Nature Methods</em> 11 (11): 11441146. <a href="https://doi.org/10.1038/nmeth.3103">https://doi.org/10.1038/nmeth.3103</a>.
+</div>
+<div id="ref-aramaki2020kegg" class="csl-entry" role="listitem">
+Aramaki, Takuya, Romain Blanc-Mathieu, Hisashi Endo, Koichi Ohkubo, Minoru Kanehisa, Susumu Goto, and Hiroyuki Ogata. 2020. <span>“KofamKOALA: KEGG Ortholog Assignment Based on Profile HMM and Adaptive Score Threshold.”</span> <em>Bioinformatics</em> 36 (7): 22512252. <a href="https://doi.org/10.1093/bioinformatics/btz859">https://doi.org/10.1093/bioinformatics/btz859</a>.
+</div>
+<div id="ref-callahan2016dada2" class="csl-entry" role="listitem">
+Callahan, Benjamin J, Paul J McMurdie, Michael J Rosen, Andrew W Han, Amy Jo A Johnson, and Susan P Holmes. 2016. <span>“DADA2: High-Resolution Sample Inference from Illumina Amplicon Data.”</span> <em>Nature Methods</em> 13 (7): 581. <a href="https://doi.org/10.1038/nmeth.3869">https://doi.org/10.1038/nmeth.3869</a>.
+</div>
+<div id="ref-chaumeil2019gtdb" class="csl-entry" role="listitem">
+Chaumeil, Pierre-Alain, Aaron J Mussig, Philip Hugenholtz, and Donovan H Parks. 2019. <span>“GTDB-Tk: A Toolkit to Classify Genomes with the Genome Taxonomy Database.”</span> <em>Bioinformatics</em> 36 (6): 1925–27. <a href="https://doi.org/10.1093/bioinformatics/btz848">https://doi.org/10.1093/bioinformatics/btz848</a>.
+</div>
+<div id="ref-drula2022cazyme" class="csl-entry" role="listitem">
+Drula, Elodie, Marie-Line Garron, Suzan Dogan, Vincent Lombard, Bernard Henrissat, and Nicolas Terrapon. 2022. <span>“The Carbohydrate-Active Enzyme Database: Functions and Literature.”</span> <em>Nucleic Acids Research</em> 50 (D1): D571D577. <a href="https://doi.org/10.1093/nar/gkab1045">https://doi.org/10.1093/nar/gkab1045</a>.
+</div>
+<div id="ref-eren2021community" class="csl-entry" role="listitem">
+Eren, A Murat, E Kiefl, A Shaiber, I Veseli, SE Miller, MS Schechter, I Fink, et al. 2021. <span>“Community-Led, Integrated, Reproducible Multi-Omics with Anvi’o. 6: 3–6.”</span> <em>Nature Microbiology</em>. <a href="https://doi.org/10.1038/s41564-020-00834-3">https://doi.org/10.1038/s41564-020-00834-3</a>.
+</div>
+<div id="ref-eren2015minimum" class="csl-entry" role="listitem">
+Eren, A Murat, Hilary G Morrison, Pamela J Lescault, Julie Reveillaud, Joseph H Vineis, and Mitchell L Sogin. 2015. <span>“Minimum Entropy Decomposition: Unsupervised Oligotyping for Sensitive Partitioning of High-Throughput Marker Gene Sequences.”</span> <em>The ISME Journal</em> 9 (4): 968–79. <a href="https://doi.org/10.1038/ismej.2014.195">https://doi.org/10.1038/ismej.2014.195</a>.
+</div>
+<div id="ref-eren2013filtering" class="csl-entry" role="listitem">
+Eren, A Murat, Joseph H Vineis, Hilary G Morrison, and Mitchell L Sogin. 2013. <span>“A Filtering Method to Generate High Quality Short Reads Using Illumina Paired-End Technology.”</span> <em>PLoS One</em> 8 (6). <a href="https://doi.org/10.1371/journal.pone.0066643">https://doi.org/10.1371/journal.pone.0066643</a>.
+</div>
+<div id="ref-galperin2021cog" class="csl-entry" role="listitem">
+Galperin, Michael Y, Yuri I Wolf, Kira S Makarova, Roberto Vera Alvarez, David Landsman, and Eugene V Koonin. 2021. <span>“COG Database Update: Focus on Microbial Diversity, Model Organisms, and Widespread Pathogens.”</span> <em>Nucleic Acids Research</em> 49 (D1): D274D281. <a href="https://doi.org/10.1093/nar/gkaa1018">https://doi.org/10.1093/nar/gkaa1018</a>.
+</div>
+<div id="ref-guo2021virsorter2" class="csl-entry" role="listitem">
+Guo, Jiarong, Ben Bolduc, Ahmed A Zayed, Arvind Varsani, Guillermo Dominguez-Huerta, Tom O Delmont, Akbar Adjie Pratama, et al. 2021. <span>“VirSorter2: A Multi-Classifier, Expert-Guided Approach to Detect Diverse DNA and RNA Viruses.”</span> <em>Microbiome</em> 9: 113. <a href="https://doi.org/10.1186/s40168-020-00990-y">https://doi.org/10.1186/s40168-020-00990-y</a>.
+</div>
+<div id="ref-hyatt2010prodigal" class="csl-entry" role="listitem">
+Hyatt, Doug, Gwo-Liang Chen, Philip F LoCascio, Miriam L Land, Frank W Larimer, and Loren J Hauser. 2010. <span>“Prodigal: Prokaryotic Gene Recognition and Translation Initiation Site Identification.”</span> <em>BMC Bioinformatics</em> 11 (1): 119. <a href="https://doi.org/10.1186/1471-2105-11-119">https://doi.org/10.1186/1471-2105-11-119</a>.
+</div>
+<div id="ref-kang2019metabat2" class="csl-entry" role="listitem">
+Kang, Dongwan D, Feng Li, Edward Kirton, Ashleigh Thomas, Rob Egan, Hong An, and Zhong Wang. 2019. <span>“MetaBAT 2: An Adaptive Binning Algorithm for Robust and Efficient Genome Reconstruction from Metagenome Assemblies.”</span> <em>PeerJ</em> 7: e7359. <a href="https://doi.org/10.7717%2Fpeerj.7359">https://doi.org/10.7717%2Fpeerj.7359</a>.
+</div>
+<div id="ref-koster2012snakemake" class="csl-entry" role="listitem">
+Köster, Johannes, and Sven Rahmann. 2012. <span>“Snakemake—a Scalable Bioinformatics Workflow Engine.”</span> <em>Bioinformatics</em> 28 (19): 2520–22. <a href="https://doi.org/10.1093/bioinformatics/bts480">https://doi.org/10.1093/bioinformatics/bts480</a>.
+</div>
+<div id="ref-langmead2012bowtie" class="csl-entry" role="listitem">
+Langmead, Ben, and Steven L Salzberg. 2012. <span>“Fast Gapped-Read Alignment with Bowtie 2.”</span> <em>Nature Methods</em> 9 (4): 357. <a href="https://doi.org/10.1038/nmeth.1923">https://doi.org/10.1038/nmeth.1923</a>.
+</div>
+<div id="ref-lee2019gtotree" class="csl-entry" role="listitem">
+Lee, Michael D. 2019. <span>“GToTree: A User-Friendly Workflow for Phylogenomics.”</span> <em>Bioinformatics</em> 35 (20): 41624164. <a href="https://doi.org/10.1093/bioinformatics/btz188">https://doi.org/10.1093/bioinformatics/btz188</a>.
+</div>
+<div id="ref-li2015megahit" class="csl-entry" role="listitem">
+Li, Dinghua, Chi-Man Liu, Ruibang Luo, Kunihiko Sadakane, and Tak-Wah Lam. 2015. <span>“MEGAHIT: An Ultra-Fast Single-Node Solution for Large and Complex Metagenomics Assembly via Succinct de Bruijn Graph.”</span> <em>Bioinformatics</em> 31 (10): 1674–76. <a href="https://doi.org/10.1093/bioinformatics/btv033">https://doi.org/10.1093/bioinformatics/btv033</a>.
+</div>
+<div id="ref-li2009samtools" class="csl-entry" role="listitem">
+Li, Heng, Bob Handsaker, Alec Wysoker, Tim Fennell, Jue Ruan, Nils Homer, Gabor Marth, Goncalo Abecasis, and Richard Durbin. 2009. <span>“The Sequence Alignment/Map Format and SAMtools.”</span> <em>Bioinformatics</em> 25 (16): 2078–79. <a href="https://doi.org/10.1093/bioinformatics/btp352">https://doi.org/10.1093/bioinformatics/btp352</a>.
+</div>
+<div id="ref-liu2021microeco" class="csl-entry" role="listitem">
+Liu, Chi, Yaoming Cui, Xiangzhen Li, and Minjie Yao. 2021. <span>“Microeco: An r Package for Data Mining in Microbial Community Ecology.”</span> <em>FEMS Microbiology Ecology</em> 97 (2): fiaa255. <a href="https://doi.org/10.1093/femsec/fiaa255">https://doi.org/10.1093/femsec/fiaa255</a>.
+</div>
+<div id="ref-menzel2016kaiju" class="csl-entry" role="listitem">
+Menzel, Peter, Kim Lee Ng, and Anders Krogh. 2016. <span>“Fast and Sensitive Taxonomic Classification for Metagenomics with Kaiju.”</span> <em>Nature Communications</em> 7: 11257. <a href="https://doi.org/10.1038/ncomms11257">https://doi.org/10.1038/ncomms11257</a>.
+</div>
+<div id="ref-mistry2021pfam" class="csl-entry" role="listitem">
+Mistry, Jaina, Sara Chuguransky, Lowri Williams, Matloob Qureshi, Gustavo A Salazar, Erik LL Sonnhammer, Silvio CE Tosatto, et al. 2021. <span>“Pfam: The Protein Families Database in 2021.”</span> <em>Nucleic Acids Research</em> 49 (D1): D412D419. <a href="https://doi.org/10.1093/nar/gkaa913">https://doi.org/10.1093/nar/gkaa913</a>.
+</div>
+<div id="ref-molano2024gsr" class="csl-entry" role="listitem">
+Molano, Leidy-Alejandra G, Sara Vega-Abellaneda, and Chaysavanh Manichanh. 2024. <span>“GSR-DB: A Manually Curated and Optimized Taxonomical Database for 16S rRNA Amplicon Analysis.”</span> <em>Msystems</em> 9 (2): e00950–23. <a href="https://doi.org/10.1128/msystems.00950-23">https://doi.org/10.1128/msystems.00950-23</a>.
+</div>
+<div id="ref-schloss2009mothur" class="csl-entry" role="listitem">
+Schloss, Patrick D, Sarah L Westcott, Thomas Ryabin, Justine R Hall, Martin Hartmann, Emily B Hollister, Ryan A Lesniewski, et al. 2009. <span>“Introducing Mothur: Open-Source, Platform-Independent, Community-Supported Software for Describing and Comparing Microbial Communities.”</span> <em>Applied and Environmental Microbiology</em> 75 (23): 7537–41. <a href="https://doi.org/10.1128/AEM.01541-09">https://doi.org/10.1128/AEM.01541-09</a>.
+</div>
+<div id="ref-seemann2018barnap" class="csl-entry" role="listitem">
+Seemann, T. 2018. <span>“<span class="nocase">Barrnap 0.9 : Rapid ribosomal RNA Prediction</span>.”</span> <a href="https://github.com/tseemann/barrnap">https://github.com/tseemann/barrnap</a>.
+</div>
+<div id="ref-shen2016seqkit" class="csl-entry" role="listitem">
+Shen, Wei, Shuai Le, Yan Li, and Fuquan Hu. 2016. <span>“SeqKit: A Cross-Platform and Ultrafast Toolkit for FASTA/q File Manipulation.”</span> <em>PloS One</em> 11 (10): e0163962. <a href="https://doi.org/10.1371/journal.pone.016396">https://doi.org/10.1371/journal.pone.016396</a>.
+</div>
+<div id="ref-sieber2018dastool" class="csl-entry" role="listitem">
+Sieber, Christian MK, Alexander J Probst, Allison Sharrar, Brian C Thomas, Matthias Hess, Susannah G Tringe, and Jillian F Banfield. 2018. <span>“Recovery of Genomes from Metagenomes via a Dereplication, Aggregation and Scoring Strategy.”</span> <em>Nature Microbiology</em> 3 (7): 836843. <a href="https://doi.org/10.1038/s41564-018-0171-1">https://doi.org/10.1038/s41564-018-0171-1</a>.
+</div>
+<div id="ref-wood2019kraken2" class="csl-entry" role="listitem">
+Wood, Derrick E, Jennifer Lu, and Ben Langmead. 2019. <span>“Improved Metagenomic Analysis with Kraken 2.”</span> <em>Genome Biology</em> 20: 113. <a href="https://doi.org/10.1186/s13059-019-1891-0">https://doi.org/10.1186/s13059-019-1891-0</a>.
+</div>
+<div id="ref-wu2016maxbin2" class="csl-entry" role="listitem">
+Wu, Yu-Wei, Blake A Simmons, and Steven W Singer. 2016. <span>“MaxBin 2.0: An Automated Binning Algorithm to Recover Genomes from Multiple Metagenomic Datasets.”</span> <em>Bioinformatics</em> 32 (4): 605–7. <a href="https://doi.org/10.1093/bioinformatics/btv638">https://doi.org/10.1093/bioinformatics/btv638</a>.
+</div>
+</div>
+</section><div id="quarto-appendix" class="default"><section id="source-code" class="level4 appendix"><h2 class="anchored quarto-appendix-heading">Source Code</h2><div class="quarto-appendix-contents">
+<p>The source code for this page can be accessed on GitHub <svg aria-hidden="true" role="img" viewbox="0 0 496 512" style="height:1em;width:0.97em;vertical-align:-0.125em;margin-left:auto;margin-right:auto;font-size:inherit;fill:currentColor;overflow:visible;position:relative;"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"></path></svg> by <a href="https://github.com/istmobiome/trans-shrimp/blob/main/docs/pub/references/index.qmd">clicking this link</a>.</p>
+</div></section><section id="last-updated-on" class="level4 appendix"><h2 class="anchored quarto-appendix-heading">Last updated on</h2><div class="quarto-appendix-contents">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2024-09-24 13:23:47 PDT"</code></pre>
+</div>
+</div>
+
+
+
+<!-- -->
+
+</div></section></div></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/istmobiome\.github\.io\/trans-shrimp\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><nav class="page-navigation column-page-right"><div class="nav-page nav-page-previous">
+      <a href="../../../docs/pub/index.html" class="pagination-link" aria-label="Publication Material">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Publication Material</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../docs/pub/submitdata/index.html" class="pagination-link" aria-label="Submitting Data">
+        <span class="nav-page-text">Submitting Data</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Workflow References"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> |</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">  Quick access to references for metagenomic and 16S RNA  processing. </span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="an">metadata-files:</span><span class="co"> </span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">  - _metadata.yml  </span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>::: {#references-listings .column-body-outset-right}</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>{{&lt; include _listing-footer.qmd &gt;}}</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">### References</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>::: {#refs}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Source Code {.appendix}</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>{{&lt; include /include/_access_code.qmd &gt;}}</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Last updated on {.appendix}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: true</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.time</span>()</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024 <a href="https://metacrobe.github.io/">metacrobe</a> &amp; <a href="https://istmobiome.rbind.io/">The Istmobiome Project</a>. Site constructed using <a href="https://quarto.org/">Quarto</a>.</p>
+<div class="toc-actions"><ul><li><a href="https://github.com/istmobiome/trans-shrimp/edit/main/docs/pub/references/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/istmobiome/trans-shrimp/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/istmobiome/trans-shrimp/blob/main/docs/pub/references/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+</body></html>

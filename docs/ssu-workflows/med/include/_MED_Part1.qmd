@@ -1,0 +1,775 @@
+
+::: {.callout-note appearance="simple" collapse="true"}
+
+### Expand to see environment variables
+
+```         
+$ export DATA=01_TRIMMED_DATA/
+$ export TYPE=fastq
+$ export PROC=30
+
+$ export REF_LOC=reference_dbs
+$ export TAXREF_FASTA=gsrdb.fasta
+$ export TAXREF_TAX=gsrdb.tax
+$ export ALIGNREF=silva.v4.fasta
+
+$ export CONTAMINENTS=Chloroplast-Mitochondria-unknown-Eukaryota
+```
+:::
+
+```{r}
+#| echo: false
+#| eval: true
+load("files/rdata/med_part1.rdata")
+```
+
+## Getting Started
+
+::: column-margin
+{{< include /include/_chunk_colors.qmd >}}
+:::
+
+```{verbatim}
+set.dir(output=pipelineFiles_med/)
+```
+
+```         
+Mothur's directories:
+outputDir=pipelineFiles_med/
+```
+We first copy the output of the `align.seqs` portion of the mothur workflow.  
+
+```{verbatim}
+system(cp pipelineFiles/shrimp.trim.contigs.good.unique.good.filter.unique.fasta pipelineFiles_med/)
+system(cp pipelineFiles/shrimp.trim.contigs.good.unique.good.filter.count_table pipelineFiles_med/)
+```
+
+## Remove Negative Controls
+
+As before, we remove NC samples, but we skip the `pre.cluster`. We need to remove the NC samples and reads found in those sample. We first identified all reads that were present in at least one NC sample represented by at least 1 read. We did this by subsetting the NC samples from dataset.
+
+```{verbatim}
+get.groups(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.fasta, count=shrimp.trim.contigs.good.unique.good.filter.count_table, groups=Control_49-Control_23-Control_17-Control_24-Control_14-Control_44-Control_20-Control_33-Control_41-Control_29-Control_50-Control_22-Control_19-Control_18-Control_48-Control_13-Control_21-Control_16-Control_30-Control_5-Control_42-Control_25-Control_51-Control_40-Control_15-Control_36-Control_47-Control_27-Control_32-Control_8-Control_3-Control_4-Control_6-Control_45-Control_26-Control_46-Control_53-Control_7-Control_12-Control_10-Control_9-Control_35-Control_54-Control_2-Control_43-Control_1-Control_11-Control_52-Control_38-Control_34-Control_56-Control_37-Control_28-Control_57-Control_31-Control_39-Control_59-Control_55-Control_60-Control_58)
+```
+
+```         
+Selected 193014 sequences from your count file.
+Selected 34302 sequences from your fasta file.
+
+Output File names:
+shrimp.trim.contigs.good.unique.good.filter.pick.count_table
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.fasta
+```
+
+```{verbatim}
+rename.file(input=current, new=neg_control.fasta)
+rename.file(input=current, new=neg_control.count_table)
+```
+
+```{verbatim}
+summary.seqs(fasta=neg_control.fasta, count=neg_control.count_table, processors=$PROC)
+```
+
+::: {.callout-note appearance="simple" collapse="true"}
+
+### Expand to see negative control summary
+
+|             | Start | End | NBases | Ambigs | Polymer | NumSeqs |
+|:------------|:-----:|:---:|:------:|:------:|:-------:|:-------:|
+| Minimum     |   1   | 735 |  251   |   0    |    3    |    1    |
+| 2.5%-tile:  |   1   | 736 |  252   |   0    |    4    |  4826   |
+| 25%-tile:   |   1   | 736 |  253   |   0    |    4    |  48254  |
+| Median:     |   1   | 736 |  253   |   0    |    5    |  96508  |
+| 75%-tile:   |   1   | 736 |  253   |   0    |    5    | 144761  |
+| 97.5%-tile: |   1   | 736 |  254   |   0    |    6    | 188189  |
+| Maximum:    |   4   | 736 |  254   |   0    |    6    | 193014  |
+| Mean:       |   1   | 735 |  253   |   0    |    4    |         |
+
+```         
+# of unique seqs:   34302
+total # of seqs:    193014
+
+It took 0 secs to summarize 193014 sequences.
+
+Output File Names:
+neg_control.summary
+```
+:::
+
+```{verbatim}
+list.seqs(count=neg_control.count_table)
+```
+
+```         
+Output File Names: 
+neg_control.accnos
+```
+
+The next step is to use the `*.accnos` file from the previous step to remove any reads found in negative control (NC) samples. This seems reasonable enough except mothur will remove *any* read found in a NC sample. For example, let's say we have two reads:
+
+`read01` is found in most NC samples and not found in any remaining samples.   
+`read02` on the other hand is represented by one read in a single NC sample but very abundant in remaining samples.   
+
+It makes a lot of sense to remove `read01` but not so for `read02`. So we need to make a custom `*.accnos` that only contains reads that are abundant in NC samples. To do this we will do a little data wrangling in R. For this we need two `*.count_table` files--one from the `align.seqs` section and the other from the step above. We got the idea on how best to do this from the [mothur forum](https://forum.mothur.org/t/negative-control/2754).
+
+Essentially, for each repseq, the code below calculates:
+
+-   The total number of NC samples containing at least 1 read.\
+-   The total number of reads in NC samples.\
+-   The total number of non-NC samples containing at least 1 read.\
+-   The total number of reads in non-NC samples.\
+-   The percent of reads in the NC samples and the percent of NC samples containing reads.
+
+
+```{r}
+#| echo: false
+#| comment: i dont thik this needs to be run?
+sed 1,2d neg_control.count_table > tmp_neg.count_table
+sed 1,2d shrimp.trim.contigs.good.unique.good.filter.unique.precluster.count_table > tmp.count_table
+```
+
+The first command parses out the necessary data from the  `.count_table` files. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_nc_reads <- read_tsv(
+  "files/tables/neg_control.count_table",
+  col_names = TRUE,
+  col_types = NULL,
+  skip = 2,
+  col_select = c("Representative_Sequence", "total")
+)
+tmp_non_nc_reads <- read_tsv(
+  "files/tables/shrimp.trim.contigs.good.unique.good.filter.count_table",
+  col_names = TRUE,
+  col_types = NULL,
+  skip = 2,
+  col_select = c("Representative_Sequence", "total"),
+)
+tmp_reads <- dplyr::left_join(tmp_nc_reads, tmp_non_nc_reads,
+                              by = "Representative_Sequence")
+tmp_reads <- tmp_reads %>% dplyr::rename(c(
+                            "total_reads_NC" = "total.x", 
+                            "total_reads_samps" = "total.y")
+                            ) 
+```
+
+And here is what the new dataframe looks like. Three columns where the first is the repseq name, the second the total number of reads in NC samples, and the third the total number of reads in the entire dataset.
+
+```{r}
+#| echo: false
+#| eval: true
+#tmp_reads <- read.table("../files/tables/neg_control_screen.txt", 
+#            sep = "\t", header = TRUE)
+#nc_tmp1 <- tmp_reads[1:6, ]
+nc_tmp1
+```
+
+We identified 34,302 reads that were potential contaminants.
+
+Now we add in a column that calculates the percent of reads in the NC samples.
+
+```{r}
+#| echo: false
+#| eval: false
+write.table(tmp_reads, "files/tables/neg_control_screen.txt", 
+            row.names = FALSE, quote = FALSE, sep = "\t")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_nc_check <- tmp_reads %>%
+  dplyr::mutate(perc_in_neg = 100*(
+    total_reads_NC / (total_reads_NC + total_reads_samps)),
+                .after = "total_reads_samps")
+tmp_nc_check$perc_in_neg <- round(tmp_nc_check$perc_in_neg, digits = 6)
+```
+
+Now we use the `count.seqs` command in mothur to generate a file describing the distribution of NC reads across all samples. This information will tell us how many samples contain these reads.
+
+```{verbatim}
+count.seqs(count=neg_control.count_table, compress=f)
+count.seqs(count=shrimp.trim.contigs.good.unique.good.filter.count_table, compress=f)
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_nc_dist <- read_tsv("neg_control.full.count_table")
+
+tmp_all_dist <- read_tsv("shrimp.trim.contigs.good.unique.good.filter.full.count_table")
+tmp_all_dist <- tmp_all_dist %>% select(-starts_with("Control_"))
+
+tmp_nc_dist$total <- NULL
+tmp_all_dist$total <- NULL
+
+tmp_nc_read_dist <- dplyr::left_join(
+                    tmp_nc_dist, 
+                    tmp_all_dist, 
+                    by = "Representative_Sequence")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+write.table(tmp_nc_read_dist, "nc_read_dist_full.count_table", 
+            row.names = FALSE, quote = FALSE, sep = "\t")
+tmp_nc_read_dist <- read_tsv(
+  "files/tables/nc_read_dist_full.count_table",
+  col_names = TRUE
+)
+```
+
+After a little wrangling, the dataframe looks like this: 
+
+```{r}
+#| echo: false
+#| eval: true
+#tmp_nc_read_dist <- read_tsv(
+#  "../files/tables/nc_read_dist_full.count_table",
+#  col_names = TRUE
+#)
+#nc_tmp2 <- tmp_nc_read_dist[1:6, 1:5]
+nc_tmp2
+```
+
+And then we calculate row sums to get the number of NC and non-NC samples containing these reads. 
+
+```{r}
+#| echo: false
+#| eval: false
+tmp_1 <- data.frame(rowSums(tmp_nc_read_dist != 0))
+tmp_2 <- dplyr::select(tmp_nc_read_dist, contains("Control"))
+tmp_2$num_samp_nc <- rowSums(tmp_2 != 0)
+tmp_2 <- dplyr::select(tmp_2, -contains("Control"))
+tmp_3 <- dplyr::select(tmp_nc_read_dist, -contains("Control"))
+tmp_3$num_samp_no_nc <- rowSums(tmp_3 != 0)
+tmp_3 <- dplyr::select(tmp_3, contains("num_samp_no_nc"))
+```
+
+And again calculate the percent of NC samples containing these reads. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_nc_check <- cbind(tmp_nc_check, tmp_1, tmp_2, tmp_3)
+tmp_nc_check <- tmp_nc_check %>% dplyr::rename("total_samples" = 5)  
+colnames(tmp_nc_check)
+tmp_nc_check <- tmp_nc_check %>%
+  dplyr::mutate(perc_in_neg_samp = 
+                  100*( num_samp_nc / (num_samp_nc + num_samp_no_nc)),
+                  .after = "num_samp_no_nc")
+nc_check <- tmp_nc_check
+```
+
+```{r}
+#| echo: false
+#| eval: true
+  reactable(nc_check,
+  defaultColDef = colDef(
+    header = function(value) gsub("_", " ", value, fixed = TRUE),
+    #cell = function(value) format(value, nsmall = 0),
+    align = "center", filterable = FALSE, sortable = TRUE, resizable = TRUE,
+    footerStyle = list(fontWeight = "bold")
+    ), 
+  columns = list(
+    Representative_Sequence = colDef(name = "Rep Seq", 
+                       sticky = "left", 
+                       style = list(borderRight = "1px solid #eee"),
+                       headerStyle = list(borderRight = "1px solid #eee"), 
+                       align = "left",
+                       minWidth = 100),
+  total_reads_NC = colDef(name = "reads in NC"),
+  total_reads_samps = colDef(name = "reads in non NC"),
+  perc_in_neg = colDef(name = "% in NC", format = colFormat(digits = 4)),
+  total_samples = colDef(name = "total samples"),
+  num_samp_nc = colDef(name = "Total NC samples"),
+  num_samp_no_nc = colDef(name = "Total non-NC samples"),
+  perc_in_neg_samp = colDef(name = "% of samples", format = colFormat(digits = 4))
+  ),
+  searchable = FALSE, defaultPageSize = 5, 
+  pageSizeOptions = c(5, 10, 50, nrow(nc_check)), 
+  showPageSizeOptions = TRUE, highlight = TRUE, 
+  bordered = TRUE, striped = TRUE, compact = FALSE, 
+  wrap = FALSE, showSortable = TRUE, fullWidth = TRUE,
+  theme = reactableTheme(style = list(fontSize = "0.8em"))) %>%
+  reactablefmtr::add_subtitle("Summary of reads detected in Negative Control (NC) samples.", 
+                              font_size = 15)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+write_delim(nc_check, "include/tables/reads_in_nc_samples.txt",
+    delim = "\t")
+```
+
+{{< downloadthis include/tables/reads_in_nc_samples.txt dname=reads_in_nc_samples label="Download summary of reads detected in Negative Control (NC) samples" icon=table type=info class=data-button id=reads_in_nc_samples >}}
+
+Now we remove any repseqs where:
+
+-   The number of reads found in NC samples accounted for more than 10% of total reads OR
+-   The percent of NC samples containing the ASV was greater than 10% of total samples.
+
+```{r}
+#| echo: false
+#| eval: false
+nc_remove <- tmp_nc_check %>% 
+  filter(perc_in_neg > 10 | perc_in_neg_samp > 10)
+tmp_rem_med <- nc_remove$Representative_Sequence %>% 
+  unlist(strsplit(., split = ", ")) 
+```
+
+```{r}
+#| echo: false
+#| eval: false
+nc_remain <- dplyr::anti_join(nc_check, nc_remove)
+
+rem_nc_reads <- sum(nc_remove$total_reads_NC)
+rem_sam_reads <- sum(nc_remove$total_reads_samps)
+per_reads_rem <- round(100*( rem_nc_reads / (rem_nc_reads + rem_sam_reads)), 
+                       digits = 3)
+
+ret_nc_reads <- sum(nc_remain$total_reads_NC)
+ret_sam_reads <- sum(nc_remain$total_reads_samps)
+per_reads_ret <- round(100*( ret_nc_reads / (ret_nc_reads + ret_sam_reads)), 
+                       digits = 3)
+```
+
+|          | Total rep seqs         | NC reads         | non NC reads      | \% NC reads       |
+|---------------|---------------|---------------|---------------|---------------|
+| Removed  | `r nrow(nc_remove)` | `r rem_nc_reads` | `r rem_sam_reads` | `r per_reads_rem` |
+| Retained | `r nrow(nc_remain)` | `r ret_nc_reads` | `r ret_sam_reads` | `r per_reads_ret` |
+
+We identified a total of `r nrow(nc_check)` representative sequences (rep_seq) that were present in at least 1 NC sample by at least 1 read. We removed any rep_seq where more than 10% of total reads were found in NC samples OR any rep_seq found in more than 10% of NC samples. Based on these criteria we removed `r nrow(nc_remove)` rep_seqs from the data set, which represented `r rem_nc_reads` total reads in NC samples and `r rem_sam_reads` total reads in non-NC samples. Of the total reads removed `r per_reads_rem`% came from NC samples. Of all rep_seqs identified in NC samples, `r nrow(nc_remain)` were retained because they fell below the threshhold criteria. These rep_seqs accounted for `r ret_nc_reads` reads in NC samples and `r ret_sam_reads` reads in non-NC samples. NC samples accounted for `r per_reads_ret`% of these reads.
+
+OK, now we can create a new `neg_control.accnos` containing only rep_seqs abundant in NC samples.
+
+```{r}
+#| echo: true
+#| eval: false
+write_delim(
+  data.frame(nc_remove$Representative_Sequence), 
+  "files/tables/neg_control_subset.accnos", 
+  col_names = FALSE)
+```
+
+And then use this file in conjunction with the mothur command `remove.seqs`. 
+
+```{verbatim}
+remove.seqs(accnos=neg_control_subset.accnos, fasta=shrimp.trim.contigs.good.unique.good.filter.unique.fasta, count=shrimp.trim.contigs.good.unique.good.filter.count_table)
+```
+
+```         
+Removed 31958 sequences from shrimp.trim.contigs.good.unique.good.filter.unique.fasta.
+Removed 344423 sequences from shrimp.trim.contigs.good.unique.good.filter.count_table.
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.fasta
+shrimp.trim.contigs.good.unique.good.filter.pick.count_table
+```
+
+```{verbatim}
+count.groups(count=current)
+```
+
+```         
+Size of smallest group: 1.
+
+Total seqs: 36032555.
+
+Output File Names: 
+shrimp.trim.contigs.good.unique.good.filter.pick.count.summary
+```
+
+Before we remove the NC samples we need to check whether some NC samples were already removed. When mothur runs the `remove.seqs` command it will automatically remove any samples where the read count has fallen to zero. If mothur did remove samples and we try to remove all NC samples, we will get an error. To check we can compare the `count.summary` files before and after the previous `remove.seqs` command.
+
+```{r}
+tmp_before <- read_tsv(
+  "files/tables/shrimp.trim.contigs.good.unique.good.filter.count.summary",
+  col_names = FALSE,
+  col_select = 1
+)
+tmp_after <- read_tsv(
+  "files/tables/shrimp.trim.contigs.good.unique.good.filter.pick.count.summary",
+  col_names = FALSE,
+  col_select = 1
+)
+tmp_nc_lost <- anti_join(tmp_before, tmp_after)
+tmp_nc_lost$X1
+```
+
+These are the samples that were already removed when `remove.seqs` was run above. We need to remove these from our list of NC samples. 
+
+```         
+[1] "Control_18" "Control_5" 
+```
+
+```{r}
+#| echo: true
+#| eval: false 
+nc_to_remove <- semi_join(tmp_before, tmp_after)
+nc_to_remove <- nc_to_remove %>%
+  dplyr::filter(
+    stringr::str_starts(X1, "Control")
+    )
+
+nc_to_remove <- paste0(nc_to_remove$X1, collapse="-")
+```
+
+```{r}
+#| echo: true
+#| eval: true 
+nc_to_remove
+```
+
+```{verbatim}
+remove.groups(count=shrimp.trim.contigs.good.unique.good.filter.pick.count_table, fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.fasta, groups=Control_1-Control_10-Control_11-Control_12-Control_13-Control_14-Control_15-Control_16-Control_17-Control_19-Control_2-Control_20-Control_21-Control_22-Control_23-Control_24-Control_25-Control_26-Control_27-Control_28-Control_29-Control_3-Control_30-Control_31-Control_32-Control_33-Control_34-Control_35-Control_36-Control_37-Control_38-Control_39-Control_4-Control_40-Control_41-Control_42-Control_43-Control_44-Control_45-Control_46-Control_47-Control_48-Control_49-Control_50-Control_51-Control_52-Control_53-Control_54-Control_55-Control_56-Control_57-Control_58-Control_59-Control_6-Control_60-Control_7-Control_8-Control_9)
+```
+
+```         
+Removed 26944 sequences from your count file.
+Removed 0 sequences from your fasta file.
+
+Output File names: 
+shrimp.trim.contigs.good.unique.good.filter.pick.pick.count_table
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.fasta
+```
+
+```{verbatim}
+summary.seqs(fasta=current, count=current, processors=$PROC)
+```
+
+::: {.callout-note appearance="simple" collapse="true"}
+
+### Expand to see data set summary
+
+|             | Start | End | NBases | Ambigs | Polymer | NumSeqs  |
+|:------------|:-----:|:---:|:------:|:------:|:-------:|:--------:|
+| Minimum     |   1   | 735 |  208   |   0    |    3    |    1     |
+| 2.5%-tile:  |   1   | 736 |  252   |   0    |    3    |  900141  |
+| 25%-tile:   |   1   | 736 |  253   |   0    |    4    | 9001403  |
+| Median:     |   1   | 736 |  253   |   0    |    4    | 18002806 |
+| 75%-tile:   |   1   | 736 |  253   |   0    |    5    | 27004209 |
+| 97.5%-tile: |   1   | 736 |  253   |   0    |    6    | 35105471 |
+| Maximum:    |   4   | 736 |  254   |   0    |    6    | 36005611 |
+| Mean:       |   1   | 735 |  252   |   0    |    4    |          |
+
+```         
+# of unique seqs:   4160331
+total # of seqs:    36005611
+
+It took 74 secs to summarize 36005611 sequences.
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.summary
+```
+:::
+
+```{verbatim}
+count.groups(count=current)
+```
+
+```         
+Size of smallest group: 49.
+
+Total seqs: 36005611.
+
+Output File Names: 
+shrimp.trim.contigs.good.unique.good.filter.pick.pick.count.summary
+```
+
+## Remove Chimeras
+
+```{verbatim}
+chimera.vsearch(fasta=current, count=current, dereplicate=t, processors=$PROC)
+```
+
+```         
+Using vsearch version v2.15.2.
+Checking sequences from shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.fasta 
+...
+
+/******************************************/
+Splitting by sample: 
+
+...
+
+Removing chimeras from your input files:
+/******************************************/
+Running command: remove.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.fasta,
+accnos=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.accnos)
+Removed 714610 sequences from shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.fasta.
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.pick.fasta
+
+/******************************************/
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.count_table
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.chimeras
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.accnos
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.fasta
+```
+
+```{verbatim}
+summary.seqs(fasta=current, count=current, processors=$PROC)
+```
+
+::: {.callout-note appearance="simple" collapse="true"}
+
+### Expand to see data set summary
+
+|             | Start | End | NBases | Ambigs | Polymer | NumSeqs  |
+|:------------|:-----:|:---:|:------:|:------:|:-------:|:--------:|
+| Minimum     |   1   | 735 |  208   |   0    |    3    |    1     |
+| 2.5%-tile:  |   1   | 736 |  252   |   0    |    3    |  867900  |
+| 25%-tile:   |   1   | 736 |  253   |   0    |    4    | 8678991  |
+| Median:     |   1   | 736 |  253   |   0    |    4    | 17357982 |
+| 75%-tile:   |   1   | 736 |  253   |   0    |    5    | 26036972 |
+| 97.5%-tile: |   1   | 736 |  253   |   0    |    6    | 33848063 |
+| Maximum:    |   4   | 736 |  254   |   0    |    6    | 34715962 |
+| Mean:       |   1   | 735 |  252   |   0    |    4    |          |
+
+```         
+# of unique seqs:   3445721
+total # of seqs:    34715962
+
+It took 64 secs to summarize 34715962 sequences.
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.summary
+```
+:::
+
+```{verbatim}
+count.groups(count=current)
+```
+
+```         
+Size of smallest group: 49.
+
+Total seqs: 34715962.
+
+Output File Names: 
+shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.count.summary
+```
+
+The `classify.seqs` command requires properly formatted reference and taxonomy databases. For taxonomic assignment, we are using the GSR database [@molano2024gsr]. The developers of mothur maintain [formatted versions of popular databases](https://mothur.org/wiki/taxonomy_outline/), however the GSR-DB has not been formatted by the developers yet.
+
+::: callout-note
+You can download an appropriate version of the GSR database [here](https://manichanh.vhir.org/gsrdb/download_db_links2.php).
+:::
+
+To create a mothur formatted version GSR-DB[^_merge_runs-1], we perform the following steps.
+
+[^_merge_runs-1]: From the developers: GSR database (Greengenes, SILVA, and RDP database) is an integrated and manually curated database for bacterial and archaeal 16S amplicon taxonomy analysis. Unlike previous integration approaches, this database creation pipeline includes a taxonomy unification step to ensure consistency in taxonomical annotations. The database was validated with three mock communities and two real datasets and compared with existing 16S databases such as Greengenes, GTDB, ITGDB, SILVA, RDP, and MetaSquare. Results showed that the GSR database enhances taxonomical annotations of 16S sequences, outperforming current 16S databases at the species level. The GSR database is available for full-length 16S sequences and the most commonly used hypervariable regions: V4, V1-V3, V3-V4, and V3-V5.
+
+#### Download a data base
+
+Here we are using the [GSR V4 database](https://manichanh.vhir.org/gsrdb/GSR-DB_V4_cluster-1.tar.gz). 
+
+```{zsh}
+#| echo: true
+#| eval: false
+wget https://manichanh.vhir.org/gsrdb/GSR-DB_V4_cluster-1.tar.gz
+tar -xvzf GSR-DB_V4_cluster-1.tar.gz
+```
+
+First (in the command line) we remove first line of the taxonomy file. 
+
+```{zsh}
+cp GSR-DB_V4_cluster-1_taxa.txt tmp0.txt
+sed '1d' tmp0.txt > tmp1.txt
+```
+
+Next, delete species and remove leading \[a-z\]\_\_ from taxa names
+
+```{zsh}
+sed -E 's/s__.*//g' tmp1.txt > tmp2.txt
+sed -E 's/[a-zA-Z]__//g' tmp2.txt > gsrdb.tax
+cp GSR-DB_V4_cluster-1_seqs.fasta gsrdb.fasta
+```
+
+```{verbatim}
+classify.seqs(fasta=current, count=current, reference=$REF_LOC/$TAXREF_FASTA, taxonomy=$REF_LOC/$TAXREF_TAX, processors=$PROC)
+```
+
+```         
+Reading template taxonomy...     DONE.
+Reading template probabilities...     DONE.
+It took 4 seconds get probabilities.
+Classifying sequences from 
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.fasta ...
+[WARNING]: M06508_18_000000000-CNPPR_1_1112_24743_21202 could not be classified. 
+You can use the remove.lineage command with taxon=unknown; to remove such sequences.
+
+...
+
+It took 839 secs to classify 3445721 sequences.
+
+It took 1697 secs to create the summary file for 3445721 sequences.
+
+Output File Names: 
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pds.wang.taxonomy
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pds.wang.tax.summary
+```
+
+## Remove Contaminants
+
+```{verbatim}
+remove.lineage(fasta=current, count=current, taxonomy=current, taxon=$CONTAMINENTS)
+```
+
+```         
+Running command: 
+remove.seqs(accnos=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pds.wang.accnos,
+count=shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.count_table,
+fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.fasta)
+
+Removed 2003 sequences from shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.fasta.
+Removed 8033 sequences from shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.count_table.
+
+/******************************************/
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.gsrdb.wang.pick.taxonomy
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.gsrdb.wang.accnos
+shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.pick.count_table
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pick.fasta
+```
+
+```{verbatim}
+summary.seqs(fasta=current, count=current, processors=$PROC)
+```
+
+::: {.callout-note appearance="simple" collapse="true"}
+
+### Expand to see data set summary
+
+|             | Start | End | NBases | Ambigs | Polymer | NumSeqs  |
+|:------------|:-----:|:---:|:------:|:------:|:-------:|:--------:|
+| Minimum     |   1   | 735 |  208   |   0    |    3    |    1     |
+| 2.5%-tile:  |   1   | 736 |  252   |   0    |    3    |  867699  |
+| 25%-tile:   |   1   | 736 |  253   |   0    |    4    | 8676983  |
+| Median:     |   1   | 736 |  253   |   0    |    4    | 17353965 |
+| 75%-tile:   |   1   | 736 |  253   |   0    |    5    | 26030947 |
+| 97.5%-tile: |   1   | 736 |  253   |   0    |    6    | 33840231 |
+| Maximum:    |   4   | 736 |  254   |   0    |    6    | 34707929 |
+| Mean:       |   1   | 735 |  252   |   0    |    4    |          |
+
+```         
+# of unique seqs:	3443718
+total # of seqs:	34707929
+
+It took 62 secs to summarize 34707929 sequences.
+
+Output File Names:
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pick.summary
+```
+:::
+
+```{verbatim}
+summary.tax(taxonomy=current, count=current)
+```
+
+```         
+[WARNING]: processors is not a valid parameter, ignoring.
+Using shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.pick.count_table 
+as input file for the count parameter.
+Using shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pds.wang.pick.taxonomy 
+as input file for the taxonomy parameter.
+
+It took 1580 secs to create the summary file for 34011832 sequences.
+
+Output File Names: 
+shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pds.wang.pick.tax.summary
+```
+
+```{verbatim}
+count.groups(count=current)
+```
+
+```         
+Size of smallest group: 49.
+
+Total seqs: 34707929
+
+Output File Names: 
+shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.pick.count.summary
+```
+
+## Track Reads through Workflow
+
+At this point we can look at the number of reads that made it through each step of the workflow for every sample.
+
+```{r}
+#| echo: true
+#| eval: false
+read_change <- read_tsv(
+  "include/tables/all_sample_med_read_changes.txt",
+  col_names = TRUE
+)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+reactable(read_change,
+  defaultColDef = colDef(
+    header = function(value) gsub("_", " ", value, fixed = TRUE),
+    cell = function(value) format(value, nsmall = 0),
+    align = "center", filterable = TRUE, sortable = TRUE, resizable = TRUE,
+    footerStyle = list(fontWeight = "bold")
+    ), 
+  columns = list(
+    Sample_ID = colDef(name = "Sample ID", 
+                       sticky = "left", 
+                       style = list(borderRight = "1px solid #eee"),
+                       headerStyle = list(borderRight = "1px solid #eee"), 
+                       align = "left",
+                       minWidth = 150, footer = "Total reads"), 
+    input = colDef(name = "input", footer = function(values) sprintf("%.0f", sum(values))),
+    remove_nc = colDef(footer = function(values) sprintf("%.0f", sum(values))), 
+    nochim = colDef(footer = function(values) sprintf("%.0f", sum(values))), 
+    no_contam = colDef(footer = function(values) sprintf("%.0f", sum(values)))
+    ), 
+  searchable = TRUE, defaultPageSize = 5, 
+  pageSizeOptions = c(5, 10, 50, nrow(read_change)), 
+  showPageSizeOptions = TRUE, highlight = TRUE, 
+  bordered = TRUE, striped = TRUE, compact = FALSE, 
+  wrap = FALSE, showSortable = TRUE, fullWidth = TRUE,
+  theme = reactableTheme(style = list(fontSize = "0.8em"))) %>%
+  reactablefmtr::add_subtitle("Tracking read changes at each step of the mothur/med workflow.", 
+                              font_size = 15)
+```
+
+{{< downloadthis include/tables/all_sample_med_read_changes.txt dname=all_sample_med_read_changes label="Download read changes for MED pipeline" icon=table type=info class=data-button id=all_sample_med_read_changes >}}
+
+## Preparing for analysis
+
+```{verbatim}
+rename.file(fasta=current, count=current, taxonomy=current, prefix=final_med)
+```
+
+```         
+Current files saved by mothur:
+fasta=final.fasta
+taxonomy=final.taxonomy
+count=final.count_table
+```
+
+```{r}
+#| echo: false
+#| eval: false
+objects()
+gdata::keep(nc_check, nc_remain, nc_remove, nc_to_remove, 
+            no_read_sum, per_reads_rem, per_reads_ret, 
+            read_change, rem_nc_reads, rem_sam_reads, 
+            ret_nc_reads, ret_sam_reads, nc_tmp1, nc_tmp2,
+            sure = TRUE)
+save.image("files/rdata/med_part1.rdata")
+```

@@ -1,0 +1,29 @@
+```
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 15
+#$ -q sThM.q
+#$ -l mres=225G,h_data=15G,h_vmem=15G,himem
+#$ -cwd
+#$ -j y
+#$ -N job_build_anvio_dbs
+#$ -o hydra_logs/job_build_kaiju.log
+#
+# ----------------Modules------------------------- #
+module load gcc/4.9.2
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+# ----------------CALLING ANVIO------------------- #
+export PATH=/home/scottjj/miniconda3:$PATH
+export PATH=/home/scottjj/miniconda3/bin:$PATH
+#
+source activate kaiju
+mkdir kaiju
+cd kaiju
+kaiju-makedb -s progenomes
+```

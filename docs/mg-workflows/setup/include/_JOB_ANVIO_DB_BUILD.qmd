@@ -1,0 +1,52 @@
+```
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 20
+#$ -q sThM.q
+#$ -l mres=140G,h_data=7G,h_vmem=7G,himem
+#$ -cwd
+#$ -j y
+#$ -N job_build_anvio_dbs
+#$ -o hydra_logs/job_build_anvio_dbs_builds.log
+#
+# ----------------Modules------------------------- #
+module load gcc/4.9.2
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+##############################################
+### CALLING ANVIO ###
+#############################################
+export PATH=/home/scottjj/miniconda3:$PATH
+export PATH=/home/scottjj/miniconda3/bin:$PATH
+which git
+source activate anvio-dev
+
+#############################################
+### Making sure everything is cool ###
+#############################################
+which python
+python --version
+which git
+which anvi-interactive 
+diamond --version 
+anvi-self-test -v 
+pwd
+#############################################
+#
+#
+# ----------------COMMANDS------------------- #
+#
+anvi-setup-pfams --pfam-data-dir /pool/genomics/stri_istmobiome/dbs/pfam_db
+anvi-setup-scg-taxonomy -T $NSLOTS
+anvi-setup-trna-taxonomy  --reset -T $NSLOTS
+anvi-setup-kegg-data --mode all --kegg-data-dir /pool/genomics/stri_istmobiome/dbs/kegg_kofam  -T $NSLOTS --just-do-it
+anvi-setup-interacdome --interacdome-data-dir /pool/genomics/stri_istmobiome/dbs/interacdome
+anvi-setup-cazymes --cazyme-data-dir /pool/genomics/stri_istmobiome/dbs/cazymes
+
+echo = `date` job $JOB_NAME don
+```

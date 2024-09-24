@@ -1,0 +1,50 @@
+[
+  {
+    "listing": "/docs/data/data-med.html",
+    "items": []
+  },
+  {
+    "listing": "/docs/data/data-mg.html",
+    "items": []
+  },
+  {
+    "listing": "/docs/data/data-asv.html",
+    "items": []
+  },
+  {
+    "listing": "/docs/ssu-workflows/index.html",
+    "items": [
+      "/docs/ssu-workflows/sampledata/index.html",
+      "/docs/ssu-workflows/asv/index.html",
+      "/docs/ssu-workflows/compare/index.html",
+      "/docs/ssu-workflows/otu/index.html",
+      "/docs/ssu-workflows/med/index.html"
+    ]
+  },
+  {
+    "listing": "/docs/mg-workflows/index.html",
+    "items": [
+      "/docs/mg-workflows/setup/index.html",
+      "/docs/mg-workflows/assembly/index.html"
+    ]
+  },
+  {
+    "listing": "/docs/pub/index.html",
+    "items": [
+      "/docs/pub/submitdata/index.html",
+      "/docs/pub/references/index.html"
+    ]
+  },
+  {
+    "listing": "/docs/pub/references/index.html",
+    "items": []
+  },
+  {
+    "listing": "/docs/data/data-otu.html",
+    "items": []
+  },
+  {
+    "listing": "/docs/data/index.html",
+    "items": []
+  }
+]
