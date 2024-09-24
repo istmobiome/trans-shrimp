@@ -1,0 +1,121 @@
+project:
+  type: website
+  output-dir: public_build
+  resources:
+    - "/docs/*/*/include/"    
+  render:
+  # To render
+    - "*.qmd"
+    - "*.html"
+  # Or not to render  
+    #- "!som.qmd"
+    - "!sandbox/"
+    - "!public/"
+    - "!hack_code/"
+    - "!page_build/"
+    - "!files/"
+    - "!public_build/"
+    - "!archive_code/"
+    - "!README.md"
+    - "!paper/*/*.qmd"
+
+website:
+  title: "TransIsthmian Shrimp"
+  #favicon: "assets/favicon.ico"
+  page-footer: "© Copyright 2024 [metacrobe](https://metacrobe.github.io/) & [The Istmobiome Project](https://istmobiome.rbind.io/). Site constructed using [Quarto](https://quarto.org/)."
+  site-url: https://istmobiome.github.io/trans-shrimp/
+  repo-url: https://github.com/istmobiome/trans-shrimp/
+  repo-actions: [edit, issue, source]
+  page-navigation: true
+  back-to-top-navigation: false
+  search:
+    location: navbar
+    type: overlay
+  navbar:
+    logo: "assets/icon.png"
+    title: false
+    background: light
+    left:
+  #    - text: "Home"
+      - icon: home
+        href: index.html
+      - text: "Data & Scripts"
+        href: docs/data/index.html
+      - text: "16S rRNA"
+        href: docs/ssu-workflows/index.html
+      - text: "Metagenomics"
+        href: docs/mg-workflows/index.html
+      - text: "Paper"
+        href: docs/pub/index.html
+#      - text: "A. Processing"
+#        menu:
+#          - text: "Workflows"
+#            href: docs/ssu-workflows/index.html
+#          - text: "---------"
+#          - text: "1. Sample Data"
+#            href: docs/ssu-workflows/sampledata/index.html
+#          - text: "2. ASV"
+#            href: docs/ssu-workflows/asv/index.html
+#          - text: "3. OTU"
+#            href: docs/ssu-workflows/otu/index.html
+#          - text: "4. MED"
+#            href: docs/ssu-workflows/med/index.html
+    right:
+#      - text: "DATA"
+#        href: data-availability.html
+#      - text: PAPER
+#        href: pub.html
+#      - text: "SOM"
+#        href: som.html
+      - icon: github
+        href: https://github.com/istmobiome/trans-shrimp/
+        aria-label: TransI-Shrimp
+      - icon: lightbulb-fill
+        href: about.html
+  sidebar:
+      collapse-level: 1
+      style: "floating"
+      align: left
+      contents:
+        - docs/data/index.qmd
+        - section: "16S rRNA Processing"
+          href: docs/ssu-workflows/index.qmd
+          contents:
+            - docs/ssu-workflows/sampledata/index.qmd
+            - docs/ssu-workflows/asv/index.qmd
+            - docs/ssu-workflows/otu/index.qmd
+            - docs/ssu-workflows/med/index.qmd
+        - section: "Metagenomics"
+          href: docs/mg-workflows/index.qmd
+          contents:
+            - docs/mg-workflows/setup/index.qmd
+            - docs/mg-workflows/assembly/index.qmd
+        - section: "Publication Material"
+          href: docs/pub/index.qmd
+          contents:
+            - docs/pub/references/index.qmd
+            - docs/pub/submitdata/index.qmd
+bibliography: assets/cite.bib
+
+format:
+  html:
+    theme: cosmo
+    css: assets/css/styles.css
+    code-copy: true
+    code-link: true
+    code-overflow: scroll
+    code-tools:
+      source: true
+      toggle: false
+      caption: none
+    toc: true
+    toc-depth: 2
+    appendix-style: default
+    title-block-banner: '#113858'
+    title-block-style: default
+    grid:
+      sidebar-width:	175px
+      body-width:	850px
+      margin-width:	275px
+
+    #title-block-banner-color: '#414141'

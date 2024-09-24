@@ -1,0 +1,21 @@
+listing: 
+  type: table
+  sort-ui: false
+  filter-ui: false
+  fields: 
+    - name
+    - description
+  field-links: 
+    - name
+#    - description
+  field-display-names: 
+    name: Name
+    description: Description
+format:
+  html:
+    anchor-sections: false
+    code-fold: false
+    code-tools: false
+    toc: false
+    page-layout: full
+title-block-banner: false    

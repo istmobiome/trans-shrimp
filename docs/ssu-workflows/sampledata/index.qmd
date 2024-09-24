@@ -1,0 +1,633 @@
+---
+title: "1. Sample Metadata"
+description: |
+  Workflow for wrangling sample metadata and generating informative sample names.
+format:
+  html:
+    toc: true
+    toc-depth: 3
+image: "image.jpg"
+---
+
+{{< include ../_setup.qmd >}}
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false 
+#| results: hide
+remove(list = ls())
+load("files/rdata/sampledata.rdata")
+objects()
+```
+
+## Overview
+
+## Wrangle Metadata
+
+The first step in to load all metadata files (one for each sequencing run) and combine the files. 
+
+```{r}
+#| echo: true
+#| eval: false
+file_paths <- list.files(path = "files/tables/metadata", 
+                         pattern = "\\.csv$", full.names = TRUE)
+tmp_meta <- vroom::vroom(file_paths)
+colnames(tmp_meta)[1] <- "Original_name"
+```
+
+Next we remove any duplicate entires. We have duplicates because some samples were sequecned more than once due to low read count from the initial run. 
+
+::: {.column-margin}
+{{< include /include/_chunk_colors.qmd >}}
+:::
+
+```{r}
+#| echo: true
+#| eval: false
+dups_in_md <- tmp_meta[duplicated(tmp_meta[,1:1]),]
+tmp_meta <- tmp_meta[!duplicated(tmp_meta[,1:1]),]
+```
+
+In the code below we remove several samples due to low initial read count. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_meta <- tmp_meta[!grepl("7512", tmp_meta$Original_name),]
+tmp_meta <- tmp_meta[!grepl("8978-S", tmp_meta$Original_name),]
+tmp_meta <- tmp_meta[!grepl("8978-H", tmp_meta$Original_name),]
+tmp_meta <- tmp_meta[!grepl("7640-S", tmp_meta$Original_name),]
+```
+
+And finally do a little maintenance on column names. 
+
+```{r}
+#| echo: true
+#| eval: false
+colnames(tmp_meta) <- gsub("-| |\\.", "_", colnames(tmp_meta))
+colnames(tmp_meta)[12] <- "Species_pair"
+colnames(tmp_meta) <- gsub("_Original", "", colnames(tmp_meta))
+```
+
+Once this is finished we can go ahead and select columns in the metadata that are most important for downstream analysis. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_meta <- tmp_meta %>% 
+  dplyr::relocate(c("Ocean", "Morphospecies", "Tissue", 
+                    "Habitat", "Site", "Site_2", "Taxon", 
+                    "Length", "Station_no", "Species_pair", 
+                    "Species_group", "Species_complex", 
+                    "Plate", "Row", "Column"), 
+                  .after = "Original_name")
+tmp_meta[17:ncol(tmp_meta)] <- NULL
+```
+
+At this point what we now need to do is standardize some of the values in the metadata catagories. This includes things like replacing spaces with underscores (`_`). The goal here is to eliminate anything that may cause issues later in the workflows. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_meta <- tmp_meta %>%
+  mutate(Ocean = str_replace_all(Ocean, "Pacific", "Eastern_Pacific")) %>%
+  mutate(Ocean = str_replace_all(Ocean, "Western Atlantic", "Western_Atlantic")) %>%
+  mutate(Taxon = str_replace_all(Taxon, "Snapping shrimp", "Snapping_shrimp")) %>%
+  mutate(Morphospecies = str_replace_all(Morphospecies, " +", "_")) %>%
+  mutate(Species_pair = str_replace_all(Species_pair, "\\. +", "_")) %>%
+  mutate(Species_pair = str_replace_all(Species_pair, " / ", "-")) %>%
+  mutate(Species_pair = str_replace_all(Species_pair, " +", "_")) %>%
+  mutate(Species_group = str_replace_all(Species_group, "\\. ", "_")) %>%
+  mutate(Species_group = str_replace_all(Species_group, " ", "_")) %>%
+  mutate(Species_complex = str_replace_all(Species_complex, "\\. ", "_"))  %>%
+  mutate(Plate = str_replace_all(Plate, " ", "_"))
+tmp_meta <- tmp_meta %>%
+  mutate(Taxon = str_replace_all(Taxon, c(
+    "Rubble" = "Environmental", 
+    "Sediment" = "Environmental", 
+    "Mud" = "Environmental",
+    "Water" = "Environmental"
+    )
+  )
+)
+tmp_meta$Morphospecies[is.na(tmp_meta$Morphospecies)] <- "Environmental"
+```
+
+## Sample Shortcodes
+
+In order to create more meaningful sample names, we want to generate some *shortcodes*, specifically for the sampling ocean, the species name, and the tissue type, which we will combine with the unique individual ID number to get the new name. For example, something like `EP_A_HEBE_GL_8937` is the gill tissue (**GL**) from an *Alpheus hebes* (**A-HEBE**), individual ID **8937**, collected in the Eastern Pacific (**EP**). We use a similar convention for environmental samples, but instead of species name, we use `E_SAMP` to delineate environmental samples. For example, `WA_E_SAMP_WT_3075` is a water sample (**WT**) collected from the Western Atlantic (**WA**), unique id **3075**.
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: true
+#| code-summary: "Click to see the the shortcodes for each variable."
+# Replacement list (old = new)
+tmp_ocean <- c(
+  "Control" = "CON",
+  "Eastern_Pacific" = "EP",
+  "Western_Atlantic" = "WA"
+)
+
+tmp_tissue <- c(
+  "Control" = "CON", 
+  "Egg" = "EG", 
+  "Gill" = "GL", 
+  "Hepatopancreas" = "HP", 
+  "Midgut" = "MG", 
+  "Stomach" = "ST", 
+  "Mud" = "MD", 
+  "Rubble" = "RB", 
+  "Sediment" = "SD", 
+  "Water" = "WT"
+)
+
+tmp_species <- c(
+  "Control" = "CON", 
+  "Alpheus_arenensis" = "A_AREN", 
+  "Alpheus_bahamensis" = "A_BAHA", 
+  "Alpheus_bouvieri" = "A_BOUV", 
+  "Alpheus_cristulifrons" = "A_CRIS", 
+  "Alpheus_fasciatus" = "A_FASC", 
+  "Alpheus_floridanus" = "A_FLOR", 
+  "Alpheus_formosus" = "A_FORM", 
+  "Alpheus_galapagensis" = "A_GALA", 
+  "Alpheus_hebes" = "A_HEBE", 
+  "Alpheus_hephaestus" = "A_HEPH", 
+  "Alpheus_hyeyoungae" = "A_HYEY", 
+  "Alpheus_javieri" = "A_JAVI", 
+  "Alpheus_millsae" = "A_MILL", 
+  "Alpheus_nuttingi" = "A_NUTT", 
+  "Alpheus_panamensis" = "A_PANA", 
+  "Alpheus_paracrinitus_no_spot" = "A_PCNS", 
+  "Alpheus_paracrinitus_with_spot" = "A_PCWS", 
+  "Alpheus_paraformosus" = "A_PARA", 
+  "Alpheus_platycheirus" = "A_PLAT", 
+  "Alpheus_rostratus" = "A_ROST", 
+  "Alpheus_saxidomus" = "A_SAXI", 
+  "Alpheus_simus" = "A_SIMU", 
+  "Alpheus_thomasi" = "A_THOM", 
+  "Alpheus_umbo" = "A_UMBO", 
+  "Alpheus_utriensis" = "A_UTRI", 
+  "Alpheus_verrilli" = "A_VERR", 
+  "Alpheus_websteri" = "A_WEBS", 
+  "Environmental" = "E_SAMP", 
+  "Unknown" = "UNKN"
+)
+```
+
+With these shortcodes in hand we can match each original sample name (from the fastq file names) to the shortocodes. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_shortcode <- tmp_meta
+tmp_shortcode <- tmp_shortcode %>% select(1:4, 8)
+
+tmp_shortcode$Ocean_code <- tmp_shortcode$Ocean
+tmp_shortcode <- tmp_shortcode %>%
+  mutate(Ocean_code = str_replace_all(Ocean_code, tmp_ocean)) 
+
+tmp_shortcode$Species_code <- tmp_shortcode$Morphospecies
+tmp_shortcode <- tmp_shortcode %>%
+  mutate(Species_code = str_replace_all(Species_code, tmp_species)) 
+
+tmp_shortcode$Tissue_code <- tmp_shortcode$Tissue
+tmp_shortcode <- tmp_shortcode %>%
+  mutate(Tissue_code = str_replace_all(Tissue_code, tmp_tissue)) 
+tmp_shortcode[2:4] <- NULL
+
+tmp_shortcode <- tmp_shortcode %>% 
+  dplyr::relocate("Taxon", .after = "Tissue_code")
+head(tmp_shortcode)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+head_short <- head(tmp_shortcode)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+head_short
+```
+
+Ok, still with me? Now, even though we have the pieces in place to standardize the sample names, we cannot do that yet because  different sample types have different initial naming conventions. For examples, Control samples are named like `Control_1`, `Control_2`, etc., while the snapping shrimp are named like `7322-M`, `7322-H`, etc. Environmental samples have totally different names, for example `Machete_scrap2`, `ML2670`, etc. This makes it a litle difficult to parse out meaningful information (specifically ID numbers) from the original sample names and apply our short codes to generate the new names. 
+
+When we generated the short codes above we also included a column called `Taxon`. These data tell us whether a the entry is a snapping shrimp, a control, or an environmental sample. 
+
+```{r}
+#| echo: true
+#| eval: false
+unique(tmp_shortcode$Taxon)
+```
+
+```
+[1] "Snapping_shrimp" "Control"  "Environmental"  
+```
+
+We can use the base R command `split` to separate the dataset based on the `Taxon` type so that we can process each category separately. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_split_dfs <- split(tmp_shortcode, tmp_shortcode$Taxon)
+```
+
+Generating three separate data frames. 
+
+```
+tmp_split_dfs$Control
+
+tmp_split_dfs$Environmental
+
+tmp_split_dfs$Snapping_shrimp
+```
+
+### Control samples
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_control <- tmp_split_dfs$Control
+tmp_control$tmp <- tmp_control$Original_name
+
+tmp_control <- tmp_control %>%
+  separate_wider_delim(tmp, delim = "-", names = c("tmp1", "ID"))
+tmp_control$tmp1 <- NULL
+```
+
+### Environmental samples
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_envr <- tmp_split_dfs$Environmental
+
+tmp_envr$tmp <- tmp_envr$Original_name
+
+tmp_envr <- tmp_envr %>%
+  separate_wider_delim(tmp,
+                       delim = stringr::regex("(_)|(ML)"),
+                       too_few = "align_start",
+                       names_sep = "",
+                       names_repair = ~ sub("value", "X", .x))
+
+tmp_envr$tmp2 <- str_replace(tmp_envr$tmp2, "(\\d+).*", "\\1")
+tmp_envr$tmp2 <- str_replace(tmp_envr$tmp2, "Sed", "sed")
+tmp_envr$tmp1 <- NULL
+tmp_envr <- tmp_envr %>% rename(ID = tmp2)
+```
+
+### Shrimp samples
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_shrmp <- tmp_split_dfs$Snapping_shrimp
+
+tmp_shrmp$tmp <- tmp_shrmp$Original_name
+tmp_shrmp %>%
+  filter(Original_name == "7332-H-M")
+tmp_shrmp$tmp <- gsub("7332-H-M", "7332M-H", tmp_shrmp$tmp)
+
+tmp_shrmp <- tmp_shrmp %>%
+  separate_wider_delim(tmp,
+                       delim = "-",
+                       names = c("tmp1", "tmp2")
+                       )
+tmp_shrmp %>%
+  filter(Original_name == "7332-H-M")
+tmp_shrmp$tmp2 <- NULL
+tmp_shrmp <- tmp_shrmp %>% rename(ID = tmp1)
+```
+
+Sweet. At this point we can generate the new unique name for each sample based on the criteria listed above. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_control$SampleID <- tmp_control$Original_name
+tmp_control$SampleID <- gsub("-", "_", tmp_control$SampleID)
+
+tmp_envr <- tmp_envr %>%
+  mutate(SampleID = paste(Ocean_code, 
+                          Species_code, 
+                          Tissue_code, 
+                          ID, 
+                          sep = "_")
+         )
+tmp_shrmp <- tmp_shrmp %>%
+  mutate(SampleID = paste(Ocean_code, 
+                          Species_code, 
+                          Tissue_code, 
+                          ID, 
+                          sep = "_")
+         )
+```
+
+And combine the three modified data frames. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_combo <- rbind(tmp_control, tmp_envr, tmp_shrmp)
+```
+
+For posterity, we can save the shortcode data frame. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_combo$Taxon <- NULL
+shortcodes <- tmp_combo
+write_delim(shortcodes, "files/tables/shortcodes.txt",
+    delim = "\t")
+```
+
+And generate a modified metadata file containing the new sample ID plus the original and modified fastq file names.
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_combo[2:5] <- NULL
+tmp_fastq <- read_delim("files/tables/fastq_info.txt")
+
+all_metadata <- dplyr::left_join(tmp_meta, tmp_combo, by = "Original_name") %>%
+  dplyr::left_join(., tmp_fastq, by = "Original_name")
+
+all_metadata <- all_metadata %>% dplyr::relocate("SampleID", 
+                                         .before = "Original_name")
+all_metadata <- all_metadata %>% 
+  dplyr::relocate("Run", .before = "Plate")
+
+write_delim(all_metadata, "files/tables/all_metadata.txt",
+    delim = "\t")
+```
+
+## Modified metadata
+
+And here is the modifed metadata. 
+
+::: {.callout-note appearance="simple" collapse="true"}
+
+### Expand to column descriptions for sample table
+
+| Header                      | Description                                            |
+|-------------------------|----------------------------------------------|
+| `SampleID`                 | Sample ID based on Ocean, species, tissue, & unique ID |
+| `Original_name`             | Original sample ID                                     |
+| `Ocean`                     | Sampling ocean                                         |
+| `Morphospecies`             | Host shrimp species                                    |
+| `Tissue`               | Shrimp tissue type                                     |
+| `Habitat`                   | Sampling habitat                                       |
+| `Site`                      | Sampling Site 1                                        |
+| `Site_2`                    | Sampling Site 2                                        |
+| `Taxon`                     | Shrimp, environmental samples, or Controls             |
+| `Length`                    | Length of individual                                   |
+| `Station_no`                | ASK MATT                                               |
+| `Species_pair`              | ASK MATT                                               |
+| `Species_group`             | ASK MATT                                               |
+| `Species_complex`           | ASK MATT                                               |
+| `Run`                       | Sequencing run ID                                      |
+| `Plate`                     | Sequencing plate ID                                    |
+| `Row`                       | Sequencing plate row number                            |
+| `Column`                    | Sequencing plate column number                         |
+| `Fastq_ID_forward_original` | Original fastq ID (F)                                  |
+| `Fastq_ID_forward_rename`   | New fastq ID (F)                                       |
+| `Fastq_ID_reverse_original` | Original fastq ID (R)                                  |
+| `Fastq_ID_reverse_rename`   | New fastq ID (R)                                       |
+
+:::
+
+```{r}
+#| echo: false
+#| eval: false
+write_delim(all_metadata, "include/tables/all_metadata.txt",
+    delim = "\t")
+```
+
+
+```{r}
+#| echo: false
+#| eval: true
+reactable(
+    all_metadata, defaultColDef = colDef(
+        header = function(value) gsub("_", " ", value, fixed = TRUE),
+        cell = function(value) format(value, nsmall = 0),
+        align = "center", filterable = TRUE, sortable = TRUE,
+        resizable = TRUE, footerStyle = list(fontWeight = "bold")
+    ),
+    columns = list(
+        SampleID = colDef(
+            name = "Sample ID", sticky = "left", style = list(borderRight = "1px solid #eee"),
+            headerStyle = list(borderRight = "1px solid #eee"),
+            align = "left", minWidth = 150, footer = "Total reads"
+        ),
+        raw_reads = colDef(footer = function(values) sprintf("%.0f", sum(values)))
+    ),
+    searchable = TRUE, defaultPageSize = 5, pageSizeOptions = c(5, 10, 50, nrow(all_metadata)),
+    showPageSizeOptions = TRUE, highlight = TRUE, bordered = TRUE,
+    striped = TRUE, compact = FALSE, wrap = FALSE, showSortable = TRUE,
+    fullWidth = TRUE, theme = reactableTheme(style = list(fontSize = "0.8em"))
+) %>%
+    reactablefmtr::add_subtitle(
+        "Sample data & associated sequencing information.", font_size = 15
+    )
+```
+
+
+{{< downloadthis include/tables/all_metadata.txt dname=all_metadata label="Download sample sequencing data" icon=table type=info class=data-button id=seq_info >}}
+
+We sequenced a total of `r nrow(all_metadata)` samples, including `r nrow(all_metadata %>% filter(str_detect(Taxon, 'Snapping_shrimp')))` shrimp samples, `r nrow(all_metadata %>% filter(str_detect(Taxon, 'Environmental')))` environmental samples, and `r nrow(all_metadata %>% filter(str_detect(Taxon, 'Control')))` control samples. `r nrow(filter(all_metadata, Ocean == "Eastern_Pacific"))` total samples came from the Eastern Pacific and `r nrow(filter(all_metadata, Ocean == "Western_Atlantic"))` from the Western Atlantic.
+
+## Rename FastQ Files
+
+Using the modified metadata, specifically the new sample names, we can rename all fastq file prior to processing the data. To batch rename samples we created tab-delimited *lookup tables*, where the first column contains the original name of each fastq file while the second column corresponds to the new name. We did this for each sequencing run. Here is an example of the first few samples from the lookup table for run BCS_34, which we call `BCS_34.rename.txt`
+
+```         
+8937-G_R1_001.trimmed.fastq EP_A_HEBE_GL_8937_R1_001.trimmed.fastq
+8937-H_R1_001.trimmed.fastq EP_A_HEBE_HP_8937_R1_001.trimmed.fastq
+8937-M_R1_001.trimmed.fastq EP_A_HEBE_MG_8937_R1_001.trimmed.fastq
+8937-S_R1_001.trimmed.fastq EP_A_HEBE_ST_8937_R1_001.trimmed.fastq
+```
+
+We use the new metadata file and the base R command `split` to generate initial lookup tables for each of the six sequencing runs. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_split_dfs <- all_metadata
+tmp_split_dfs <- tmp_split_dfs %>% 
+  dplyr::select(Run, 
+                Fastq_ID_forward_original, 
+                Fastq_ID_forward_rename, 
+                Fastq_ID_reverse_original, 
+                Fastq_ID_reverse_rename)
+split_dfs <- split(tmp_split_dfs, tmp_split_dfs$Run)
+```
+
+Again, an example from run BCS_34. 
+
+```{r}
+#| echo: true
+#| eval: false
+head(split_dfs$BCS_34)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+head_split_dfs <- head(split_dfs$BCS_34)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+head_split_dfs
+```
+
+Finally, a little wrangling and then save each lookup table. 
+
+```{r}
+#| eval: false
+#| echo: true
+for (i in split_dfs) {
+  tmp_ds <- data.frame(i)
+  tmp_name <- as.character(i[1,1])
+  tmp_runF <- tmp_ds %>% 
+    dplyr::select(Run, 
+                  Fastq_ID_forward_original, 
+                  Fastq_ID_forward_rename)
+  tmp_runF$Run <- NULL
+  tmp_runF <- tmp_runF %>% rename("X1" = 1, "X2" = 2)
+  tmp_runR <- tmp_ds %>% 
+    dplyr::select(Run,
+                  Fastq_ID_reverse_original, 
+                  Fastq_ID_reverse_rename)
+  tmp_runR$Run <- NULL
+  tmp_runR <- tmp_runF %>% rename("X1" = 1, "X2" = 2)
+  tmp_run <- rbind(tmp_runF, tmp_runR)
+  assign(tmp_name, tmp_run)  
+  write.table(tmp_run, 
+              paste("include/fastq_rename_lookup/", 
+                    tmp_name, ".rename.txt", sep = ""
+                    ), 
+              sep = "\t", quote = FALSE, 
+              row.names = FALSE, col.names = FALSE)
+  rm(list = ls(pattern = "tmp_"))
+}
+```
+
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false
+#| results: hide
+#| warning: false
+library(tidyverse)
+library(htmltools)
+library(R.utils)
+library(fontawesome)
+
+source_code <- function() {
+    tmp_in <- knitr::current_input(dir = FALSE)
+    tmp_in <- getwd()
+    tmp_in <- paste(tmp_in, "/include/fastq_rename_lookup/", sep = "")
+    tmp_ghub <- stringr::str_replace(tmp_in, "^.*trans-shrimp/", 
+                                     "https://github.com/istmobiome/trans-shrimp/blob/main/")
+    return(tmp_ghub)                                 
+}
+```
+
+The fastq renaming lookup tables can be accessed on GitHub `r fa(name = "github")` by [clicking this 
+link](`r source_code()`). 
+
+<br/>
+
+Once we have lookup tables, we can run the following `bash` script. This code will take the lookup table and go through each `fastq` file in the run directory and assign the new name.
+
+```{bash}
+#| echo: true
+#| eval: false
+while IFS=$'\t' read -r orig new; do 
+    rename -v "$orig" "$new" *.fastq; 
+done < BCS_34.rename.txt
+```
+
+## Defining Groups
+
+The last thing to do is define a sample data frame that contains only the most relevant metadata. This table will be used in all downstream analyses to define samples. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_shortcodes <- shortcodes[order(shortcodes$SampleID), ]
+tmp_metadata <- all_metadata[order(all_metadata$SampleID), ]
+identical(tmp_shortcodes$SampleID, tmp_metadata$SampleID)
+
+samptab <- dplyr::left_join(tmp_metadata, tmp_shortcodes, by = "SampleID")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+samdf <- data.frame(SampleID = samptab$SampleID,
+                    OCEAN = samptab$Ocean_code,
+                    SPECIES = samptab$Species_code,
+                    TISSUE = samptab$Tissue_code,
+                    ID = samptab$ID, 
+                    SITE = samptab$Site, 
+                    HABITAT = samptab$Habitat, 
+                    TAXON = samptab$Taxon, 
+                    PAIR = samptab$Species_pair, 
+                    GROUP = samptab$Species_group, 
+                    COMPLEX = samptab$Species_complex, 
+                    RUN = samptab$Run, 
+                    PLATE = samptab$Plate
+                    )
+saveRDS(samdf, "files/tables/samdf.rds")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+write_delim(samdf, "files/tables/samdf.txt",
+    delim = "\t")
+```
+
+Moving on. 
+
+```{r}
+#| echo: false
+#| eval: false
+objects()
+gdata::keep(all_metadata, 
+            BCS_26, BCS_28, BCS_29, 
+            BCS_30, BCS_34, BCS_35,  
+            dups_in_md, shortcodes,
+            head_short, head_split_dfs, 
+            samdf, samptab, 
+            sure = TRUE)
+save.image("files/rdata/sampledata.rdata")
+```
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Data Availability {.appendix}
+
+{{< include /include/_data_availability.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+Sys.time()
+```

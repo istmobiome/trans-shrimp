@@ -1,0 +1,39 @@
+```
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 15
+#$ -q sThM.q
+#$ -l mres=225G,h_data=15G,h_vmem=15G,himem
+#$ -cwd
+#$ -j y
+#$ -N job_build_anvio_dbs
+#$ -o hydra_logs/job_build_virsorter2.log
+#
+# ----------------Modules------------------------- #
+module load gcc/4.9.2
+#
+# ----------------Your Commands------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+# ----------------CALLING ANVIO------------------- #
+export PATH=/home/scottjj/miniconda3:$PATH
+export PATH=/home/scottjj/miniconda3/bin:$PATH
+#
+
+source activate virsorter2
+virsorter setup --db-dir /pool/genomics/stri_istmobiome/dbs/virsorter2/ -j $NSLOTS
+
+############### TEST VIRSORTER 2 ###############
+
+mkdir TEST_virsorter2
+cd TEST_virsorter2
+wget -O test.fa https://raw.githubusercontent.com/jiarong/VirSorter2/master/test/8seq.fa
+virsorter run -w test.out -i test.fa -j $NSLOTS --db-dir /pool/genomics/stri_istmobiome/dbs/virsorter2/ --tmpdir TEST_virsorter2/tmp_vir --rm-tmpdir --min-length 1500 all
+
+conda deactivate
+
+echo = `date` job $JOB_NAME done
+```

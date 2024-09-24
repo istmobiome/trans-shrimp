@@ -1,0 +1,25 @@
+listing: 
+  id: references-listings
+  contents: references.yaml
+  type: table
+  sort-ui: [workflow, type]
+  fields: 
+    - name
+    - version
+    - workflow
+    - type
+    - reference
+  field-links: 
+    - name
+  field-display-names: 
+    name: Name
+    version: Version
+    workflow: Workflow
+    type: Type
+    reference: Reference
+format:
+  html:
+    anchor-sections: false
+    code-fold: false
+    toc: false
+    page-layout: full

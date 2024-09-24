@@ -1,0 +1,99 @@
+---
+title: "Data & Scripts"
+listing: 
+  id: med-listing
+  contents: listings/data-med.yml
+metadata-files: 
+  - listings/_metadata.yml
+---
+
+{{< include _listing-preamble.qmd >}}
+
+<br/>
+
+## MED Data and Scripts {.unlisted}
+
+::: {#med-listing .column-body-outset-right}
+:::
+
+## MED Processing 
+
+Processing scripts for [Minimum Entropy Decomposition (MED)](https://merenlab.org/2014/11/04/med/) analysis. The pipeline begins with the output fasta and count files from the `align.seqs` part of the mothur OTU pipeline. From there we use mothur to remove negative control samples, check for chimera, and run taxonomic classifications. It is important to note that the MED workflow does not precluster sequences (as in the mothur pipeline) because MED relies on every sequence (including redundant reads) for the analysis. This pipeline has four main steps:
+
+1. run the mothur workflow.   
+2. modify and run the `mothur2oligo.sh` script. This script transforms the mothur output to appropriate format for MED. It must be run in the mothur environment because the script uses mothur. We need access to the following mothur files to run this script. 
+    i. **taxonomy file**: `final_med.taxonomy`   
+    ii. **count file**: `final_med.count_table`   
+    iii. **fasta file**: `final_med.fasta`   
+3. trim uninformative columns from alignment (in the MED environment)     
+4. run the MED command
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "mothur processing script for MED analysis"
+
+{{< include include/scripts/med/_med_batchfile.qmd >}}
+```
+
+Once you have the script and data you simply run the pipeline like so. 
+
+```{zsh}
+#| eval: false
+mothur med_batchfile_processing
+```
+
+Once the mothur portion of the workflow is complete, the script [`mothur2oligo.sh`](https://github.com/DenefLab/MicrobeMiseq/tree/master/mothur2oligo) needs to be run in the `mothur` environment and modified for your specific purposes. You should not need to modify the associated `renamer.pl` script but it does need to be in the same location as `mothur2oligo.sh`. 
+
+```{bash}
+#| eval: false
+#| echo: true
+bash mothur2oligo.sh
+```
+
+::: panel-tabset
+
+## mothur2oligo
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Expand for the `mothur2oligo.sh` script"
+conda activate mothur
+{{< include include/scripts/med/_mothur2oligo.sh >}}
+```
+
+## renamer
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "and the companion `renamer.pl` script"
+conda activate mothur
+{{< include include/scripts/med/_renamer.pl >}}
+```
+:::
+
+Great. Now within the oligotype/MED environment run the following commands for the MED analysis. You will need the `mapping.txt` file  linked above for this step. 
+
+```{zsh}
+#| eval: false
+#| echo: true
+conda activate oligotyping
+o-trim-uninformative-columns-from-alignment \
+        final_med.pick.redundant.fasta_headers-replaced.fasta
+
+decompose final_med.pick.redundant.fasta_headers-replaced.fasta-TRIMMED \
+        -E mapping.txt \
+        --output-directory MED \
+        --number-of-threads 24 \
+        --skip-gen-figures
+```
+
+In the resources listed above, we include a table that summarizes read changes for each sample through the pipeline.
+
+{{< include _listing-footer.qmd >}}
+

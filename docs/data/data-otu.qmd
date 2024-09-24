@@ -1,0 +1,45 @@
+---
+title: "Data & Scripts"
+listing: 
+  id: otu-listing
+  contents: listings/data-otu.yml
+metadata-files: 
+  - listings/_metadata.yml
+---
+
+{{< include _listing-preamble.qmd >}}
+
+<br/>
+
+## OTU Data and Scripts {.unlisted}
+
+::: {#otu-listing .column-body-outset-right}
+:::
+
+## OTU Processing 
+
+Processing scripts for OTU analysis using [mothur](https://mothur.org/). All steps for processing are contained within a single [mothur batchfile](https://mothur.org/wiki/batch_mode/).
+
+### Scripts
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for mothur OTU analysis"
+
+{{< include include/scripts/otu/_otu_batchfile.qmd >}}
+```
+
+Once you have the script and data you simply run the pipeline like so. 
+
+```{zsh}
+#| eval: false
+conda activate mothur
+mothur otu_batchfile_processing
+```
+
+In the resources listed above, we include a table that summarizes read changes for each sample through the pipeline.
+
+{{< include _listing-footer.qmd >}}
+

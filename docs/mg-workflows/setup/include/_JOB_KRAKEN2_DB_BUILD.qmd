@@ -1,0 +1,61 @@
+```
+# /bin/sh
+# ----------------Parameters---------------------- #
+#$ -S /bin/sh
+#$ -pe mthread 30
+#$ -q mThM.q
+#$ -l mres=900G,h_data=30G,h_vmem=30G,himem
+#$ -cwd
+#$ -j y
+#$ -N job_00_kraken2-build
+#$ -o job_00_kraken2-build4.job
+#
+# ----------------Modules------------------------- #
+module load bioinformatics/blast
+#
+# ----------------Load Envs------------------- #
+#
+echo + `date` job $JOB_NAME started in $QUEUE with jobID=$JOB_ID on $HOSTNAME
+echo + NSLOTS = $NSLOTS
+#
+export PATH=/home/scottjj/miniconda3/bin:$PATH
+export PATH=/home/scottjj/miniconda3/envs/kraken2/bin:$PATH
+
+######################################################################
+# Changed line 16 of this file:
+# FROM: FTP_SERVER="ftp://$NCBI_SERVER"
+# TO: FTP_SERVER="https://$NCBI_SERVER"
+# /home/scottjj/miniconda3/envs/kraken2/share/kraken2-2.1.3-1/libexec/download_taxonomy.sh
+# per https://github.com/DerrickWood/kraken2/issues/515#issuecomment-949354093
+######################################################################
+
+source activate kraken2
+
+######################################################################
+## STANDARD BUILD-FAILED
+######################################################################
+###kraken2-build --standard --db kraken2_db --threads $NSLOTS --use-ftp
+
+######################################################################
+## CUSTOM BUILD
+######################################################################
+
+## TAXONOMY
+kraken2-build --download-taxonomy --db kraken2_db --use-ftp
+
+## DATABASES
+kraken2-build --download-library archaea --db kraken2_db --threads $NSLOTS --use-ftp 
+kraken2-build --download-library bacteria --db kraken2_db --threads $NSLOTS --use-ftp 
+kraken2-build --download-library plasmid --db kraken2_db --threads $NSLOTS --use-ftp 
+kraken2-build --download-library viral --db kraken2_db --threads $NSLOTS --use-ftp 
+kraken2-build --download-library fungi --db kraken2_db --threads $NSLOTS --use-ftp 
+kraken2-build --download-library protozoa --db kraken2_db --threads $NSLOTS --use-ftp 
+kraken2-build --download-library UniVec_Core --db kraken2_db --threads $NSLOTS --use-ftp 
+
+## BUILD
+kraken2-build --build --db kraken2_db
+
+conda deactivate
+
+echo = `date` job $JOB_NAME done
+```

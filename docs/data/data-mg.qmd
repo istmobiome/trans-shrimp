@@ -1,0 +1,78 @@
+---
+title: "Data & Scripts"
+listing: 
+  id: mg-listing
+  contents: listings/data-mg.yml
+metadata-files: 
+  - listings/_metadata.yml
+---
+
+{{< include _listing-preamble.qmd >}}
+
+<br/>
+
+## Metagenomic Data and Scripts {.unlisted}
+
+::: {#mg-listing .column-body-outset-right}
+:::
+
+## Metagenomic Processing
+
+For metagenomic analysis we used the [anvi’o](https://anvio.org/) platform, which brings together many aspects of *cutting-edge computational strategies of data-enabled microbiology, including genomics, metagenomics, metatranscriptomics, pangenomics, metapangenomics, phylogenomics, and microbial population genetics in an integrated and easy-to-use fashion through extensive interactive visualization capabilities*. It is basically heavy metal. 
+
+Here we run the anvi'o [metagenomic workflow](https://anvio.org/help/main/workflows/metagenomics/). For this pipeline we need the following:
+
+A. JSON-formatted config file, which we can get by running the following:
+
+```{zsh}
+#| eval: false
+#| echo: true
+anvi-run-workflow -w metagenomics --get-default-config default_mg.json
+```
+
+B. Modify the file to suite your needs. Here is our final config file. 
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "json formatted config file for anvi'o metagenomic workflow."
+
+{{< include include/scripts/mg/_default_mg.qmd >}}
+```
+
+C. A four-column tab-delimited text file where each row is a sample. The column headers are as follows:
+
+   i. `sample`: the sample name
+   ii. `group`: group for co-assembly
+   iii. `r1`: sample forward reads 
+   iv. `r2`: sample reverse reads
+   
+And here is a little mock example. The file we used (`samples.txt`) is linked in the table above. 
+
+```
+sample	group	r1	r2
+EP_ALPH_AREN_GL_P01	EP	/path/to/files/sample-1_R1_001.fastq.gz	/path/to/files/sample-1_R2_001.fastq.gz
+EP_ALPH_AREN_HP_P01	EP	/path/to/files/sample-2_R1_001.fastq.gz	/path/to/files/sample-2_R2_001.fastq.gz
+WA_ALPH_WEBS_HP_P01	WA	/path/to/files/sample_3_R1_001.fastq.gz	/path/to/files/sample-3_R2_001.fastq.gz
+WA_ALPH_WEBS_MG_P01	WA	/path/to/files/sample-4_R1_001.fastq.gz	/path/to/files/sample-4_R2_001.fastq.gz
+```
+
+D. And of course a bunch of fastq files (linked in the table above). 
+
+Once all of these pieces are in place, let er rip by running this command:
+
+```{zsh}
+#| eval: false
+#| echo: true
+anvi-run-workflow --workflow metagenomics \
+                  --get-default-config default_mg.json  \
+                  --list-dependencies
+```
+
+The entire pipeline can take several days to run depending on the size and complexity of your dataset. 
+
+In the resources listed above, we include a table that summarizes the initial QC screening for each sample.
+
+{{< include _listing-footer.qmd >}}
+

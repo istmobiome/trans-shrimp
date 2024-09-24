@@ -1,0 +1,34 @@
+- name: Sequence data
+  path: https://www.ebi.ac.uk/ena/browser/view/PRJEB36632
+  description: |
+    Output files from alignment step of the mothur OTU pipeline for 1809 samples 
+    
+- name: Sample data
+  path: include/all_metadata.txt.zip
+  description: |
+    16S rRNA sample data
+
+- name: mothur processing scripts
+  path: include/scripts/med/med_batchfile_processing.zip
+  description: |
+    The mothur portion of the MED pipeline
+
+- name: Data prep scripts
+  path: include/scripts/med/mothur2oligo.zip
+  description: |
+    The mothur2oligo scripts needed to prep the data for MED analysis
+
+- name: Mapping file
+  path: include/scripts/med/med_mapping.txt.zip
+  description: |
+    The sample mapping needed to run the MED analysis
+
+- name: Hydra job scripts
+  path: include/scripts/med/med_hydra_scripts.zip
+  description: |
+    Hydra job scripts. 
+
+- name: Pipeline read changes
+  path: include/scripts/med/all_sample_med_read_changes.txt.zip
+  description: |
+    Table showing read changes for each sample through the processing pipeline

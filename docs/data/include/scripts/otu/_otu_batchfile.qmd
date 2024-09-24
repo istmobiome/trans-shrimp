@@ -1,0 +1,123 @@
+set.dir(output=pipelineFiles/)
+make.file(inputdir=01_TRIMMED_DATA/, type=fastq, prefix=shrimp)
+
+make.contigs(file=DATA/shrimp.files, processors=30)
+summary.seqs(fasta=shrimp.trim.contigs.fasta, count=shrimp.contigs.count_table, processors=20, processors=30)
+
+count.groups(count=shrimp.contigs.count_table, processors=30)
+
+screen.seqs(fasta=shrimp.trim.contigs.fasta, count=shrimp.contigs.count_table, maxambig=0, minlength=252, maxlength=254, maxhomop=6, processors=30)
+summary.seqs(fasta=shrimp.trim.contigs.good.fasta, count=shrimp.contigs.good.count_table, processors=30)
+count.groups(count=shrimp.contigs.good.count_table)
+unique.seqs(fasta=shrimp.trim.contigs.good.fasta, count=shrimp.contigs.good.count_table)
+summary.seqs(count=shrimp.trim.contigs.good.count_table, processors=30)
+
+pcr.seqs(fasta=reference_dbs/silva.nr_v132.align, start=11895, end=25318, keepdots=F, processors=30)
+#############################################################
+#### ############  ARB-SILVA WEB ALIGNER   ##################
+#### from 13862 to 23445
+#############################################################
+
+rename.file(input=reference_dbs/silva.nr_v132.pcr.align, new=reference_dbs/silva.v4.fasta)
+summary.seqs(fasta=reference_dbs/silva.v4.fasta, processors=30)
+align.seqs(fasta=shrimp.trim.contigs.good.unique.fasta, reference=reference_dbs/silva.v4.fasta, processors=30)
+summary.seqs(fasta=shrimp.trim.contigs.good.unique.align, count=shrimp.trim.contigs.good.count_table, processors=30)
+
+screen.seqs(fasta=shrimp.trim.contigs.good.unique.align, count=shrimp.trim.contigs.good.count_table, start=1968, end=11550, processors=30)
+
+summary.seqs(fasta=current, count=current, processors=30)
+
+count.groups(count=current)
+
+filter.seqs(fasta=shrimp.trim.contigs.good.unique.good.align, vertical=T, trump=., processors=30)
+unique.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.fasta, count=shrimp.trim.contigs.good.good.count_table)
+count.groups(count=current, processors=30)
+summary.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.fasta, count=shrimp.trim.contigs.good.unique.good.filter.count_table, processors=30)
+
+pre.cluster(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.fasta, count=shrimp.trim.contigs.good.unique.good.filter.count_table, diffs=2, processors=30)
+summary.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.count_table, processors=30)
+count.groups(count=current, processors=30)
+
+#############################################################
+#### ############  REMOVE NEGATIVE CONTROL ##################
+#### from https://forum.mothur.org/t/negative-control/2754/16
+#############################################################
+
+get.groups(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.count_table, groups=Control_49-Control_23-Control_17-Control_24-Control_14-Control_44-Control_20-Control_33-Control_41-Control_29-Control_50-Control_22-Control_19-Control_18-Control_48-Control_13-Control_21-Control_16-Control_30-Control_5-Control_42-Control_25-Control_51-Control_40-Control_15-Control_36-Control_47-Control_27-Control_32-Control_8-Control_3-Control_4-Control_6-Control_45-Control_26-Control_46-Control_53-Control_7-Control_12-Control_10-Control_9-Control_35-Control_54-Control_2-Control_43-Control_1-Control_11-Control_52-Control_38-Control_34-Control_56-Control_37-Control_28-Control_57-Control_31-Control_39-Control_59-Control_55-Control_60-Control_58)
+rename.file(input=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, new=neg_control.fasta)
+rename.file(input=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.count_table, new=neg_control.count_table)
+summary.seqs(fasta=neg_control.fasta, count=neg_control.count_table, processors=30)
+list.seqs(count=neg_control.count_table)
+
+########################################################################################################
+### modified neg_control.count_table: 
+### 1. remove first two rows
+### 2. in BBEdit run \t\d+,.*
+### 3. in R
+###     library(tidyverse)   
+###     a <- read_tsv("neg_control.count_table")
+###     b <- read_tsv("shrimp.trim.contigs.good.unique.good.filter.unique.precluster.count_table")
+###     e <- dplyr::left_join(a, b, by = "Representative_Sequence")
+###     write.table(e, "results.txt", row.names = FALSE, quote = FALSE, sep = "\t")
+### 4. Replace accnos file with new list. Removed sequences that were found less than 10% in Neg control
+########################################################################################################
+    
+remove.seqs(accnos=neg_control.accnos, fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.count_table)
+
+########################################################
+## REMOVED these NC samples from next remove.groups command
+## [ERROR]: Control_29 is not in your count table. Please correct.
+## [ERROR]: Control_18 is not in your count table. Please correct.
+## [ERROR]: Control_21 is not in your count table. Please correct.
+## [ERROR]: Control_5 is not in your count table. Please correct.
+## [ERROR]: Control_15 is not in your count table. Please correct.
+
+remove.groups(count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.count_table, fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.fasta, groups=Control_1-Control_10-Control_11-Control_12-Control_13-Control_14-Control_16-Control_17-Control_19-Control_2-Control_20-Control_22-Control_23-Control_24-Control_25-Control_26-Control_27-Control_28-Control_3-Control_30-Control_31-Control_32-Control_33-Control_34-Control_35-Control_36-Control_37-Control_38-Control_39-Control_4-Control_40-Control_41-Control_42-Control_43-Control_44-Control_45-Control_46-Control_47-Control_48-Control_49-Control_50-Control_51-Control_52-Control_53-Control_54-Control_55-Control_56-Control_57-Control_58-Control_59-Control_6-Control_60-Control_7-Control_8-Control_9)
+########################################################
+
+summary.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.count_table, processors=30)
+
+count.groups(count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.count_table)
+
+########################################
+### NEGATIVE CONTROLS Should be GONE ###
+########################################
+
+chimera.vsearch(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.count_table, dereplicate=t, processors=30)
+summary.seqs(fasta=current, count=current, processors=30)
+count.groups(count=current, processors=30)
+
+classify.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.count_table, processors=30, reference=reference_dbs/gsrdb.fasta, taxonomy=reference_dbs/gsrdb.tax)
+
+remove.lineage(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.count_table, taxonomy=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.gsrdb.wang.taxonomy, taxon=Chloroplast-Mitochondria-unknown-Eukaryota)
+
+summary.tax(taxonomy=current, count=current)
+count.groups(count=current, processors=30)
+
+##########################
+rename.file(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.pick.fasta, count=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.pick.count_table, taxonomy=shrimp.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.denovo.vsearch.gsrdb.wang.pick.taxonomy, prefix=final)
+
+##########################
+###    CLUSTERING      ###
+##########################
+
+##########################
+###    cluster.split   ###
+##########################
+
+cluster.split(fasta=final.fasta, count=final.count_table, taxonomy=final.taxonomy, taxlevel=4, cluster=f, processors=30) 
+cluster.split(file=final.file, count=final.count_table, processors=30)
+
+system(mkdir pipelineFiles/cluster.split.gsrdb)
+system(mv pipelineFiles/final.opti_mcc.list pipelineFiles/cluster.split.gsrdb/)
+system(mv pipelineFiles/final.file pipelineFiles/cluster.split.gsrdb/)
+system(mv pipelineFiles/final.dist pipelineFiles/cluster.split.gsrdb/)
+
+##########################
+###    cluster         ###
+##########################
+
+dist.seqs(fasta=final.fasta, cutoff=0.03, processors=30)
+cluster(column=final.dist, count=final.count_table)
+
+quit()

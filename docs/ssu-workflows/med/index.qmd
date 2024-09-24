@@ -1,0 +1,645 @@
+---
+title: "4. MED Workflow"
+description: |
+  Workflow for running MED analysis. Workflow begins with redundant, aligned fasta file from mothur and ends with the MED analysis. A Microtable Object is produced to collate the data for downstream analysis. 
+format:
+  html:
+    mermaid:
+      theme: neutral
+    toc: true
+    toc-depth: 3
+image: "image.jpg"    
+---
+
+{{< include ../_setup.qmd >}}
+
+## Overview
+
+With the mothur pipeline finished, we can turn our attention to Minimum Entropy Decomposition (MED) [@eren2015minimum]. MED is a novel, information theory-based clustering algorithm for sensitive partitioning of high-throughput marker gene sequences. Basically, MED needs redundant (identical sequences included) alignment file of read data. We again use mothur but this pipeline starts with the output of the [`align.seqs` step](../otu/index.html#aligning-reads) from the mothur OTU pipeline. 
+
+We set up our run in the same way as the mothur pipeline. 
+
+{{< include include/_med_flowchart_1.qmd >}}
+
+{{< include include/_MED_Part1.qmd >}}
+
+# MED Analysis
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false 
+#| results: hide
+remove(list = ls())
+#root <- find_root(has_file("_quarto.yml"))
+#source(file.path(root, "assets", "functions.R"))
+load("files/rdata/med_part2.rdata")
+objects()
+```
+
+{{< include include/_med_flowchart_2.qmd >}}
+
+Now that we have the necessary files we are almost ready to run the MED pipeline. First though we need to properly format the mothur files. For this we will use a custom script called `mothur2oligo` written by [the DenefLab](https://github.com/DenefLab).
+
+::: aside
+The original `mothur2oligo` files can be downloads from [GitHub](https://github.com/DenefLab/MicrobeMiseq/tree/master/mothur2oligo). The modified `mothur2oligo.sh` file used in this analysis can be accessed [mothur2oligo.sh](include/scripts/mothur2oligo.sh)
+:::
+
+```{bash}
+bash mothur2oligo.sh
+```
+
+::: {.callout-note appearance="simple" collapse="true"}
+### Expand to see mothur2oligo workflow
+
+These steps are run automatically by the `mothur2oligo` script.
+
+```{verbatim}
+get.lineage(taxonomy=final_med.taxonomy, taxon='Bacteria;-Archaea;', count=final_med.count_table)
+```
+
+```         
+/******************************************/
+Running command: get.seqs(accnos=final_med.pick.taxonomy.accnos, count=final_med.count_table)
+Selected 34707929 sequences from final_med.count_table.
+
+Output File Names:
+final_med.pick.count_table
+
+/******************************************/
+
+Output File Names:
+final_med.pick.taxonomy
+final_med.pick.taxonomy.accnos
+final_med.pick.count_table
+```
+
+```{verbatim}
+list.seqs(count=current)
+```
+
+```         
+Using final_med.pick.count_table as input file for the count parameter.
+
+Output File Names: 
+final_med.pick.accnos
+```
+
+```{verbatim}
+get.seqs(accnos=current, fasta=final_med.fasta)
+```
+
+```         
+Using pipelineFiles_med/final_med.pick.accnos as input file for the accnos parameter.
+Selected 3443718 sequences from pipelineFiles_med/final_med.fasta.
+
+Output File Names:
+final_med.pick.fasta
+```
+
+```{verbatim}
+deunique.seqs(fasta=current, count=current)
+```
+
+```         
+Using final_med.pick.count_table as input file for the count parameter.
+Using final_med.pick.fasta as input file for the fasta parameter.
+
+Output File Names: 
+final_med.pick.redundant.fasta
+final_med.pick.redundant.groups
+```
+:::
+
+```{verbatim}
+final_med.pick.redundant.fasta_headers-replaced.fasta
+```
+
+```{zsh}
+o-trim-uninformative-columns-from-alignment \
+        final_med.pick.redundant.renamed.fasta
+decompose final_med.pick.redundant.renamed.fasta-TRIMMED \
+        -E mapping.txt \
+        --output-directory MED \
+        --number-of-threads 24 \
+        --skip-gen-figures
+```
+
+::: aside
+The sample mapping file for `decompose` can be found [here](include/tables/mapping.txt).
+:::
+
+::: {.callout-tip appearance="default"}
+
+## MED Results
+
+Once this is finished, the MED software will output a summary of the run. You can access the results [here](include/results/index.html)
+:::
+
+# Data Set Prep
+
+In this next part of the workflow our main goal is to create a *microtable object* using the R package [microeco](https://joey711.github.io/phyloseq/) [@liu2021microeco]. The microtable will be used to store the OTU by sample data as well the taxonomic, fasta, and sample data in a single object. More on that in a moment.
+
+## Assign Taxonomy
+
+Our first step is to classify the node representatives from the MED output. The `classify.seqs` command requires properly formatted reference and taxonomy databases. For taxonomic assignment, we are using the GSR database [@molano2024gsr]. The developers of mothur maintain [formatted versions of popular databases](https://mothur.org/wiki/taxonomy_outline/), however the GSR-DB has not been formatted by the developers yet.
+
+::: callout-note
+Here you can download an appropriate version of the [GSR database](https://manichanh.vhir.org/gsrdb/download_db_links2.php).
+:::
+
+To create a mothur formatted version GSR-DB[^1], we perform the following steps.
+
+[^1]: From the developers: GSR database (Greengenes, SILVA, and RDP database) is an integrated and manually curated database for bacterial and archaeal 16S amplicon taxonomy analysis. Unlike previous integration approaches, this database creation pipeline includes a taxonomy unification step to ensure consistency in taxonomical annotations. The database was validated with three mock communities and two real datasets and compared with existing 16S databases such as Greengenes, GTDB, ITGDB, SILVA, RDP, and MetaSquare. Results showed that the GSR database enhances taxonomical annotations of 16S sequences, outperforming current 16S databases at the species level. The GSR database is available for full-length 16S sequences and the most commonly used hypervariable regions: V4, V1-V3, V3-V4, and V3-V5.
+
+#### Download a data base
+
+Here we are using the [GSR V4 database](https://manichanh.vhir.org/gsrdb/GSR-DB_V4_cluster-1.tar.gz).
+
+```{zsh}
+#| echo: true
+#| eval: false
+wget https://manichanh.vhir.org/gsrdb/GSR-DB_V4_cluster-1.tar.gz
+tar -xvzf GSR-DB_V4_cluster-1.tar.gz
+```
+
+First (in the command line) we remove first line of the taxonomy file.
+
+```{zsh}
+cp GSR-DB_V4_cluster-1_taxa.txt tmp0.txt
+sed '1d' tmp0.txt > tmp1.txt
+```
+
+Next, delete species and remove leading \[a-z\]\_\_ from taxa names
+
+```{zsh}
+sed -E 's/s__.*//g' tmp1.txt > tmp2.txt
+sed -E 's/[a-zA-Z]__//g' tmp2.txt > gsrdb.tax
+cp GSR-DB_V4_cluster-1_seqs.fasta gsrdb.fasta
+```
+
+The next thing we need to do is grab the `node-representatives.fa.txt` from the MED output so that we can classify these sequences. Of course, proper formatting is required.
+
+```{zsh}
+seqkit replace -p ^ -r MED node-representatives.fa.txt > tmp1.fa
+seqkit replace -p "\|.*" -r '' tmp1.fa > med_nodes.fasta
+rm tmp1.fa
+```
+
+Great, the reference database is formatted. Now we need to make a few files that mimic normal mothur output files because the MED pipeline does not exactly genereate the files we need to generate a `microtable` object. First we use the `matrix_counts.txt` file from the MED analysis to create a mothur-styled `count.table`.
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_med_counts <- read_tsv(
+  "include/results/matrix_counts.txt",
+    col_names = TRUE
+)
+tmp_med_counts <- tmp_med_counts %>% 
+  dplyr::rename_with( ~ paste0("MED", .x)) 
+
+tmp_med_counts <- tmp_med_counts %>%
+  tidyr::pivot_longer(cols = c(-1), names_to = "tmp") %>%
+  tidyr::pivot_wider(names_from = c(1))
+
+tmp_med_counts <- tibble::column_to_rownames(tmp_med_counts, "tmp")
+
+tmp_med_counts <- tmp_med_counts %>%
+                  mutate(total = rowSums(.), .before = 1)
+
+tmp_med_counts <- tmp_med_counts %>% 
+     tibble::rownames_to_column("Representative_Sequence")
+med_counts <- tmp_med_counts
+```
+
+```{r}
+#| echo: false
+#| eval: false
+write.table(med_counts, "files/mothur/med_nodes.count.table", 
+            row.names = FALSE, quote = FALSE, sep = "\t")
+```
+
+Now we can actually classify the representative sequences. 
+
+```{verbatim}
+classify.seqs(fasta=med_nodes.fasta, count=med_nodes.count.table, reference=gsrdb.fasta, taxonomy=gsrdb.tax)
+```
+
+Now we make a mothur styled `shared` file. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_med_counts <- read_tsv(
+  "include/results/matrix_counts.txt",
+    col_names = TRUE
+)
+tmp_n_meds <- ncol(tmp_med_counts) - 1
+tmp_med_counts <- tmp_med_counts %>% 
+  dplyr::rename_with( ~ paste0("MED", .x)) %>% 
+  dplyr::rename("Group" = "MEDsamples")
+
+tmp_med_counts <- tmp_med_counts %>% 
+  tibble::add_column(label = 0.03, .before = "Group") %>% 
+  tibble::add_column(numOtus = tmp_n_meds, .after = "Group")
+med_shared <- tmp_med_counts
+```
+
+```{r}
+#| echo: false
+#| eval: false
+write.table(med_shared, "files/mothur/med_nodes.shared", 
+            row.names = FALSE, quote = FALSE, sep = "\t")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+tmp_med_tax <- read_tsv(
+  "files/mothur/med_nodes.gsrdb.wang.taxonomy",
+    col_names = FALSE
+)
+
+tmp_1 <- med_counts[1:2]
+
+med_cons_tax <- dplyr::left_join(
+  tmp_1, tmp_med_tax, 
+  by = c("Representative_Sequence" = "X1")) %>% 
+  dplyr::rename(c("OTU" = 1, "Size" = 2, "Taxonomy" = 3))  
+
+write.table(med_cons_tax, "files/mothur/med_nodes.cons.taxonomy", 
+            row.names = FALSE, quote = FALSE, sep = "\t")
+
+```
+
+### A. Taxonomy Table
+
+Here is what the taxonomy table looks like in the microeco mock data.
+
+```{r}
+#| eval: false
+#| echo: true
+taxonomy_table_16S[1:6, 1:4]
+```
+
+```         
+         Kingdom      Phylum            Class                 Order
+OTU_4272 k__Bacteria  p__Firmicutes     c__Bacilli            o__Bacillales
+OTU_236  k__Bacteria  p__Chloroflexi    c__                   o__
+OTU_399  k__Bacteria  p__Proteobacteria c__Betaproteobacteria o__Nitrosomonadales
+OTU_1556 k__Bacteria  p__Acidobacteria  c__Acidobacteria      o__Subgroup 17
+OTU_32   k__Archaea   p__Miscellaneous  c__                   o__
+OTU_706  k__Bacteria  p__Actinobacteria c__Actinobacteria     o__Frankiales
+```
+Our taxonomy file (below) needs a little wrangling to be properly formatted. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_tax <- read_delim("files/mothur/med_nodes.cons.taxonomy", 
+                      delim = "\t")
+head(tmp_tax)
+```
+
+```         
+OTU           Size   Taxonomy
+MED000013400  928635 Bacteria(100);Proteobacteria(96);Gammaproteobacteria(87);Gammaproteobacteria_unclassified(87);Gammaproteobacteria_unclassified(87);Gammaproteobacteria_unclassified(87);
+MED000014292  842658 Bacteria(100);Proteobacteria(100);Gammaproteobacteria(100);Vibrionales(100);Vibrionaceae(100);Vibrio(100);
+MED000012327  643565 Bacteria(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);
+MED000012097  630670 Bacteria(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);
+MED000009320  571311 Bacteria(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);
+MED000013103  536060 Bacteria(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);
+```
+
+Some fancy string manipulation...
+
+```{r}
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = "\\(\\d+\\)", 
+                             replacement = ""))
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = ";$", 
+                             replacement = ""))
+tmp_tax <- separate_wider_delim(tmp_tax, 
+                              cols = Taxonomy, 
+                              delim = ";", names = c(
+                                "Kingdom", "Phylum", 
+                                "Class", "Order", 
+                                "Family", "Genus" 
+                                )
+                              )
+tmp_tax <- data.frame(sapply(tmp_tax, gsub, 
+                           pattern = "^.*_unclassified$", 
+                           replacement = ""))
+tmp_tax$Size <- NULL
+tmp_tax <- tibble::column_to_rownames(tmp_tax, "OTU")
+```
+
+And we get this ...
+
+```         
+              Kingdom   Phylum          Class                Order             Family             Genus
+MED000014526  Bacteria  Proteobacteria  Alphaproteobacteria  Rhodobacterales    
+MED000014072  Bacteria  Bacteroidetes   Bacteroidia          Marinilabiliales  Marinilabiliaceae  Saccharicrinis
+MED000013616  Bacteria  Proteobacteria  Alphaproteobacteria  Rhodobacterales    
+MED000011731  Bacteria  Proteobacteria  Alphaproteobacteria  Sphingomonadales  Erythrobacteraceae Qipengyuania
+MED000013191  Bacteria  Cyanobacteria   Unknown              Synechococcales   Prochlorococcaceae Prochlorococcus
+MED000012098  Bacteria          
+```
+
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_tax[is.na(tmp_tax)] <- ""
+tmp_tax$Kingdom <- paste("k", tmp_tax$Kingdom, sep = "__")
+tmp_tax$Phylum <- paste("p", tmp_tax$Phylum, sep = "__")
+tmp_tax$Class <- paste("c", tmp_tax$Class, sep = "__")
+tmp_tax$Order <- paste("o", tmp_tax$Order, sep = "__")
+tmp_tax$Family <- paste("f", tmp_tax$Family, sep = "__")
+tmp_tax$Genus <- paste("g", tmp_tax$Genus, sep = "__")
+
+tmp_tax %<>% tidy_taxonomy
+```
+
+And then this. Excatly like the mock data. 
+
+```         
+              Kingdom      Phylum             Class                   Order               Family                Genus
+MED000014526  k__Bacteria  p__Proteobacteria  c__Alphaproteobacteria  o__Rhodobacterales  f__                   g__
+MED000014072  k__Bacteria  p__Bacteroidetes   c__Bacteroidia          o__Marinilabiliales f__Marinilabiliaceae  g__Saccharicrinis
+MED000013616  k__Bacteria  p__Proteobacteria  c__Alphaproteobacteria  o__Rhodobacterales  f__                   g__
+MED000011731  k__Bacteria  p__Proteobacteria  c__Alphaproteobacteria  o__Sphingomonadales f__Erythrobacteraceae g__Qipengyuania
+MED000013191  k__Bacteria  p__Cyanobacteria   c__                     o__Synechococcales  f__Prochlorococcaceae g__Prochlorococcus
+MED000012098  k__Bacteria  p__                c__                     o__                 f__                   g__
+```
+
+### B. Sequence Table
+
+Here is what the sequence table looks like in the mock data.
+
+```{r}
+#| eval: true
+#| echo: true
+otu_table_16S[1:6, 1:11]
+```
+
+These code block will return a properly formatted sequence table. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_st <- readr::read_delim("files/mothur/med_nodes.shared", 
+                    delim = "\t")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_st$numOtus <- NULL
+tmp_st$label <- NULL
+tmp_st <- tmp_st %>%
+  tidyr::pivot_longer(cols = c(-1), names_to = "tmp") %>%
+  tidyr::pivot_wider(names_from = c(1))
+
+tmp_st <- tibble::column_to_rownames(tmp_st, "tmp")
+```
+
+### C. Sample Table
+
+Here is what the sample table looks like in the mock data.
+
+```{r}
+#| eval: true
+#| echo: true
+head(sample_info_16S)
+```
+
+No problem. 
+
+```{r}
+#| echo: true
+#| eval: false
+samdf <- read.table("../sampledata/files/tables/samdf.txt",
+    header = TRUE, sep = "\t")
+
+samdf <- samdf %>% tibble::column_to_rownames("SampleID")
+samdf$SampleID <- rownames(samdf)
+samdf <- samdf %>% relocate(SampleID)
+
+samdf <- samdf %>%
+  dplyr::filter(
+    stringr::str_starts(SampleID, "Control", negate = TRUE)
+    )
+```
+
+## Create a Microtable Object
+
+With these three files in hand we are now ready to create a microtable object.
+
+::: callout-note
+A microtable object contains an OTU table (taxa abundances), sample metadata, and taxonomy table (mapping between OTUs and higher-level taxonomic classifications).
+:::
+
+
+```{r}
+#| echo: true
+#| eval: false
+sample_info <- samdf
+tax_tab <- tmp_tax
+otu_tab <- tmp_st
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_me <- microtable$new(sample_table = sample_info, 
+                         otu_table = otu_tab, 
+                         tax_table = tax_tab)
+tmp_me
+```
+
+```         
+microtable-class object:
+sample_table have 1849 rows and 13 columns
+otu_table have 119453 rows and 1849 columns
+tax_table have 119453 rows and 6 columns
+```
+
+### Add Representative Sequence
+
+The fasta file returned by MED needs a little T.L.C. For that we use a tool called SeqKit [@shen2016seqkit;shen2024seqkit2] for fasta defline manipulation.
+
+```{zsh}
+seqkit replace -p ^ -r MED node-representatives.fa.txt > tmp1.fa
+seqkit replace -p "\|.*" -r '' tmp1.fa > tmp2.fa 
+seqkit replace -p "-" -r '$1' -s -w 0 tmp2.fa > med_nodes.fasta
+rm tmp1.fa
+rm tmp2.fa
+```
+
+```{r}
+#| echo: true
+#| eval: false
+rep_fasta <- Biostrings::readDNAStringSet("include/results/med_nodes.fasta")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_me$rep_fasta <- rep_fasta
+tmp_me$tidy_dataset()
+tmp_me
+```
+
+```{r}
+#| echo: false
+#| eval: false
+me_med_raw <- microeco::clone(tmp_me)
+tmp_sum <- data.frame(me_med_raw$sample_sums())
+tmp_sum <- tmp_sum %>%
+     arrange(me_med_raw.sample_sums..)
+```
+
+## Curate the Data Set
+
+Pretty much the last thing to do is remove  low-count samples.
+
+### Remove Low-Count Samples
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_no_low <- microeco::clone(me_med_raw)
+tmp_no_low$otu_table <- me_med_raw$otu_table %>%
+          dplyr::select(where(~ is.numeric(.) && sum(.) >= 100))
+tmp_no_low$tidy_dataset()
+tmp_no_low
+```
+
+```{r}
+#| echo: false
+#| eval: false
+me_med_no_low <- microeco::clone(tmp_no_low)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+me_med_no_low
+```
+
+```{r}
+#| echo: true
+#| eval: false
+me_med <- microeco::clone(tmp_no_low)
+```
+
+## Summary
+
+Now time to summarize the data. For this we use the R package [miaverse](https://microbiome.github.io) [@felix2024mia].
+
+```{r}
+#| echo: false
+#| eval: false
+identical(rownames(me_med_raw$sample_table), colnames(me_med_raw$otu_table))
+identical(rownames(me_med$sample_table), colnames(me_med$otu_table))
+```
+
+First we do a little formatting to get our data compatible with mia.
+
+```{r}
+#| echo: true
+#| eval: false
+# https://github.com/microbiome/OMA/issues/202
+tmp_counts <- as.matrix(me_med_raw$otu_table)
+tmp_assays <-  SimpleList(counts = tmp_counts)
+mia_me_med_raw <- TreeSummarizedExperiment(assays = tmp_assays,
+                                colData = DataFrame(me_med_raw$sample_table),
+                                rowData = DataFrame(me_med_raw$tax_table))
+rm(list = ls(pattern = "tmp_"))
+tmp_counts <- as.matrix(me_med$otu_table)
+tmp_assays <-  SimpleList(counts = tmp_counts)
+mia_me_med <- TreeSummarizedExperiment(assays = tmp_assays,
+                                colData = DataFrame(me_med$sample_table),
+                                rowData = DataFrame(me_med$tax_table))
+mia_me_med_raw_summ <- summary(mia_me_med_raw, assay.type = "counts")
+mia_me_med_summ <- summary(mia_me_med, assay.type = "counts")
+rm(list = ls(pattern = "tmp_"))
+objects()
+```
+
+```{r}
+#| echo: false
+#| eval: false
+me_dataset <- c("original", "final"
+                )
+
+total_meds <- c(
+                nrow(me_med_raw$tax_table), 
+                nrow(me_med$tax_table)
+                )
+
+total_reads <- c(
+                sum(me_med_raw$sample_sums()), 
+                sum(me_med$sample_sums())
+                )
+
+total_samples <- c(
+                nrow(me_med_raw$sample_table), 
+                nrow(me_med$sample_table) 
+                )
+pipe_summary <- data.frame(cbind(me_dataset, total_meds, 
+                                 total_reads, total_samples
+                                 )
+                           )
+```
+
+| Metric                | Start                                      | End                                    |
+|----------------------|----------------------|-----------------------------|
+| Min. number reads     | `r mia_me_med_raw_summ$samples[2]`         | `r mia_me_med_summ$samples[2]`         |
+| Max. number reads     | `r mia_me_med_raw_summ$samples[3]`         | `r mia_me_med_summ$samples[3]`         |
+| Total number reads    | `r mia_me_med_raw_summ$samples[1]`         | `r mia_me_med_summ$samples[1]`         |
+| Avg number reads      | `r round(mia_me_med_raw_summ$samples[5])`  | `r round(mia_me_med_summ$samples[5])`  |
+| Median number reads   | `r mia_me_med_raw_summ$samples[4]`         | `r mia_me_med_summ$samples[4]`         |
+| Total MEDs            | `r mia_me_med_raw_summ$features[1]`        | `r mia_me_med_summ$features[1]`        |
+| Number singleton MEDs | `r mia_me_med_raw_summ$features[2]`        | `r mia_me_med_summ$features[2]`        |
+| Avg MEDs per sample.  | `r round(mia_me_med_raw_summ$features[3])` | `r round(mia_me_med_summ$features[3])` |
+
+We started off with `r nrow(me_med_raw$tax_table)` MEDs and `r nrow(me_med_raw$sample_table)` samples. After removing low-count samples, there were `r nrow(me_med$tax_table)` MEDs and `r nrow(me_med$sample_table)` samples remaining.
+
+```{r}
+#| echo: true
+#| eval: false
+head(get_taxa_unique(ps_moth, "Family"), 16)
+```
+
+```{r}
+#| echo: false
+#| eval: false
+objects()
+gdata::keep(me_med, me_med_no_low, me_med_raw, 
+            mia_me_med, mia_me_med_raw, 
+            mia_me_med_raw_summ, mia_me_med_summ, 
+            pipe_summary,
+            sure = TRUE)
+save.image("files/rdata/med_part2.rdata")
+```
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Data Availability {.appendix}
+
+{{< include /include/_data_availability.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+Sys.time()
+```

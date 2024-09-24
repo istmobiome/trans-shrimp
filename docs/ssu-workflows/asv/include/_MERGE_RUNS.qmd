@@ -1,0 +1,595 @@
+
+We start by reading in each sequence table.
+
+::: callout-note
+You can access the source code for this section [here](include/_MERGE_RUNS.qmd)
+:::
+
+| Step | Command                 | What we’re doing                  |
+|------|-------------------------|-----------------------------------|
+| 10   | `mergeSequenceTables()` | merge seqtabs from all runs.      |
+| 11   | `removeBimeraDenovo()`  | screen for & remove chimeras      |
+| 12   |                         | track reads through workflow      |
+| 13   | `assignTaxonomy()`      | assign taxonomy & finish workflow |
+
+{{< include include/_asv_flowchart_2.qmd >}}
+
+```{r}
+#| echo: true
+#| eval: false
+BCS_26 <- readRDS("`BCS_26.rds")
+BCS_28 <- readRDS("`BCS_28.rds")
+BCS_29 <- readRDS("`BCS_29.rds")
+BCS_30 <- readRDS("`BCS_30.rds")
+BCS_34 <- readRDS("`BCS_34.rds")
+BCS_35 <- readRDS("`BCS_35.rds")
+```
+
+### 10. Merge Sequencing Tables
+
+```{r}
+#| echo: true
+#| eval: false
+seqtab.merge <- mergeSequenceTables(BCS_26, BCS_28, BCS_29, 
+                                    BCS_30, BCS_34, BCS_35)
+dim(seqtab.merge)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+seqtabZ <- c(1909, 96680)
+seqtabZ
+```
+
+So our count is `r seqtabZ[2]` ASVs across `r seqtabZ[1]` samples.
+
+```{r}
+#| echo: true
+#| eval: false
+table(nchar(getSequences(seqtab.merge)))
+```
+
+```         
+  220   221   222   223   224   225   226   227   228   229   230   231   232 
+  124    67    14    36    20    13    10    25     8     6     4    30     2 
+  234   235   236   237   238   239   240   241   242   243   244   245   246 
+    9     8  1371   151    41     6    96   401   291   443    31    14    13 
+  247   248   249   250   251   252   253   254   255   256   257   258   259 
+   26    23    19    48   159  3606 83887  3756   315   121    95    20    10 
+  260   261   262   263   264   265   266   267   268   269   270   271   272 
+    8    16     9     4     2     1     1     1     4     2     9     8     4 
+  273   274   275   276   277   278   279   280   281   282   284   285   286 
+    7     3     2     5     1     7     4     1     1     2     1     4     4 
+  288   289   290   291   292   293   294   295   296   297   298   300   303 
+    1     3     1     2     4     8     7     2     3     2     2     2     3 
+  304   305   307   308   309   310   311   312   313   315   316   317   318 
+    1     5     2     3     2     1     3     1     3     1     4     1     3 
+  319   320   321   322   323   324   325   326   328   329   330   332   333 
+    3     1     2     3     2     1     3     1     3     3     2     1     3 
+  334   335   336   337   338   339   340   341   342   343   344   345   346 
+   13     6     7    17     5    25    16    70    51     8     7     8     4 
+  347   348   349   350   351   352   353   354   355   356   357   358   359 
+   28    17    21    10     2    11     1     1     7     6    31     6    15 
+  360   361   362   363   364   365   366   367   368   369   370   371   372 
+   21   161   186    43   135   107    19     9    26     5     3     3     8 
+  373   374   376   377   378   379   380   384   385   386   387   388 
+   11     2     3     5     2     3     1     1     1     1     2     1 
+```
+
+```{r}
+#| echo: true
+#| eval: false
+read_length_all <-  data.frame(nchar(getSequences(seqtab.merge)))
+colnames(read_length_all) <- "length"
+plot_all <- qplot(length, data = read_length_all, geom = "histogram", 
+                  binwidth = 1, xlab = "read length", 
+                  ylab = "total variants", xlim = c(200,400)) 
+```
+
+```{r}
+#| echo: false
+#| eval: false
+ggsave("read_length_before_collapse.png", plot_all, width = 7, height = 3)
+```
+
+```{r}
+#| eval: true
+#| echo: false
+system("cp files/figures/read_length_before_collapse.png include/figures/read_length_before_collapse.png")
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| fig-cap: "Distribution of read length by total ASVs after merging & before removing extreme length variants."
+knitr::include_graphics("include/figures/read_length_before_collapse.png")
+```
+
+Then we remove length variants.
+
+```{r}
+#| echo: true
+#| eval: false
+seqtab.trim <- seqtab.merge[,nchar(colnames(seqtab.merge)) %in% 
+                              seq(252, 254)]
+dim(seqtab.trim)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+seqtabY <- c(1909, 91249)
+seqtabY
+```
+
+And now our count is `r seqtabY[2]` ASVs across `r seqtabY[1]` samples.
+
+```{r}
+#| echo: true
+#| eval: false
+table(nchar(getSequences(seqtab.trim)))
+```
+
+```         
+ 252   253   254 
+ 3606 83887  3756 
+```
+
+### 11. Remove Chimeras
+
+Even though the `dada` method corrects substitution and indel errors, chimeric sequences remain. According to the DADA2 documentation, the accuracy of sequence variants after denoising makes identifying chimeric ASVs simpler than when dealing with fuzzy OTUs. Chimeric sequences are identified if they can be exactly reconstructed by combining a left-segment and a right-segment from two more abundant parent sequences.
+
+```{r}
+#| echo: true
+#| eval: false
+seqtab.trim.nochim.consensus <- 
+  removeBimeraDenovo(seqtab.trim, 
+                     method = "consensus", 
+                     multithread = 20,  
+                     verbose = TRUE)
+dim(seqtab.trim.nochim.consensus)
+```
+
+```         
+Identified 18398 bimeras out of 91249 input sequences.
+```
+
+```{r}
+#| echo: false
+#| eval: true
+seqtab3 <- c(1909, 72851)
+seqtab3
+```
+
+```{r}
+#| echo: true
+#| eval: false
+sum(seqtab.nochim)/sum(seqtab.2)
+```
+
+```         
+[1] 0.9669996
+```
+
+```{r}
+#| echo: false
+#| eval: true
+chim_rem <- 0.9669996
+```
+
+Chimera checking removed an additional `r (seqtabY)[2] - (seqtab3)[2]` sequence variants however, when we account for the abundances of each variant, we see chimeras accounts for about `r 100*(1-chim_rem)`% of the merged sequence reads. Not bad.
+
+### 12. Track Reads through Workflow
+
+At this point we can look at the number of reads that made it through each step of the workflow for every sample.
+
+```{r}
+#| echo: true
+#| eval: false
+getN <- function(x) sum(getUniques(x))
+track <- cbind(rowSums(seqtab), 
+               rowSums(seqtab.trim), 
+               rowSums(seqtab.trim.nochim.pool), 
+               rowSums(seqtab.trim.nochim.consensus))
+
+colnames(track) <- c("merged", "trim", 
+                     "chimera_pool", 
+                     "chimera_concensus")
+```
+
+```{r}
+#| echo: false
+#| eval: true
+tmp_listfile <- list.files(path = "files/tables",
+                           pattern = "_read_changes.txt", 
+                           full.names = TRUE, recursive = TRUE)
+
+read_file <- function(filename) {
+  dat <- read.table(filename, header = TRUE, sep = "\t")
+  names(dat)[1] <- "SampleID"
+  return(dat)
+}
+tmp_dat <- do.call(rbind, lapply(tmp_listfile, read_file))
+tmp_tab <- read.table("files/tables/3.chimera_read_changes_pipeline.txt",
+                       header = TRUE, sep = "\t")
+names(tmp_tab)[1] <- "SampleID"
+
+tmp_full_tab <- dplyr::left_join(tmp_dat, tmp_tab, 
+                                 by = c("SampleID" = "SampleID", 
+                                        "merged" = "merged"))
+tmp_full_tab[8] <- NULL
+names(tmp_full_tab)[8] <- "nochim"
+write_delim(tmp_full_tab, 
+            "include/tables/all_sample_asv_read_changes.txt", 
+            delim = "\t")
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| label: end-of-merge-runs
+reactable(tmp_full_tab,
+  defaultColDef = colDef(
+    header = function(value) gsub("_", " ", value, fixed = TRUE),
+    cell = function(value) format(value, nsmall = 1),
+    align = "center", filterable = TRUE, sortable = TRUE, resizable = TRUE,
+    footerStyle = list(fontWeight = "bold")
+    ), 
+  columns = list(
+    SampleID = colDef(name = "SampleID", 
+                       sticky = "left", 
+                       style = list(borderRight = "1px solid #eee"),
+                       headerStyle = list(borderRight = "1px solid #eee"), 
+                       align = "left",
+                       minWidth = 150, footer = "Total reads"), 
+    input = colDef(name = "input", footer = function(values) sprintf("%.0f", sum(values))),
+    filtered = colDef(footer = function(values) sprintf("%.0f", sum(values))), 
+    denoisedF = colDef(footer = function(values) sprintf("%.0f", sum(values))), 
+    denoisedR = colDef(footer = function(values) sprintf("%.0f", sum(values))), 
+    merged = colDef(footer = function(values) sprintf("%.0f", sum(values))), 
+    trim = colDef(footer = function(values) sprintf("%.0f", sum(values))),
+    nochim = colDef(footer = function(values) sprintf("%.0f", sum(values)))
+    ), 
+  searchable = TRUE, defaultPageSize = 5, 
+  pageSizeOptions = c(5, 10, 50, nrow(tmp_full_tab)), 
+  showPageSizeOptions = TRUE, highlight = TRUE, 
+  bordered = TRUE, striped = TRUE, compact = FALSE, 
+  wrap = FALSE, showSortable = TRUE, fullWidth = TRUE,
+  theme = reactableTheme(style = list(fontSize = "0.8em"))) %>%
+  reactablefmtr::add_subtitle("Tracking read changes at each step of the DADA2 workflow.", 
+                              font_size = 15)
+```
+
+{{< downloadthis include/tables/all_sample_asv_read_changes.txt dname=all_sample_asv_read_changes label="Download read changes for the DADA2 pipeline" icon=table type=info class=data-button id=all_sample_asv_read_changes >}}
+
+### 13. Assign Taxonomy
+
+The `assignTaxonomy` command implements the naive Bayesian classifier, so for reproducible results you need to set a random number seed (see issue [#538](https://github.com/benjjneb/dada2/issues/538)). We did this at the beginning of the workflow. For taxonomic assignment, we are using the GSR database [@molano2024gsr]. The developers of DADA2 maintain [formatted versions of popular databases](https://benjjneb.github.io/dada2/training.html), however the GSR-DB has not been formatted by the developers yet.
+
+::: callout-note
+You can download an appropriate version of the GSR database [here](https://manichanh.vhir.org/gsrdb/download_db_links2.php).
+:::
+
+To create a DADA2 formatted version GSR-DB[^_merge_runs-1], we perform the following steps.
+
+[^_merge_runs-1]: From the developers: GSR database (Greengenes, SILVA, and RDP database) is an integrated and manually curated database for bacterial and archaeal 16S amplicon taxonomy analysis. Unlike previous integration approaches, this database creation pipeline includes a taxonomy unification step to ensure consistency in taxonomical annotations. The database was validated with three mock communities and two real datasets and compared with existing 16S databases such as Greengenes, GTDB, ITGDB, SILVA, RDP, and MetaSquare. Results showed that the GSR database enhances taxonomical annotations of 16S sequences, outperforming current 16S databases at the species level. The GSR database is available for full-length 16S sequences and the most commonly used hypervariable regions: V4, V1-V3, V3-V4, and V3-V5.
+
+#### Download a data base
+
+Here we are using the [GSR V4 database](https://manichanh.vhir.org/gsrdb/GSR-DB_V4_cluster-1.tar.gz). 
+
+```{zsh}
+#| echo: true
+#| eval: false
+wget https://manichanh.vhir.org/gsrdb/GSR-DB_V4_cluster-1.tar.gz
+tar -xvzf GSR-DB_V4_cluster-1.tar.gz
+```
+
+Once you uncompress the `tar` file you should see four files, two `.qza` files (which you can ignore), a `_taxa.txt` file and a `_seqs.fasta` file. We are interested in the latter two files. These are the files we need to format for DADA2. How about we have a look at each file?
+
+First the taxonomy file. 
+
+```{zsh}
+head GSR-DB_V4_cluster-1_taxa.txt
+```
+
+```         
+Feature ID  Taxon
+AY999846    k__Bacteria; p__Actinobacteria; c__Actinomycetia; o__Actinomycetales-Streptomycetales-Unknown; f__Streptomycetaceae-Unknown; g__Streptomyces-Unknown; s__Unknown
+JN885187.1.1362 k__Bacteria; p__Actinobacteria; c__Actinomycetia; o__Actinomycetales-Streptomycetales-Unknown; f__Streptomycetaceae-Unknown; g__Kitasatospora-Streptomyces-Unknown; s__Unknown
+```
+
+And next the fasta file. 
+
+```{zsh}
+head GSR-DB_V4_cluster-1_seqs.fasta
+```
+
+```         
+>AY999846
+TACGTAGGGCGCAAGCGTTGTCCGGAATTATTGGGCGTAAAGAGCTCGTAGGCGGCTTGT
+CACGTCGGTTGTGAAAGCCCGGGGCTTAACCCCGGGTCTGCAGTCGATACGGGCAGGCTA
+GAGTTCGGTAGGGGAGATCGGAATTCCTGGTGTAGCGGTGAAATGCGCAGATATCAGGAG
+GAACACCGGTGGCGAAGGCGGATCTCTGGGCCGATACTGACGCTGAGGAGCGAAAGCGTG
+GGGAGCGAACAGG
+>JN885187.1.1362
+TACGTAGGGCGCGAGCGTTGTCCGGAATTATTGGGCGTAAAGAGCTCGTAGGCGGCTTGT
+CACGTCGGTTGTGAAAGCCCGGGGCTTAACCCCGGGTCTGCAGTCGATACGGGCAGGCTA
+GAGTTCGGTAGGGGAGATCGGAATTCCTGGTGTAGCGGTGAAATGCGCAGATATCAGGAG
+```
+
+DADA2 requires a very specific format for classification. For the next few step we use a tool called SeqKit [@shen2016seqkit;shen2024seqkit2] for fasta defline manipulation.  
+
+This first step replaces the original fasta defline with the correspoding lineage information. 
+
+```{zsh}
+conda activate seqkit
+seqkit replace -w 0  -p "(.+)" -r '{kv}' -k GSR-DB_V4_cluster-1_taxa.txt GSR-DB_V4_cluster-1_seqs.fasta > tmp_1.fa
+```
+
+```         
+[INFO] read key-value file: GSR-DB_V4_cluster-1_taxa.txt
+[INFO] 38802 pairs of key-value loaded
+```
+
+Here is what the first few entries look like. 
+
+```
+>k__Bacteria; p__Actinobacteria; c__Actinomycetia; o__Actinomycetales-Streptomycetales-Unknown; f__Streptomycetaceae-Unknown; g__Streptomyces-Unknown; s__Unknown
+TACGTAGGGCGCAAGCGTTGTCCGGAATTATTGGGCGTAAAGAGCTCGTAGGCGGCTTGTCACGTCGGTTGTGAAAGCCCGGGGCTTAACCCCGGGTCTGCAGTCGATACGGGCAGGCTAGAGTTCGGTAGGGGAGATCGGAATTCCTGGTGTAGCGGTGAAATGCGCAGATATCAGGAGGAACACCGGTGGCGAAGGCGGATCTCTGGGCCGATACTGACGCTGAGGAGCGAAAGCGTGGGGAGCGAACAGG
+>k__Bacteria; p__Actinobacteria; c__Actinomycetia; o__Actinomycetales-Streptomycetales-Unknown; f__Streptomycetaceae-Unknown; g__Kitasatospora-Streptomyces-Unknown; s__Unknown
+TACGTAGGGCGCGAGCGTTGTCCGGAATTATTGGGCGTAAAGAGCTCGTAGGCGGCTTGTCACGTCGGTTGTGAAAGCCCGGGGCTTAACCCCGGGTCTGCAGTCGATACGGGCAGGCTAGAGTTCGGTAGGGGAGATCGGAATTCCTGGTGTAGCGGTGAAATGCGCAGATATCAGGAGGAACACCGGTGGCGAAGGCGGATCTCTGGGCCGATACTGACGCTGAGGAGCGAAAGCGTGGGGAGCGAACAGGATTAGATACCCTGGTAGTCCACGCCGTAAACGGTGGGCACTAGGTGTAGG
+```
+
+Next we tidy up the deflines to remove spaces and leading taxonomic rank designations. 
+
+```{zsh}
+seqkit replace -w 0  -p " s__.*" -r ''  tmp_1.fa > tmp_2.fa
+seqkit replace -w 0  -p "\s" -r ''  tmp_2.fa > tmp_3.fa
+seqkit replace -w 0  -p "\w__" -r ''  tmp_3.fa > gsrdb_dada2.fa
+rm tmp_*
+```
+
+And here are the first few lines of the final formatted GSR-DB fasta file. 
+
+```         
+>Bacteria;Actinobacteria;Actinomycetia;Actinomycetales-Streptomycetales-Unknown;Streptomycetaceae-Unknown;Streptomyces-Unknown;
+TACGTAGGGCGCAAGCGTTGTCCGGAATTATTGGGCGTAAAGAGCTCGTAGGCGGCTTGTCACGTCGGTTGTGAAAGCCCGGGGCTTAACCCCGGGTCTGCAGTCGATACGGGCAGGCTAGAGTTCGGTAGGGGAGATCGGAATTCCTGGTGTAGCGGTGAAATGCGCAGATATCAGGAGGAACACCGGTGGCGAAGGCGGATCTCTGGGCCGATACTGACGCTGAGGAGCGAAAGCGTGGGGAGCGAACAGG
+>Bacteria;Actinobacteria;Actinomycetia;Actinomycetales-Streptomycetales-Unknown;Streptomycetaceae-Unknown;Kitasatospora-Streptomyces-Unknown;
+TACGTAGGGCGCGAGCGTTGTCCGGAATTATTGGGCGTAAAGAGCTCGTAGGCGGCTTGTCACGTCGGTTGTGAAAGCCCGGGGCTTAACCCCGGGTCTGCAGTCGATACGGGCAGGCTAGAGTTCGGTAGGGGAGATCGGAATTCCTGGTGTAGCGGTGAAATGCGCAGATATCAGGAGGAACACCGGTGGCGAAGGCGGATCTCTGGGCCGATACTGACGCTGAGGAGCGAAAGCGTGGGGAGCGAACAGGATTAGATACCCTGGTAGTCCACGCCGTAAACGGTGGGCACTAGGTGTAGG
+```
+
+Now we can run the classification step. 
+
+```{r}
+#| echo: true
+#| eval: false
+seqtab.consensus <- seqtab.trim.nochim.consensus
+tax_gsrdb.consensus <- 
+  assignTaxonomy(seqtab.consensus, 
+                 "TAXONOMY_FILES/gsrdb_dada2.fa",
+                 multithread = TRUE, 
+                 verbose = TRUE)
+saveRDS(tax_gsrdb.consensus, "4.tax_gsrdb.consensus.rds")
+```
+
+## R Session Information & Code
+
+This workflow was run on the [Smithsonian High Performance Cluster (SI/HPC)](https://doi.org/10.25572/SIHPC), Smithsonian Institution. Below are the specific packages and versions used in this workflow using both `sessionInfo()` and `devtools::session_info()`. Click the arrow to see the details.
+
+<details>
+
+<summary>Show/hide R Session Info</summary>
+
+```         
+sessionInfo()
+R version 4.3.2 (2023-10-31)
+Platform: x86_64-conda-linux-gnu (64-bit)
+Running under: Rocky Linux 8.9 (Green Obsidian)
+
+Matrix products: default
+BLAS/LAPACK: /home/scottjj/miniconda3/envs/R/lib/libopenblasp-r0.3.25.so;  LAPACK version 3.11.0
+
+locale:
+[1] C
+
+time zone: America/New_York
+tzcode source: system (glibc)
+
+attached base packages:
+ [1] parallel  stats4    grid      stats     graphics  grDevices utils    
+ [8] datasets  methods   base     
+
+other attached packages:
+ [1] DECIPHER_2.30.0             RSQLite_2.3.4              
+ [3] ShortRead_1.60.0            GenomicAlignments_1.38.0   
+ [5] SummarizedExperiment_1.32.0 Biobase_2.62.0             
+ [7] MatrixGenerics_1.14.0       matrixStats_1.2.0          
+ [9] Rsamtools_2.18.0            GenomicRanges_1.54.1       
+[11] Biostrings_2.70.1           GenomeInfoDb_1.38.2        
+[13] XVector_0.42.0              IRanges_2.36.0             
+[15] S4Vectors_0.40.2            BiocParallel_1.36.0        
+[17] BiocGenerics_0.48.1         decontam_1.22.0            
+[19] dplyr_1.1.4                 gridExtra_2.3              
+[21] phyloseq_1.46.0             ff_4.0.9                   
+[23] bit_4.0.5                   ggplot2_3.4.4              
+[25] dada2_1.30.0                Rcpp_1.0.11                
+
+loaded via a namespace (and not attached):
+ [1] DBI_1.2.0               bitops_1.0-7            deldir_2.0-2           
+ [4] permute_0.9-7           rlang_1.1.2             magrittr_2.0.3         
+ [7] ade4_1.7-22             compiler_4.3.2          mgcv_1.9-1             
+[10] systemfonts_1.0.5       png_0.1-8               vctrs_0.6.5            
+[13] reshape2_1.4.4          stringr_1.5.1           pkgconfig_2.0.3        
+[16] crayon_1.5.2            fastmap_1.1.1           labeling_0.4.3         
+[19] utf8_1.2.4              ragg_1.2.7              zlibbioc_1.48.0        
+[22] cachem_1.0.8            jsonlite_1.8.8          biomformat_1.30.0      
+[25] blob_1.2.4              rhdf5filters_1.14.1     DelayedArray_0.28.0    
+[28] Rhdf5lib_1.24.1         jpeg_0.1-10             cluster_2.1.6          
+[31] R6_2.5.1                stringi_1.8.3           RColorBrewer_1.1-3     
+[34] iterators_1.0.14        Matrix_1.6-4            splines_4.3.2          
+[37] igraph_1.6.0            tidyselect_1.2.0        abind_1.4-5            
+[40] vegan_2.6-4             codetools_0.2-19        hwriter_1.3.2.1        
+[43] lattice_0.22-5          tibble_3.2.1            plyr_1.8.9             
+[46] withr_2.5.2             survival_3.5-7          RcppParallel_5.1.7     
+[49] pillar_1.9.0            foreach_1.5.2           generics_0.1.3         
+[52] RCurl_1.98-1.13         munsell_0.5.0           scales_1.3.0           
+[55] glue_1.6.2              tools_4.3.2             interp_1.1-5           
+[58] data.table_1.14.10      rhdf5_2.46.1            ape_5.7-1              
+[61] latticeExtra_0.6-30     colorspace_2.1-0        nlme_3.1-164           
+[64] GenomeInfoDbData_1.2.11 cli_3.6.2               textshaping_0.3.7      
+[67] fansi_1.0.6             S4Arrays_1.2.0          gtable_0.3.4           
+[70] digest_0.6.33           SparseArray_1.2.2       farver_2.1.1           
+[73] memoise_2.0.1           multtest_2.58.0         lifecycle_1.0.4        
+[76] bit64_4.0.5             MASS_7.3-60            
+
+devtools::session_info()
+- Session info ---------------------------------------------------------------
+ setting  value
+ version  R version 4.3.2 (2023-10-31)
+ os       Rocky Linux 8.9 (Green Obsidian)
+ system   x86_64, linux-gnu
+ ui       X11
+ language (EN)
+ collate  C
+ ctype    C
+ tz       America/New_York
+ date     2024-08-15
+ pandoc   3.1.3 @ /home/scottjj/miniconda3/envs/R/bin/pandoc
+
+- Packages -------------------------------------------------------------------
+ package              * version   date (UTC) lib source
+ abind                  1.4-5     2016-07-21 [1] CRAN (R 4.3.2)
+ ade4                   1.7-22    2023-02-06 [1] CRAN (R 4.3.2)
+ ape                    5.7-1     2023-03-13 [1] CRAN (R 4.3.2)
+ Biobase              * 2.62.0    2023-10-24 [1] Bioconductor
+ BiocGenerics         * 0.48.1    2023-11-01 [1] Bioconductor
+ BiocParallel         * 1.36.0    2023-10-24 [1] Bioconductor
+ biomformat             1.30.0    2023-10-24 [1] Bioconductor
+ Biostrings           * 2.70.1    2023-10-25 [1] Bioconductor
+ bit                  * 4.0.5     2022-11-15 [1] CRAN (R 4.3.0)
+ bit64                  4.0.5     2020-08-30 [1] CRAN (R 4.3.0)
+ bitops                 1.0-7     2021-04-24 [1] CRAN (R 4.3.2)
+ blob                   1.2.4     2023-03-17 [1] CRAN (R 4.3.0)
+ cachem                 1.0.8     2023-05-01 [1] CRAN (R 4.3.0)
+ cli                    3.6.2     2023-12-11 [1] CRAN (R 4.3.2)
+ cluster                2.1.6     2023-12-01 [1] CRAN (R 4.3.2)
+ codetools              0.2-19    2023-02-01 [1] CRAN (R 4.3.0)
+ colorspace             2.1-0     2023-01-23 [1] CRAN (R 4.3.0)
+ crayon                 1.5.2     2022-09-29 [1] CRAN (R 4.3.0)
+ dada2                * 1.30.0    2023-10-24 [1] Bioconductor
+ data.table             1.14.10   2023-12-08 [1] CRAN (R 4.3.2)
+ DBI                    1.2.0     2023-12-21 [1] CRAN (R 4.3.2)
+ DECIPHER             * 2.30.0    2023-10-24 [1] Bioconductor
+ decontam             * 1.22.0    2023-10-24 [1] Bioconductor
+ DelayedArray           0.28.0    2023-10-24 [1] Bioconductor
+ deldir                 2.0-2     2023-11-23 [1] CRAN (R 4.3.2)
+ devtools               2.4.5     2022-10-11 [1] CRAN (R 4.3.2)
+ digest                 0.6.33    2023-07-07 [1] CRAN (R 4.3.0)
+ dplyr                * 1.1.4     2023-11-17 [1] CRAN (R 4.3.2)
+ ellipsis               0.3.2     2021-04-29 [1] CRAN (R 4.3.0)
+ fansi                  1.0.6     2023-12-08 [1] CRAN (R 4.3.2)
+ farver                 2.1.1     2022-07-06 [1] CRAN (R 4.3.0)
+ fastmap                1.1.1     2023-02-24 [1] CRAN (R 4.3.0)
+ ff                   * 4.0.9     2023-01-25 [1] CRAN (R 4.3.2)
+ foreach                1.5.2     2022-02-02 [1] CRAN (R 4.3.0)
+ fs                     1.6.3     2023-07-20 [1] CRAN (R 4.3.1)
+ generics               0.1.3     2022-07-05 [1] CRAN (R 4.3.0)
+ GenomeInfoDb         * 1.38.2    2023-12-13 [1] Bioconductor 3.18 (R 4.3.2)
+ GenomeInfoDbData       1.2.11    2023-12-26 [1] Bioconductor
+ GenomicAlignments    * 1.38.0    2023-10-24 [1] Bioconductor
+ GenomicRanges        * 1.54.1    2023-10-29 [1] Bioconductor
+ ggplot2              * 3.4.4     2023-10-12 [1] CRAN (R 4.3.1)
+ glue                   1.6.2     2022-02-24 [1] CRAN (R 4.3.0)
+ gridExtra            * 2.3       2017-09-09 [1] CRAN (R 4.3.2)
+ gtable                 0.3.4     2023-08-21 [1] CRAN (R 4.3.1)
+ htmltools              0.5.7     2023-11-03 [1] CRAN (R 4.3.2)
+ htmlwidgets            1.6.4     2023-12-06 [1] CRAN (R 4.3.2)
+ httpuv                 1.6.13    2023-12-06 [1] CRAN (R 4.3.2)
+ hwriter                1.3.2.1   2022-04-08 [1] CRAN (R 4.3.2)
+ igraph                 1.6.0     2023-12-11 [1] CRAN (R 4.3.2)
+ interp                 1.1-5     2023-11-27 [1] CRAN (R 4.3.2)
+ IRanges              * 2.36.0    2023-10-24 [1] Bioconductor
+ iterators              1.0.14    2022-02-05 [1] CRAN (R 4.3.0)
+ jpeg                   0.1-10    2022-11-29 [1] CRAN (R 4.3.2)
+ jsonlite               1.8.8     2023-12-04 [1] CRAN (R 4.3.2)
+ labeling               0.4.3     2023-08-29 [1] CRAN (R 4.3.1)
+ later                  1.3.2     2023-12-06 [1] CRAN (R 4.3.2)
+ lattice                0.22-5    2023-10-24 [1] CRAN (R 4.3.1)
+ latticeExtra           0.6-30    2022-07-04 [1] CRAN (R 4.3.2)
+ lifecycle              1.0.4     2023-11-07 [1] CRAN (R 4.3.2)
+ magrittr               2.0.3     2022-03-30 [1] CRAN (R 4.3.0)
+ MASS                   7.3-60    2023-05-04 [1] CRAN (R 4.3.0)
+ Matrix                 1.6-4     2023-11-30 [1] CRAN (R 4.3.2)
+ MatrixGenerics       * 1.14.0    2023-10-24 [1] Bioconductor
+ matrixStats          * 1.2.0     2023-12-11 [1] CRAN (R 4.3.2)
+ memoise                2.0.1     2021-11-26 [1] CRAN (R 4.3.0)
+ mgcv                   1.9-1     2023-12-21 [1] CRAN (R 4.3.2)
+ mime                   0.12      2021-09-28 [1] CRAN (R 4.3.0)
+ miniUI                 0.1.1.1   2018-05-18 [1] CRAN (R 4.3.2)
+ multtest               2.58.0    2023-10-24 [1] Bioconductor
+ munsell                0.5.0     2018-06-12 [1] CRAN (R 4.3.0)
+ nlme                   3.1-164   2023-11-27 [1] CRAN (R 4.3.2)
+ permute                0.9-7     2022-01-27 [1] CRAN (R 4.3.2)
+ phyloseq             * 1.46.0    2023-10-24 [1] Bioconductor
+ pillar                 1.9.0     2023-03-22 [1] CRAN (R 4.3.0)
+ pkgbuild               1.4.3     2023-12-10 [1] CRAN (R 4.3.2)
+ pkgconfig              2.0.3     2019-09-22 [1] CRAN (R 4.3.0)
+ pkgload                1.3.3     2023-09-22 [1] CRAN (R 4.3.2)
+ plyr                   1.8.9     2023-10-02 [1] CRAN (R 4.3.1)
+ png                    0.1-8     2022-11-29 [1] CRAN (R 4.3.2)
+ profvis                0.3.8     2023-05-02 [1] CRAN (R 4.3.2)
+ promises               1.2.1     2023-08-10 [1] CRAN (R 4.3.1)
+ purrr                  1.0.2     2023-08-10 [1] CRAN (R 4.3.1)
+ R6                     2.5.1     2021-08-19 [1] CRAN (R 4.3.0)
+ ragg                   1.2.7     2023-12-11 [1] CRAN (R 4.3.2)
+ RColorBrewer           1.1-3     2022-04-03 [1] CRAN (R 4.3.0)
+ Rcpp                 * 1.0.11    2023-07-06 [1] CRAN (R 4.3.0)
+ RcppParallel           5.1.7     2023-02-27 [1] CRAN (R 4.3.2)
+ RCurl                  1.98-1.13 2023-11-02 [1] CRAN (R 4.3.2)
+ remotes                2.4.2.1   2023-07-18 [1] CRAN (R 4.3.2)
+ reshape2               1.4.4     2020-04-09 [1] CRAN (R 4.3.0)
+ rhdf5                  2.46.1    2023-11-29 [1] Bioconductor 3.18 (R 4.3.2)
+ rhdf5filters           1.14.1    2023-11-06 [1] Bioconductor
+ Rhdf5lib               1.24.1    2023-12-11 [1] Bioconductor 3.18 (R 4.3.2)
+ rlang                  1.1.2     2023-11-04 [1] CRAN (R 4.3.2)
+ Rsamtools            * 2.18.0    2023-10-24 [1] Bioconductor
+ RSQLite              * 2.3.4     2023-12-08 [1] CRAN (R 4.3.2)
+ S4Arrays               1.2.0     2023-10-24 [1] Bioconductor
+ S4Vectors            * 0.40.2    2023-11-23 [1] Bioconductor 3.18 (R 4.3.2)
+ scales                 1.3.0     2023-11-28 [1] CRAN (R 4.3.2)
+ sessioninfo            1.2.2     2021-12-06 [1] CRAN (R 4.3.2)
+ shiny                  1.8.0     2023-11-17 [1] CRAN (R 4.3.2)
+ ShortRead            * 1.60.0    2023-10-24 [1] Bioconductor
+ SparseArray            1.2.2     2023-11-07 [1] Bioconductor
+ stringi                1.8.3     2023-12-11 [1] CRAN (R 4.3.2)
+ stringr                1.5.1     2023-11-14 [1] CRAN (R 4.3.2)
+ SummarizedExperiment * 1.32.0    2023-10-24 [1] Bioconductor
+ survival               3.5-7     2023-08-14 [1] CRAN (R 4.3.1)
+ systemfonts            1.0.5     2023-10-09 [1] CRAN (R 4.3.1)
+ textshaping            0.3.7     2023-10-09 [1] CRAN (R 4.3.1)
+ tibble                 3.2.1     2023-03-20 [1] CRAN (R 4.3.0)
+ tidyselect             1.2.0     2022-10-10 [1] CRAN (R 4.3.0)
+ urlchecker             1.0.1     2021-11-30 [1] CRAN (R 4.3.2)
+ usethis                2.2.2     2023-07-06 [1] CRAN (R 4.3.0)
+ utf8                   1.2.4     2023-10-22 [1] CRAN (R 4.3.1)
+ vctrs                  0.6.5     2023-12-01 [1] CRAN (R 4.3.2)
+ vegan                  2.6-4     2022-10-11 [1] CRAN (R 4.3.2)
+ withr                  2.5.2     2023-10-30 [1] CRAN (R 4.3.1)
+ xtable                 1.8-4     2019-04-21 [1] CRAN (R 4.3.0)
+ XVector              * 0.42.0    2023-10-24 [1] Bioconductor
+ zlibbioc               1.48.0    2023-10-24 [1] Bioconductor
+```
+
+</details>
+
+<br/>
+
+## Workflow Output
+
+Data products generated in this workflow can be downloaded from figshare.
+
+PENDING
+
+The end!

@@ -1,0 +1,210 @@
+- name: dada2
+  path: https://github.com/benjjneb/dada2
+  version: v1.26.0
+  workflow: 16S rRNA
+  type: software
+  reference: "[@callahan2016dada2]"
+
+- name: mothur
+  path: https://mothur.org/
+  version: v.1.43.0
+  workflow: 16S rRNA
+  type: software
+  reference: "[@schloss2009mothur]"
+
+- name: MED/Oligotyping
+  path: https://merenlab.org/software/oligotyping/
+  version: v3.2-dev
+  workflow: 16S rRNA
+  type: software
+  reference: "[@eren2015minimum]"
+
+- name: Microeco
+  path: https://github.com/ChiLiubio/microeco
+  version: v1.9.1
+  workflow: 16S rRNA
+  type: software
+  reference: "[@liu2021microeco]"
+
+- name: SeqKit
+  path: https://github.com/shenwei356/seqkit
+  version: v2.8.2
+  workflow: 16S rRNA
+  type: software
+  reference: "[@shen2016seqkit]"
+
+- name: GSRDB
+  path: https://manichanh.vhir.org/gsrdb/
+  version: 
+  workflow: 16S rRNA
+  type: database
+  reference: "[@molano2024gsr]"
+
+- name: anvi'o
+  path:  https://anvio.org/ 
+  version:  marie (v8dev)
+  workflow: metagenomic
+  type: software
+  reference: "[@eren2021community]"
+
+- name: kraken2
+  path: https://github.com/DerrickWood/kraken2
+  version: v2.1.3
+  workflow: metagenomic
+  type: software
+  reference: "[@wood2019kraken2]"
+
+- name: megahit
+  path: https://github.com/voutcn/megahit
+  version: v1.2.9
+  workflow: metagenomic
+  type: software
+  reference: "[@li2015megahit]"
+
+- name: snakemake	
+  path: https://snakemake.readthedocs.io/en/stable/
+  version: v7.32.4	
+  workflow: metagenomic
+  type: software
+  reference: "[@koster2012snakemake]"
+
+- name: BOWTIE2
+  path: https://github.com/BenLangmead/bowtie2
+  version: v2.5.2
+  workflow: metagenomic
+  type: software
+  reference: "[@langmead2012bowtie]"
+
+- name: SAMtools
+  path: https://github.com/samtools/samtools 
+  version: v1.18
+  workflow: metagenomic
+  type: software
+  reference: "[@li2009samtools]"
+
+- name: IU	filter<br/>quality	Minoche
+  path: https://github.com/merenlab/illuminautils/
+  version: v2.13
+  workflow: metagenomic
+  type: software
+  reference: "[@eren2013filtering]"
+
+- name: KAIJU
+  path: https://github.com/bioinformaticscentre/kaiju
+  version: v1.10.1
+  workflow: metagenomic
+  type: software
+  reference: "[@menzel2016kaiju]"
+
+- name: PRODIGAL
+  path: https://github.com/hyattpd/Prodigal
+  version: V2.6.3
+  workflow: metagenomic
+  type: software
+  reference: "[@hyatt2010prodigal]"
+
+- name: Virsorter2
+  path: https://github.com/jiarong/VirSorter2
+  version: v2.2.4
+  workflow: metagenomic
+  type: software
+  reference: "[@guo2021virsorter2]"  
+
+- name: CONCOCT
+  path: https://github.com/BinPro/CONCOCT
+  version: v1.1.0
+  workflow: metagenomic
+  type: software
+  reference: "[@alneberg2014concoct]"
+
+- name: DASTOOL
+  path: https://github.com/cmks/DAS_Tool
+  version: v1.1.7
+  workflow: metagenomic
+  type: software
+  reference: "[@sieber2018dastool]"
+
+- name: METABAT2
+  path: https://bitbucket.org/berkeleylab/metabat/src/master/
+  version: v2.17
+  workflow: metagenomic
+  type: software
+  reference: "[@kang2019metabat2]"
+
+- name: MAXBIN2
+  path: https://sourceforge.net/projects/maxbin2/
+  version: 2.2.7
+  workflow: metagenomic
+  type: software
+  reference: "[@wu2016maxbin2]"
+
+- name: COG
+  path: https://www.ncbi.nlm.nih.gov/research/cogproject/
+  version: COG20
+  workflow: metagenomic
+  type: database
+  reference: "[@galperin2021cog]"
+
+- name: KEGG
+  path: https://www.genome.jp/tools/kofamkoala/
+  version: 
+  workflow: metagenomic
+  type: database
+  reference: "[@aramaki2020kegg]"
+
+- name: CAZymes
+  path: http://www.cazy.org/
+  version: v11
+  workflow: metagenomic
+  type: database
+  reference: "[@drula2022cazyme]"
+
+- name: 	Pfams
+  path: https://pfam.xfam.org/
+  version: v37.0
+  workflow: metagenomic
+  type: database
+  reference: "[@mistry2021pfam]"
+
+- name: GTDB<br/>(SCG taxonomy)
+  path: https://gtdb.ecogenomic.org/
+  version: v214.1
+  workflow: metagenomic
+  type: database
+  reference: "[@chaumeil2019gtdb]"
+
+- name: GTDB<br/>(tRNA taxonomy)
+  path: https://gtdb.ecogenomic.org/
+  version: v89
+  workflow: metagenomic
+  type: database
+  reference: "[@chaumeil2019gtdb]"
+	
+- name: Archaea_76 &<br/>Bacteria_71
+  path: 
+  version: 
+  workflow: metagenomic
+  type: HMM database
+  reference: "[@lee2019gtotree]"
+	
+- name: Bacteria_71
+  path: 
+  version: 
+  workflow: metagenomic
+  type: HMM database
+  reference: "[@lee2019gtotree]"
+	
+- name: Protista_83
+  path: https://merenlab.org/2018/05/05/eukaryotic-single-copy-core-genes/
+  version: 0.9
+  workflow: metagenomic
+  type: HMM database
+  reference: "[@seemann2018barnap]"
+
+- name: Ribosomal RNA <br/>(12S, 16S, 18S,<br/>23S, 28S, 5S)
+  path: https://github.com/tseemann/barrnap	
+  version: 0.9
+  workflow: metagenomic
+  type: HMM database
+  reference: "[@seemann2018barnap]"
+

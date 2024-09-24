@@ -1,0 +1,914 @@
+---
+title: "3. OTU Workflow"
+description: |
+  Workflows for processing 16S rRNA shrimp and environmental sample data sets using paired end reads, beginning with raw fastq files, ending with sequence and taxonomy tables.
+format:
+  html:
+    toc: true
+    toc-depth: 3
+image: "image.jpg"
+---
+
+{{< include ../_setup.qmd >}}
+
+::: {.column-margin}
+{{< include /include/_chunk_colors.qmd >}}
+:::
+
+```{r}
+#| echo: false
+#| eval: false
+load("../otu/files/rdata/otu_part2.rdata")
+gdata::keep(me_otu, mia_me_otu, mia_me_otu_summ,
+            sure = TRUE)
+load("../asv/files/rdata/asv_part2.rdata")
+gdata::keep(me_otu, mia_me_otu, mia_me_otu_summ,
+            me_asv, mia_me_asv, mia_me_asv_summ,
+            sure = TRUE)
+load("../med/files/rdata/med_part2.rdata")
+gdata::keep(me_otu, mia_me_otu, mia_me_otu_summ,
+            me_asv, mia_me_asv, mia_me_asv_summ,
+            me_med, mia_me_med, mia_me_med_summ,
+            sure = TRUE)
+objects()
+```
+
+```{r}
+#| echo: false
+#| eval: false
+dir.create(file.path("compare","include", "tables"), recursive = TRUE)
+save.image("compare/files/rdata/compare_load.rdata")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+# change to eval: true
+remove(list = ls())
+load("files/rdata/original_me_objects.rdata")
+#load("files/rdata/compare_part1.rdata")
+objects()
+```
+
+```{r}
+library(Biostrings)
+library(Biostrings)
+library(magrittr)
+library(dplyr)
+library(tidyverse)
+library(readr)
+################################################################################
+########### READ IN THE MAPPING FILE FROM mothur2oligo #########################
+################################################################################
+id_map <- readr::read_delim("../pipelineFiles_med/BACTERIA_ONLY/intermediate2", 
+                            delim = "\t", 
+                            col_names = FALSE)
+id_map <- id_map %>% dplyr::rename("MOTHUR_ID" = 1) %>% 
+                     dplyr::rename(., "MED_ID" = 2)
+id_map$MOTHUR_ID_RED <- id_map$MOTHUR_ID
+id_map <- id_map %>%
+          mutate(across("MOTHUR_ID_RED",~ gsub("_\\d+$","", .)))
+id_map$MOTHUR_UID <- id_map$MOTHUR_ID
+id_map <- id_map %>%
+          mutate(across("MOTHUR_UID",~ gsub(".*_","", .)))
+################################################################################
+########### READ IN THE OTU LIST FROM MOTHUR ###################################
+########### get.otulist(list=final.opti_mcc.list, sort=name) ###################
+################################################################################
+otu_list <- readr::read_delim("final.opti_mcc.0.03.otu", 
+                              delim = "\t", col_names = FALSE)
+otu_list <- otu_list %>% dplyr::rename("MOTHUR_ID" = 1) %>% 
+                         dplyr::rename(., "MOTHUR_OTU" = 2)
+################################################################################
+########### FUNCTION TO READ IN FASTA FILES  ###################################
+################################################################################
+get_fasta_headers <- function(file_path) {
+    # Read the FASTA file
+    fasta <- readDNAStringSet(file_path)
+    
+    # Extract and return the headers
+    headers <- names(fasta)
+    return(headers)
+}
+################################################################################
+fa_files <- list.files("NODES/", pattern = ".fa", full.names = FALSE)
+seqmatch <- data.frame()
+total_files <- length(fa_files)
+dir.create(file.path("ALL_RESULTS"))  
+################################################################################
+for (j in seq_along(fa_files)) {
+  tmp_fasta_file <- paste0("NODES/", fa_files[j])
+  #tmp_fasta_file <- paste0("NODES/", j)
+  cat(sprintf("Processing file %d of %d: %s\n", j, total_files, tmp_fasta_file))
+  tmp_input_ids <- data.frame(get_fasta_headers(tmp_fasta_file))
+  tmp_input_ids <- tmp_input_ids %>% dplyr::rename("MED_ID" = 1)  
+  tmp_input_ids <- tibble::as_tibble(tmp_input_ids)
+  tmp_1 <- dplyr::left_join(tmp_input_ids, id_map, by = "MED_ID") 
+  tmp_2 <- dplyr::left_join(as.data.frame(tmp_1), 
+                            as.data.frame(otu_list), 
+                            by = c("MOTHUR_ID_RED" = "MOTHUR_ID" ), 
+                            keep = FALSE)
+  tmp_summ <- data.frame(table(tmp_2$MOTHUR_OTU, useNA = "always"))
+  tmp_summ$file_name <- str_replace(basename(tmp_fasta_file), ".fa", "")
+  tmp_base_name <- str_replace(basename(tmp_fasta_file), ".fa", "")
+  write_delim(tmp_2, 
+              paste("ALL_RESULTS/", tmp_base_name, ".txt", sep = ""), 
+              delim = "\t")
+  seqmatch <- rbind(seqmatch, tmp_summ) 
+  rm(list = ls(pattern = "tmp_"))
+}
+
+seqmatch <- seqmatch %>% dplyr::rename("MOTHUR_OTU" = 1) %>% 
+                     dplyr::rename(., "COUNT" = 2) %>% 
+                     dplyr::rename(., "MED_NODE" = 3) 
+seqmatch$MOTHUR_OTU <- as.character(seqmatch$MOTHUR_OTU)
+seqmatch$MOTHUR_OTU[is.na(seqmatch$MOTHUR_OTU)] <- "NO_OTU"
+
+write_delim(seqmatch, "seqmatch.txt", delim = "\t")
+saveRDS(seqmatch, "seqmatch.rds")
+#save.image("seqmatch_workflow.rdata")
+```
+```{r}
+seqmatch <- readRDS("files/rdata/seqmatch.rds")
+seqmatch$MED_NODE <- paste("MED", seqmatch$MED_NODE, sep ="")
+#seqmatch$UNIQUE_ID <- paste0(seqmatch$MED_NODE, "-", seqmatch$MOTHUR_OTU)
+seqmatch
+```
+
+
+```{r}
+# Load necessary packages
+
+calculate_summary <- function(data) {
+  max_val <- max(data$COUNT)
+  no_otu_val <- data$COUNT[data$MOTHUR_OTU == "NO_OTU"]
+  
+  sum_non_max <- sum(data$COUNT[data$COUNT != max_val])
+  adjusted_sum_non_max <- sum_non_max - ifelse(length(no_otu_val) > 0, no_otu_val, 0)
+  
+  data.frame(
+    max_value = max_val,
+    combined_others = paste(data$MOTHUR_OTU[order(-data$COUNT)], collapse = ", "),
+    no_otu_value = ifelse(length(no_otu_val) > 0, no_otu_val, NA),
+    sum_non_max_values = sum_non_max,
+    adjusted_sum_non_max = adjusted_sum_non_max
+  )
+}
+
+# Apply the function to each group and combine results
+result <- seqmatch %>%
+  group_by(MED_NODE) %>%
+  do(calculate_summary(.)) %>%
+  ungroup()
+
+print(result)
+seqmatch
+```
+
+
+```{r}
+me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu000003")
+me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu010978")
+me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu012751")
+me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu027363")
+me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu027988")
+me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu115555")
+
+otu_list %>% filter(otu_list$MOTHUR_ID %in% "M06508_12_000000000-CJG44_1_2111_7865_12074")
+
+otu_list %>% filter(otu_list) %in% "M06508_12_000000000-CJG44_1_2111_7865_12074"
+
+str_detect(input_ids$MED_ID, "M06508:12:000000000-CJG44:1:2111:7865:12074:1", negate = FALSE) == TRUE
+input_ids %>% 
+   filter(if_any(everything(), ~ str_detect(.x, '"M06508:12:000000000-CJG44:1:2111:7865:12074:1')))
+```
+
+```{r}
+me_asv_tmp <- clone(me_asv)
+me_otu_tmp <- clone(me_otu)
+me_med_tmp <- clone(me_med)
+```
+
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: true
+me_ds <- c("me_asv_tmp", "me_otu_tmp", "me_med_tmp")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_tax <- tmp_get$tax_table
+  tmp_samp <- tmp_get$sample_table
+  tmp_st <- tmp_get$otu_table
+  tmp_fasta <- tmp_get$rep_fasta
+
+   for (i in 1:nrow(tmp_tax)){
+       if (tmp_tax[i,2] == "p__Proteobacteria" & tmp_tax[i,3] == "c__Alphaproteobacteria"){
+           phylum <- base::paste("p__Alphaproteobacteria")
+           tmp_tax[i, 2] <- phylum
+   }   else if (tmp_tax[i,2] == "p__Proteobacteria" & tmp_tax[i,3] == "c__Gammaproteobacteria"){
+           phylum <- base::paste("p__Gammaproteobacteria")
+           tmp_tax[i, 2] <- phylum
+   }   else if (tmp_tax[i,2] == "p__Proteobacteria" & tmp_tax[i,3] == "c__Epsilonproteobacteria"){
+           phylum <- base::paste("p__Epsilonproteobacteria")
+           tmp_tax[i, 2] <- phylum
+   }   else if (tmp_tax[i,2] == "p__Proteobacteria" & tmp_tax[i,3] == "c__Zetaproteobacteria"){
+              phylum <- base::paste("p__Zetaproteobacteria")
+           tmp_tax[i, 2] <- phylum
+   }   else if (tmp_tax[i,2] == "p__Proteobacteria" & tmp_tax[i,3] == "c__"){
+           phylum <- base::paste("p__Proteobacteria")
+           tmp_tax[i, 2] <- phylum
+       }
+   }
+  tmp_name <- str_replace(j, "_tmp", "_pb")
+  tmp_me <- microtable$new(sample_table = tmp_samp, 
+                         otu_table = tmp_st, 
+                         tax_table = tmp_tax)
+                         
+  tmp_me$rep_fasta <- tmp_fasta
+  tmp_me$tidy_dataset()
+  assign(tmp_name, tmp_me)
+  rm(list = ls(pattern = "tmp_"))
+}
+rm(class, order, phylum)
+rm(list = ls(pattern = "_tmp"))
+objects()
+rm(i,j)
+```
+
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: true
+me_ds <- c("me_asv", "me_otu", "me_med", 
+           "me_asv_pb", "me_otu_pb", "me_med_pb")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  if (str_detect(j, "_asv") == TRUE) {
+    tmp_get$add_rownames2taxonomy(use_name = "ASV")
+  }
+  else if (str_detect(j, "_otu") == TRUE) {
+    tmp_get$add_rownames2taxonomy(use_name = "OTU")
+  }
+else if (str_detect(j, "_med") == TRUE) {
+    tmp_get$add_rownames2taxonomy(use_name = "MED")
+}
+  rm(list = ls(pattern = "tmp_"))
+}
+
+```
+
+```{r}
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_get$auto_tidy = TRUE
+  tmp_path <- file.path("files/rdata/")
+  saveRDS(tmp_get, paste(tmp_path, j, ".rds", sep = ""))
+  rm(list = ls(pattern = "tmp_"))
+}
+me_asv_pb$tax_table
+```
+
+
+```{r}
+objects()
+me_med_pb
+# remember first clone the whole dataset
+# see https://chiliubio.github.io/microeco_tutorial/notes.html#clone-function
+me_med_pb_shrimp <- clone(me_med_pb)
+# select 'CW'
+me_med_pb_shrimp$sample_table <- subset(me_med_pb_shrimp$sample_table, TAXON == "Snapping_shrimp")
+# or: group_CW$sample_table <- subset(group_CW$sample_table, grepl("CW", Group))
+# use tidy_dataset to trim all the basic files
+me_med_pb_shrimp$tidy_dataset()
+me_med_pb_shrimp
+
+# create trans_abund object
+# select top 8 abundant Phyla.
+t1 <- trans_abund$new(dataset = me_med_pb_shrimp, taxrank = "Phylum", ntaxa = 8)
+t1$plot_bar(others_color = "grey70", facet = "TISSUE", xtext_keep = FALSE, legend_text_italic = FALSE)
+# return a ggplot2 object
+# require package ggh4x, first run install.packages("ggh4x") if not installed
+t1$plot_bar(others_color = "grey70", facet = c("TISSUE", "OCEAN"), xtext_keep = FALSE, legend_text_italic = FALSE, barwidth = 1)
+
+# The groupmean parameter can be used to obtain the group-mean barplot.
+t1 <- trans_abund$new(dataset = me_med_pb_shrimp, taxrank = "Phylum", ntaxa = 10, groupmean = "TISSUE")
+g1 <- t1$plot_bar(others_color = "grey70", legend_text_italic = FALSE)
+g1 + theme_classic() + theme(axis.title.y = element_text(size = 18))
+
+# show 40 taxa at Genus level
+t1 <- trans_abund$new(dataset = me_med_pb_shrimp, taxrank = "MED", ntaxa = 40)
+g1 <- t1$plot_heatmap(facet = "TISSUE", xtext_keep = FALSE, withmargin = FALSE, plot_breaks = c(0.01, 0.1, 1, 10), pheatmap = TRUE)
+g1
+g1 + theme(axis.text.y = element_text(face = 'italic'))
+g1 <- t1$plot_heatmap(clustering_plot = TRUE)
+
+
+t1 <- trans_abund$new(dataset = me_med_pb_shrimp, taxrank = "Phylum", ntaxa = 10, groupmean = "TISSUE")
+g1 <- t1$plot_bar(coord_flip = TRUE)
+g1 <- g1 + theme_classic() + theme(axis.title.x = element_text(size = 16), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+g1
+g1 <- t1$plot_bar(clustering_plot = TRUE)
+# In this case, g1 (aplot object) is the combination of different ggplot objects
+# to adjust the main plot, please select g1[[1]]
+g1[[1]] <- g1[[1]] + theme_classic() + theme(axis.title.x = element_text(size = 16), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+g1
+# save the figure
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+me_ds <- c("me_asv", "me_otu", "me_med")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_ds <- microeco::clone(tmp_get)
+  tmp_ds_df <- tmp_ds$otu_table
+
+  tmp_type <- str_replace(rownames(tmp_ds_df)[1], "\\d+", "")
+  tmp_type <- paste(tmp_type, "_ID", sep = "")
+
+  tmp_ds_df <- tmp_ds_df %>% 
+    mutate(total_reads = rowSums(.), 
+           .before = 1)
+  tmp_ds_df <- tmp_ds_df  %>% 
+    mutate(total_reads_ES = rowSums(select(., contains("E_SAMP"))), 
+           .after = "total_reads")
+  tmp_ds_df <- dplyr::select(tmp_ds_df, -contains("E_SAMP"))
+  tmp_ds_df <- tmp_ds_df %>% 
+    dplyr::mutate(total_reads_SS = rowSums(.[3:ncol(tmp_ds_df)]), 
+                  .after = "total_reads_ES")
+
+  tmp_ds_df <- tmp_ds_df %>% tibble::rownames_to_column(tmp_type)
+
+  tmp_ds_df[, 5:ncol(tmp_ds_df)] <- list(NULL)
+  tmp_ds_df <- tmp_ds_df %>% 
+    dplyr::mutate(perc_reads_in_ES = 100*(
+    total_reads_ES / (total_reads_ES + total_reads_SS)),
+                .after = "total_reads_SS")
+  tmp_ds_df$perc_reads_in_ES <- round(tmp_ds_df$perc_reads_in_ES, digits = 6)
+  tmp_name <- purrr::map_chr(j, ~ paste0(., "_df"))
+  #tmp_name <- str_replace(j, "_tmp", "_df")
+  assign(tmp_name, tmp_ds_df)
+  rm(list = ls(pattern = "tmp_"))
+}
+objects(pattern = "_df")
+```
+
+
+```{r}
+#| echo: true
+#| eval: false
+me_ds <- c("me_asv", "me_otu", "me_med")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_1 <- data.frame(rowSums(tmp_get$otu_table != 0))
+  tmp_type <- str_replace(rownames(tmp_1)[1], "\\d+", "")
+  tmp_type <- paste(tmp_type, "_ID", sep = "")
+  tmp_1 <- tmp_1 %>% tibble::rownames_to_column(tmp_type)
+  tmp_1 <- tmp_1 %>% dplyr::rename("total_samples" = 2)  
+
+  tmp_2 <- dplyr::select(tmp_get$otu_table, contains("E_SAMP"))
+  tmp_2$num_samp_ES <- rowSums(tmp_2 != 0)
+  tmp_2 <- dplyr::select(tmp_2, contains("num_samp_ES"))
+  tmp_2 <- tmp_2 %>% tibble::rownames_to_column(tmp_type)
+
+  tmp_3 <- dplyr::select(tmp_get$otu_table, -contains("E_SAMP"))
+  tmp_3$num_samp_SS <- rowSums(tmp_3 != 0)
+  tmp_3 <- dplyr::select(tmp_3, contains("num_samp_SS"))
+  tmp_3 <- tmp_3 %>% tibble::rownames_to_column(tmp_type)
+  #tmp_merge <- get(str_replace(j, "_tmp", "_df"))
+  tmp_merge <- get(purrr::map_chr(j, ~ paste0(., "_df")))
+  tmp_ds_df <- dplyr::left_join(tmp_merge, tmp_1) %>%
+                 dplyr::left_join(., tmp_2) %>%
+                 dplyr::left_join(., tmp_3)
+
+  tmp_ds_df <- tmp_ds_df %>%
+    dplyr::mutate(perc_samp_in_ES = 100*( num_samp_ES / (num_samp_ES + num_samp_SS)),
+                .after = "num_samp_SS")
+  tmp_name <- purrr::map_chr(j, ~ paste0(., "_df"))
+  #tmp_name <- str_replace(j, "_tmp", "_df")
+  assign(tmp_name, tmp_ds_df)
+  rm(list = ls(pattern = "tmp_"))
+}
+objects()
+```
+
+```{r}
+me_ds <- c("me_asv_df", "me_otu_df", "me_med_df")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_ds_df <- tmp_get %>% filter(perc_reads_in_ES > 1 | perc_samp_in_ES > 1)
+  tmp_name_df <- str_replace(j, "_df", "_env")
+  assign(tmp_name_df, tmp_ds_df)
+  
+  tmp_rem <- tmp_ds_df[,1] %>%  unlist(strsplit(., split = ", ")) 
+  tmp_name <- str_replace(j, "_df", "_env_rem")
+  assign(tmp_name, tmp_rem)
+  rm(list = ls(pattern = "tmp_"))
+}
+objects()
+
+me_ds <- c("me_asv", "me_otu", "me_med")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_es <- microeco::clone(tmp_get)
+  tmp_rem <- get(purrr::map_chr(j, ~ paste0(., "_env_rem")))
+  tmp_es$otu_table <- tmp_es$otu_table %>% 
+        filter(row.names(tmp_es$otu_table)  tmp_rem)
+  tmp_es$tidy_dataset()
+  tmp_name <- purrr::map_chr(j, ~ paste0(., "_es"))
+  assign(tmp_name, tmp_es)
+  rm(list = ls(pattern = "tmp_"))
+}
+
+objects(pattern = "_es")
+
+tmp_asv <- me_asv_es$merge_samples("TAXON")
+tmp_asv$otu_table
+tmp_med <- me_med_es$merge_samples("TAXON")
+tmp_med$tax_table
+tmp_otu <- me_otu_es$merge_samples("TAXON")
+tmp_otu$otu_table
+me_asv_env
+
+```
+
+
+```{r}
+#| echo: false
+#| eval: false
+objects()
+gdata::keep(me_asv, me_asv_df, me_asv_env, me_asv_env_rem, me_asv_pb, 
+            me_med, me_med_df, me_med_env, me_med_env_rem, me_med_pb, 
+            me_otu, me_otu_df, me_otu_env, me_otu_env_rem, me_otu_pb,
+            sure = TRUE)
+#rm(list = ls(pattern = "tmp_"))
+save.image("files/rdata/compare_part1.rdata")
+```
+
+```{r}
+me_ds <- clone(me_med_pb)
+
+t1 <- trans_alpha$new(dataset = me_ds, group = "TISSUE")
+# return t1$data_stat
+head(t1$data_stat)
+
+t1$cal_diff(method = "KW")
+# return t1$res_diff
+head(t1$res_diff)
+
+t1$cal_diff(method = "KW_dunn")
+# return t1$res_diff
+head(t1$res_diff)
+
+# more options
+t1$cal_diff(method = "KW_dunn", KW_dunn_letter = FALSE)
+head(t1$res_diff)
+t1$cal_diff(method = "wilcox")
+head(t1$res_diff)
+t1$cal_diff(method = "t.test")
+
+
+t1$cal_diff(method = "anova")
+# return t1$res_diff
+head(t1$res_diff)
+
+t1 <- trans_alpha$new(dataset = me_ds, group = "TISSUE")
+t1$cal_diff(method = "anova", formula = "TISSUE+OCEAN")
+head(t1$res_diff)
+# see the help document for the usage of formula
+
+t1$cal_diff(method = "anova")
+# y_increase can adjust the distance from the letters to the highest point
+t1$plot_alpha(measure = "Chao1", y_increase = 0.3)
+t1$plot_alpha(measure = "Chao1", y_increase = 0.1)
+# add_sig_text_size: letter size adjustment
+t1$plot_alpha(measure = "Chao1", add_sig_text_size = 6, add = "jitter", order_x_mean = TRUE)
+
+t1$cal_diff(method = "wilcox")
+t1$plot_alpha(measure = "Chao1", shape = "TISSUE")
+# y_start: starting height for the first label
+# y_increase: increased height for each label
+t1$plot_alpha(measure = "Chao1", shape = "TISSUE", add = "jitter", y_start = 0.1, y_increase = 0.1)
+
+t1$res_diff %<>% base::subset(Significance != "ns")
+t1$plot_alpha(measure = "Chao1", add = "dotplot", xtext_size = 15)
+
+t1 <- trans_alpha$new(dataset = me_ds, group = "OCEAN", by_group = "TISSUE")
+t1$cal_diff(method = "wilcox")
+t1$plot_alpha(measure = "Shannon")
+```
+
+```{r}
+rm(t1)
+me_ds$cal_betadiv(unifrac = FALSE)
+unique(me_ds$sample_table$PAIR)
+
+
+t1 <- trans_beta$new(dataset = me_ds, group = "TISSUE", measure = "bray")
+
+t1$cal_ordination(method = "PCoA")
+# t1$res_ordination is the ordination result list
+class(t1$res_ordination)
+# plot the PCoA result with confidence ellipse
+t1$plot_ordination(plot_color = "TISSUE", plot_shape = "OCEAN", plot_type = c("point", "ellipse"))
+
+```
+
+
+
+MERGE SAMPLES ANALYSIS
+
+```{r}
+
+me_ds <- clone(me_med_pb)
+t1 <- trans_abund$new(dataset = me_ds, taxrank = "Phylum", ntaxa = 10, groupmean = "TISSUE")
+g1 <- t1$plot_bar(others_color = "grey70", legend_text_italic = FALSE)
+g1 + theme_classic() + theme(axis.title.y = element_text(size = 18))
+
+# show 40 taxa at Genus level
+t1 <- trans_abund$new(dataset = me_ds, taxrank = "Phylum", ntaxa = 40)
+g1 <- t1$plot_heatmap(facet = "TISSUE", xtext_keep = FALSE, withmargin = FALSE, plot_breaks = c(0.01, 0.1, 1, 10))
+g1
+g1 + theme(axis.text.y = element_text(face = 'italic'))
+
+t1 <- trans_abund$new(dataset = me_ds, taxrank = "Phylum", ntaxa = 6, groupmean = "TISSUE")
+# all pie chart in one row
+t1$plot_pie(facet_nrow = 3)
+t1$plot_pie(facet_nrow = 3, add_label = TRUE)
+
+t1 <- trans_abund$new(dataset = me_ds, taxrank = "Phylum", ntaxa = 8, groupmean = "TISSUE")
+t1$plot_donut(label = FALSE, facet_nrow = 3)
+t1$plot_donut(label = TRUE, facet_nrow = 3)
+
+t1 <- trans_abund$new(dataset = me_ds, taxrank = "Phylum", ntaxa = 10, groupmean = "SPECIES")
+g1 <- t1$plot_bar(coord_flip = TRUE)
+g1 <- g1 + theme_classic() + theme(axis.title.x = element_text(size = 16), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+g1
+g1 <- t1$plot_bar(clustering_plot = TRUE)
+# In this case, g1 (aplot object) is the combination of different ggplot objects
+# to adjust the main plot, please select g1[[1]]
+g1[[1]] <- g1[[1]] + theme_classic() + theme(axis.title.x = element_text(size = 16), axis.ticks.y = element_blank(), axis.line.y = element_blank())
+g1
+
+
+tmp <- me_ds$merge_samples("TISSUE")
+t1 <- trans_venn$new(dataset = tmp)
+# only show some sets with large intersection numbers
+t1$data_summary %<>% .[.[, 1] > 20, ]
+g1 <- t1$plot_bar(left_plot = TRUE, bottom_height = 0.5, left_width = 0.15, up_bar_fill = "grey50", left_bar_fill = "grey50", bottom_point_color = "black")
+g1
+# g1 is aplot class and can be saved with ggplot2::ggsave, aplot::ggsave or cowplot::save_plot function
+# as g1 is comprised of several sub-plots, please adjust the details for each sub-plot
+g1[[1]]
+g1[[2]]
+
+dataset1 <- me_ds$merge_samples("TISSUE")
+t1 <- trans_venn$new(dataset1)
+# transform venn results to the sample-species table, here do not consider abundance, only use presence/absence.
+t2 <- t1$trans_comm(use_frequency = TRUE)
+# t2 is a new microtable class, each part is considered a sample
+class(t2)
+# calculate taxa abundance, that is, the frequency
+t2$cal_abund()
+t2$taxa_abund
+# transform and plot
+t3 <- trans_abund$new(dataset = t2, taxrank = "Phylum", ntaxa = 8)
+unique(t3$data_abund$Sample)
+t3$plot_bar(bar_full = FALSE, legend_text_italic = T, xtext_angle = 30, color_values = RColorBrewer::brewer.pal(8, "Set2"),
+    order_x = c("IW", "CW", "TW", "IW&CW", "IW&TW", "CW&TW", "IW&CW&TW")) + ylab("Frequency (%)")
+```
+
+
+```{r}
+unique(t3$data_abund$Sample)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+me_ds <- c("me_med", "me_asv", "me_otu")
+for (j in me_ds) {
+  tmp_get <- get(j)
+  tmp_get_tab <- data.frame(tmp_get$otu_table)
+  tmp_get_tab <- tmp_get_tab %>% tibble::rownames_to_column("ID")
+  tmp_get_tab <- jamba::mixedSortDF(tmp_get_tab, decreasing = FALSE, 
+                                        useRownames = FALSE, byCols = 1)
+  tmp_get_tab <- tmp_get_tab %>% tibble::remove_rownames() 
+  tmp_get_tab <- tmp_get_tab %>% tibble::column_to_rownames("ID")
+  tmp_get_tab <- data.frame(t(tmp_get_tab))
+
+  tmp_get_tab_ord <- data.frame(tmp_get$otu_table)
+  tmp_get_tab_ord <- tmp_get_tab_ord %>% tibble::rownames_to_column("ID")
+  tmp_get_tab_ord <- jamba::mixedSortDF(tmp_get_tab_ord, decreasing = TRUE, 
+                                        useRownames = FALSE, byCols = 1)
+  tmp_get_tab_ord <- tmp_get_tab_ord %>% tibble::remove_rownames() 
+  tmp_get_tab_ord <- tmp_get_tab_ord %>% tibble::column_to_rownames("ID")
+  tmp_get_tab_ord <- data.frame(t(tmp_get_tab_ord))
+
+  tmp_tab_name <- purrr::map_chr(j, ~ paste0(., "_perfect"))
+  assign(tmp_tab_name, tmp_get_tab)
+  
+  tmp_tab_ord_name <- purrr::map_chr(j, ~ paste0(., "_ord_perfect"))
+  assign(tmp_tab_ord_name, tmp_get_tab_ord)
+  rm(list = ls(pattern = "tmp_"))
+  
+}
+objects(pattern = "_perfect")
+dim(me_med_perfect)
+dim(me_med_ord_perfect)
+dim(me_asv_perfect)
+dim(me_asv_ord_perfect)
+dim(me_otu_perfect)
+dim(me_otu_ord_perfect)
+
+```
+
+```{r}
+#me_ds <- c("me_med", "me_asv", "me_otu")
+me_ds <- c("me_med")
+
+library(PERFect)
+per_pval <- 0.05
+for (j in me_ds) {
+  tmp_path <- file.path("files/rdata/")
+  tmp_get <- get(purrr::map_chr(j, ~ paste0(., "_perfect")))
+  tmp_pval <- per_pval
+  tmp_get_ord <- get(purrr::map_chr(j, ~ paste0(., "_ord_perfect")))
+
+  print("Running PERFect_sim on default")
+  tmp_sim <- PERFect_sim(X = tmp_get, alpha = tmp_pval, Order = "NP", center = FALSE)
+  print("Finished running PERFect_sim on default")
+  dim(tmp_sim$filtX)
+  tmp_sim_name <- purrr::map_chr(j, ~ paste0(., "_perfect_sim"))
+  assign(tmp_sim_name, tmp_sim)
+  saveRDS(tmp_sim, paste(tmp_path, tmp_sim_name, ".rds", sep = ""))
+  
+  print("Running PERFect_sim on Ordered")
+  tmp_sim_ord <- PERFect_sim(X = tmp_get_ord, alpha = tmp_pval, Order = "NP", center = FALSE)
+  dim(tmp_sim_ord$filtX)
+  tmp_sim_ord_name <- purrr::map_chr(j, ~ paste0(., "_ord_perfect_sim"))
+  print("Finished running PERFect_sim on Ordered")
+  assign(tmp_sim_ord_name, tmp_sim_ord)
+  saveRDS(tmp_sim_ord, paste(tmp_path, tmp_sim_ord_name, ".rds", sep = ""))
+
+  rm(list = ls(pattern = "tmp_"))
+  
+}
+objects(pattern = "_sim")
+dim(me_med_ord_perfect_sim$filtX)
+dim(me_med_perfect_sim$filtX)[2]
+data.frame(me_med_perfect_sim$pvals)
+data.frame(me_med_ord_perfect_sim$pvals)
+
+```
+
+
+```{r}
+#| results: hold
+cat("Total 16S rRNA ASVs with p-value less than", ssu_per_pval[1], "\n")
+tmp_df <- ssu_default_pvals
+tmp_df <- data.frame(tmp_df)
+pval_asv <- tmp_df %>% dplyr::summarise(count = sum(tmp_df <= ssu_per_pval))
+
+print(paste("default order: ASVs before checking p value was", 
+            ssu_default_num_asvs, 
+            "and after was", 
+            pval_asv$count[1]), 
+      quote = FALSE)
+
+print("--------------------------------------", quote = FALSE)
+
+tmp_df <- ssu_ord_pvals
+tmp_df <- data.frame(tmp_df)
+pval_asv_ord <- tmp_df %>% dplyr::summarise(count = sum(tmp_df <= ssu_per_pval))
+
+print(paste("decreasing order: ASVs before checking p value was", 
+            ssu_ord_num_asvs, "and after was", 
+            pval_asv_ord$count[1]), 
+      quote = FALSE)
+
+```
+
+
+
+
+```{r}
+tmp_a %>% 
+   filter(if_any(everything(), ~ str_detect(.x, 'OTU_132')))
+```
+
+```{r}
+#prep for https://env-med.shinyapps.io/microbiem/
+tmp_tax <- me_asv$tax_table
+
+tmp_tax <- tmp_tax %>% mutate_all(funs(str_replace_all(., "[a-z]__", "")))
+tmp_tax <- tmp_tax %>% unite("Taxonomy", 1:6, remove = TRUE, sep = ";")
+tmp_tax <- tibble::rownames_to_column(tmp_tax, "OTU_ID")
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = ";+$", 
+                             replacement = ""))
+tmp_tax
+
+tmp_asv <- me_asv$otu_table
+tmp_asv <- tibble::rownames_to_column(tmp_asv, "OTU_ID")
+
+asv_miem_feature <- dplyr::left_join(tmp_asv, tmp_tax, by = "OTU_ID")
+write_delim(asv_miem_feature, "asv_miem_feature.txt", delim = "\t")
+
+tmp_samp <- me_asv$sample_table
+tmp_samp <- tibble::rownames_to_column(tmp_samp, "Sample_ID")
+tmp_samp$SampleID <- NULL
+tmp_samp$Sample_type <- "SAMPLE"
+asv_miem_sample <- tmp_samp %>% dplyr::relocate(Sample_type, .after = "Sample_ID")
+write_delim(asv_miem_sample, "asv_miem_sample.txt", delim = "\t")
+```
+
+```{r}
+#prep for https://env-med.shinyapps.io/microbiem/
+tmp_tax <- me_asv$tax_table
+
+tmp_tax <- tmp_tax %>% mutate_all(funs(str_replace_all(., "[a-z]__", "")))
+tmp_tax <- tmp_tax %>% unite("Taxonomy", 1:6, remove = TRUE, sep = ";")
+tmp_tax <- tibble::rownames_to_column(tmp_tax, "OTU_ID")
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = ";+$", 
+                             replacement = ""))
+tmp_tax
+
+tmp_asv <- me_asv$otu_table
+tmp_asv <- tibble::rownames_to_column(tmp_asv, "OTU_ID")
+
+asv_miem_feature <- dplyr::left_join(tmp_asv, tmp_tax, by = "OTU_ID")
+write_delim(asv_miem_feature, "asv_miem_feature.txt", delim = "\t")
+
+tmp_samp <- me_asv$sample_table
+tmp_samp <- tibble::rownames_to_column(tmp_samp, "Sample_ID")
+tmp_samp$SampleID <- NULL
+tmp_samp$Sample_type <- "SAMPLE"
+asv_miem_sample <- tmp_samp %>% dplyr::relocate(Sample_type, .after = "Sample_ID")
+write_delim(asv_miem_sample, "asv_miem_sample.txt", delim = "\t")
+```
+
+
+```{r}
+#prep for https://env-med.shinyapps.io/microbiem/
+tmp_tax <- me_med$tax_table
+
+tmp_tax <- tmp_tax %>% mutate_all(funs(str_replace_all(., "[a-z]__", "")))
+tmp_tax <- tmp_tax %>% unite("Taxonomy", 1:6, remove = TRUE, sep = ";")
+tmp_tax <- tibble::rownames_to_column(tmp_tax, "OTU_ID")
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = ";+$", 
+                             replacement = ""))
+tmp_tax
+
+tmp_asv <- me_med$otu_table
+tmp_asv <- tibble::rownames_to_column(tmp_asv, "OTU_ID")
+
+med_miem_feature <- dplyr::left_join(tmp_asv, tmp_tax, by = "OTU_ID")
+write_delim(med_miem_feature, "med_miem_feature.txt", delim = "\t")
+
+tmp_samp <- me_med$sample_table
+tmp_samp <- tibble::rownames_to_column(tmp_samp, "Sample_ID")
+tmp_samp$SampleID <- NULL
+tmp_samp$Sample_type <- tmp_samp$Sample_ID
+med_miem_sample <- tmp_samp %>% dplyr::relocate(Sample_type, .after = "Sample_ID")
+med_miem_sample <- med_miem_sample %>%
+  mutate(across("Sample_type", str_replace, "^.*E_SAMP.*", "POS1")) %>%
+  mutate(across("Sample_type", str_replace, "^.*A_.*", "SAMPLE")) %>%
+  mutate(across("Sample_type", str_replace, "^.*UNKN.*", "SAMPLE"))
+write_delim(med_miem_sample, "med_miem_sample.txt", delim = "\t")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#| echo: true
+#| eval: false
+
+citation("microeco")
+citation("mia")
+```
+
+
+
+## Rename NA taxonomic ranks
+
+Phyloseq has an odd way of dealing with taxonomic ranks that have no value---in other words, **NA** in the tax table. The first thing we are going to do before moving forward is to change all of the *NA*s to have a value of the next highest classified rank. For example, `ASV26` is not classified at the Genus level but is at Family level (Xanthobacteraceae). So we change the Genus name to *Family_Xanthobacteraceae*. The code for comes from these two posts on the phyloseq GitHub, both by [MSMortensen](https://github.com/MSMortensen): issue [#850](https://github.com/joey711/phyloseq/issues/850#issuecomment-394771087) and issue [#990](https://github.com/joey711/phyloseq/issues/990#issuecomment-424618425).
+
+> One thing this code does is reassign the functions `class` and `order` to taxonomic ranks. This can cause issues if you need these functions.
+
+So you need to run something like this `rm(class, order, phylum, kingdom)` at the end of the code to remove these as variables. For now, I have not come up with a better solution.
+
+```{r}
+#| echo: true
+#| eval: false
+#| code-fold: true
+ps_moth <- ps_moth_nc
+tax.clean <- data.frame(tax_table(ps_moth))
+for (i in 1:6){ tax.clean[,i] <- as.character(tax.clean[,i])}
+tax.clean[is.na(tax.clean)] <- ""
+
+for (i in 1:nrow(tax.clean)){
+    if (tax.clean[i,2] == ""){
+        kingdom <- base::paste("k_", tax.clean[i,1], sep = "")
+        tax.clean[i, 2:6] <- kingdom
+    } else if (tax.clean[i,3] == ""){
+        phylum <- base::paste("p_", tax.clean[i,2], sep = "")
+        tax.clean[i, 3:6] <- phylum
+    } else if (tax.clean[i,4] == ""){
+        class <- base::paste("c_", tax.clean[i,3], sep = "")
+        tax.clean[i, 4:6] <- class
+    } else if (tax.clean[i,5] == ""){
+        order <- base::paste("o_", tax.clean[i,4], sep = "")
+        tax.clean[i, 5:6] <- order
+    } else if (tax.clean[i,6] == ""){
+        tax.clean$Genus[i] <- base::paste("f",tax.clean$Family[i], sep = "_")
+        }
+}
+tax_table(ps_moth) <- as.matrix(tax.clean)
+rank_names(ps_moth)
+rm(class, order, phylum, kingdom, i)
+```
+
+Still the same ranks. That's good. What about the new groups? Let's take a peak at some families.
+
+```{r}
+#| echo: true
+#| eval: false
+head(get_taxa_unique(ps_moth, "Family"), 16)
+```
+
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Data Availability {.appendix}
+
+{{< include /include/_data_availability.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+Sys.time()
+remove(list = ls())
+```

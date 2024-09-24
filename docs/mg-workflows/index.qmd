@@ -1,0 +1,21 @@
+---
+title: "Metagenomic Workflows"
+listing:
+  field-display-names:
+    title: "Workflow"
+  id: listing-workflow
+  contents: "*.qmd"
+  #sort: "name"
+  type: default
+  fields: [title, description, file-modified]
+  max-description-length: 200
+sidebar: false
+format:
+  html:
+    code-tools: false
+toc: false
+#metadata-files: 
+#  - _metadata.yml
+---
+
+

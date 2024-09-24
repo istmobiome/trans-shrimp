@@ -1,0 +1,31 @@
+
+```{r}
+#| echo: false
+#| eval: true
+wong_tbl <- data.frame(
+  Color = c("blue", "vermillion", "bluish green", "reddish purple"),
+  Language = c("R ", "bash ", "shell", "mothur")
+)
+wong_tbl$Color <- cell_spec(wong_tbl$Color, 
+                            format = "html", 
+                            background = c("#0072B2", "#D55E00",
+                                            "#009E73", "#CC79A7"), 
+                            background_as_tile = TRUE, 
+                            extra_css = "margin: -6px; padding: 6px; display: flex;")
+
+chunk_cols <- knitr::kable(wong_tbl, 
+                           format = "html",
+                           escape = FALSE, 
+                           align = "lc",
+                           caption = "Code chunk coloring by language") %>%
+  kable_styling(bootstrap_options = c("bordered", "condensed"), 
+                stripe_color = NULL,
+                full_width = FALSE, 
+                position = "left", 
+                font_size = 14,)
+
+column_spec(chunk_cols, 1, border_right = F, color = "#F5F5F5") %>%
+  column_spec(2, bold = T, border_right = F, border_left = F) 
+```
+
+We make use of many different coding languages in these workflows. Code chucks are colored by language. 

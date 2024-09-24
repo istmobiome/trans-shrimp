@@ -1,0 +1,18 @@
+---
+title: "Publication Material"
+css: ["/assets/css/styles_index.css", "/assets/css/styles.css"]
+listing:
+  field-display-names:
+    title: "Paper"
+  id: listing-workflow
+  contents: "*.qmd"
+  #sort: "name"
+  type: default
+  fields: [title, description, file-modified]
+  max-description-length: 200
+sidebar: false
+format:
+  html:
+    code-tools: false
+toc: false
+---

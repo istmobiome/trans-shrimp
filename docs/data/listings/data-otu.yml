@@ -1,0 +1,29 @@
+- name: Sequence data
+  path: https://www.ebi.ac.uk/ena/browser/view/PRJEB36632
+  description: |
+    Trimmed (primers removed) 16S rRNA data from 1809 samples for OTU analysis
+
+- name: Fastq rename tables
+  path: include/fastq_rename_lookup.zip
+  description: |
+    Lookup tables for renaming fastq files prior to analysis
+
+- name: Sample data
+  path: include/all_metadata.txt.zip
+  description: |
+    16S rRNA sample data
+
+- name: Processing scripts
+  path: include/scripts/otu/otu_batchfile_processing.zip
+  description: |
+    mothur formatted batch files for OTU processing
+
+- name: Hydra job scripts
+  path: include/scripts/otu/mg_hydra_scripts.zip
+  description: |
+    Hydra job scripts
+
+- name: Pipeline read changes
+  path: include/scripts/otu/all_sample_otu_read_changes.txt.zip
+  description: |
+    Table showing read changes for each sample through the processing pipeline

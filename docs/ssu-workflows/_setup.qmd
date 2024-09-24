@@ -1,0 +1,30 @@
+```{r}
+#| message: false
+#| results: hide
+#| code-fold: true
+#| code-summary: "Click here for page build libraries and setup information."
+#| label: setup
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+set.seed(919191)
+library(dada2); packageVersion("dada2")
+library(ShortRead); packageVersion("ShortRead")
+library(ggplot2); packageVersion("ggplot2")
+library(Biostrings); packageVersion("Biostrings")
+pacman::p_load(tidyverse, gridExtra, grid, miaViz,
+               formatR, reactable, gdata, patchwork,
+               kableExtra, microeco, magrittr, 
+               rprojroot,
+               tidySummarizedExperiment, scater,
+               install = FALSE, update = FALSE)
+
+options(scipen = 999)
+knitr::opts_current$get(c(
+  "cache",
+  "cache.path",
+  "cache.rebuild",
+  "dependson",
+  "autodep"
+))
+#root <- find_root(has_file("_quarto.yml"))
+#source(file.path(root, "assets", "functions.R"))
+```

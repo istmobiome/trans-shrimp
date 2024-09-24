@@ -1,0 +1,11 @@
+```{mermaid}
+flowchart LR
+    D(BCS_26<br/>BCS_28<br/>BCS_29<br/>BCS_30<br/>BCS_34<br/>BCS_35<br/>) --> M
+    D --> M
+    D --> M
+    D --> M
+    D --> M
+    D --> M
+    M(mergeSequenceTables) --> N(removeBimeraDenovo)
+    N --> O(assignTaxonomy)
+```

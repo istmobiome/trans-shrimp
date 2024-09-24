@@ -1,1 +1,15 @@
+
+.Rproj.user/
+.quarto/
+.Rhistory
+.RData
+.Ruserdata
+.Rapp.history
+.DS_Store
+**/.DS_Store
+
 public/
+files/
+public_build/
+sandbox/
+

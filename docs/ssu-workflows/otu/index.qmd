@@ -1,0 +1,490 @@
+---
+title: "3. OTU Workflow"
+description: |
+  Workflow for processing 16S rRNA samples for OTU analysis using mothur. Workflow uses paired end reads, beginning with raw fastq files, ending with sequence and taxonomy tables. A Microtable Object is produced to collate the data for downstream analysis. 
+format:
+  html:
+    mermaid:
+      theme: neutral
+    toc: true
+    toc-depth: 3
+image: "image.jpg"
+---
+
+{{< include ../_setup.qmd >}}
+
+{{< include include/_otu_flowchart_1.qmd >}}
+
+{{< include include/_otu_flowchart_2.qmd >}}
+
+# Read Processing
+
+This is a standard pipeline for generating OTUs using [mothur]((https://mothur.org/) [schloss2009introducing]. We generally followed the mothur [MiSeq SOP](https://mothur.org/wiki/miseq_sop/) when building this pipeline. Since this SOP is heavily annotated we will keep our comments here to a minimum. 
+
+{{< include include/_OTU_Part1.qmd >}}
+
+# Data Set Prep
+
+In this next part of the workflow our main goal is to create a *microtable object* using the R package [microeco](https://joey711.github.io/phyloseq/) [@liu2021microeco]. The microtable will be used to store the OTU by sample data as well the taxonomic, fasta, and sample data in a single object. More on that in a moment.
+
+```{r}
+#| eval: true
+#| echo: false
+#| message: false 
+#| results: hide
+remove(list = ls())
+#root <- find_root(has_file("_quarto.yml"))
+#source(file.path(root, "assets", "functions.R"))
+load("files/rdata/otu_part2.rdata")
+objects()
+```
+
+## Getting Files from Mothur
+
+To create a microtable object we need a a sequence table, taxonomy table, and a sample data table. To generate the sequence table we need a shared file from mothur, which we can generate using the command `make.shared`. The data in a shared file represent the number of times that an OTU is observed in multiple samples. 
+
+```{verbatim}
+make.shared(list=final.opti_mcc.list, count=final.count_table, label=0.03)
+```
+
+```         
+0.03
+
+Output File Names:
+final.opti_mcc.shared
+```
+Next we use `classify.otu` to get the OTU taxonomy table. 
+
+```{verbatim}
+classify.otu(list=final.opti_mcc.list, count=final.count_table, taxonomy=final.taxonomy, label=0.03)
+```
+
+```         
+0.03
+
+Output File Names: 
+final.opti_mcc.0.03.cons.taxonomy
+final.opti_mcc.0.03.cons.tax.summary
+```
+
+```{verbatim}
+count.groups(shared=final.opti_mcc.shared)
+```
+
+```         
+Size of smallest group: 14.
+
+Total seqs: 34611554.
+
+Output File Names: 
+final.opti_mcc.count.summary
+```
+
+## Prep Data for `microeco`
+
+Like any tool, the microeco package needs the data in a specific form. I formatted our data to match the mock data in the microeco tutorial, specifically [this section](https://chiliubio.github.io/microeco_tutorial/basic-class.html#prepare-the-example-data).
+
+### A. Taxonomy Table
+
+Here is what the taxonomy table looks like in the mock data.
+
+```{r}
+#| eval: false
+#| echo: true
+taxonomy_table_16S[1:6, 1:4]
+```
+
+```         
+         Kingdom      Phylum            Class                 Order
+OTU_4272 k__Bacteria  p__Firmicutes     c__Bacilli            o__Bacillales
+OTU_236  k__Bacteria  p__Chloroflexi    c__                   o__
+OTU_399  k__Bacteria  p__Proteobacteria c__Betaproteobacteria o__Nitrosomonadales
+OTU_1556 k__Bacteria  p__Acidobacteria  c__Acidobacteria      o__Subgroup 17
+OTU_32   k__Archaea   p__Miscellaneous  c__                   o__
+OTU_706  k__Bacteria  p__Actinobacteria c__Actinobacteria     o__Frankiales
+```
+Our taxonomy file (below) needs a little wrangling to be properly formatted. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_tax <- read_delim("final.opti_mcc.0.03.cons.taxonomy", 
+                      delim = "\t")
+head(tmp_tax)
+```
+
+```
+OTU       Size    Taxonomy
+Otu000001 2777831 Bacteria(100);Proteobacteria(100);Gammaproteobacteria(100);Vibrionales(100);Vibrionaceae(100);Vibrio(97);
+Otu000002 1587321 Bacteria(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);
+Otu000003 1228070 BBacteria(100);Proteobacteria(100);Gammaproteobacteria(100);Gammaproteobacteria_unclassified(100);Gammaproteobacteria_unclassified(100);Gammaproteoba
+Otu000004 1199712 Bacteria(100);Bacteroidetes(100);Bacteroidia(100);Marinilabiliales(100);Marinilabiliaceae(100);Saccharicrinis(100);
+Otu000005  877883 Bacteria(100);Proteobacteria(100);Alphaproteobacteria(100);Rhodobacterales(100);Rhodobacterales_unclassified(100);Rhodobacterales_unclassified(100);
+Otu000006  660495 Bacteria(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);Bacteria_unclassified(100);
+```
+
+Some fancy string manipulation...
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = "\\(\\d+\\)", 
+                             replacement = ""))
+tmp_tax <- data.frame(sapply(tmp_tax, 
+                             gsub, 
+                             pattern = ";$", 
+                             replacement = ""))
+tmp_tax <- separate_wider_delim(tmp_tax, 
+                              cols = Taxonomy, 
+                              delim = ";", names = c(
+                                "Kingdom", "Phylum", 
+                                "Class", "Order", 
+                                "Family", "Genus" 
+                                )
+                              )
+tmp_tax <- data.frame(sapply(tmp_tax, gsub, 
+                           pattern = "^.*_unclassified$", 
+                           replacement = ""))
+tmp_tax$Size <- NULL
+tmp_tax <- tibble::column_to_rownames(tmp_tax, "OTU")
+head(tmp_tax)
+```
+
+And we get this ...
+
+```
+           Kingdom    Phylum        Class              Order
+Otu000001  Bacteria   Proteobacteria  Gammaproteobacteria  Vibrionales  
+Otu000002  Bacteria
+Otu000003  Bacteria   Proteobacteria  Gammaproteobacteria    
+Otu000004  Bacteria   Bacteroidetes   Bacteroidia          Marinilabiliales  
+Otu000005  Bacteria   Proteobacteria  Alphaproteobacteria  Rhodobacterales  
+Otu000006  Bacteria
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_tax[is.na(tmp_tax)] <- ""
+tmp_tax$Kingdom <- paste("k", tmp_tax$Kingdom, sep = "__")
+tmp_tax$Phylum <- paste("p", tmp_tax$Phylum, sep = "__")
+tmp_tax$Class <- paste("c", tmp_tax$Class, sep = "__")
+tmp_tax$Order <- paste("o", tmp_tax$Order, sep = "__")
+tmp_tax$Family <- paste("f", tmp_tax$Family, sep = "__")
+tmp_tax$Genus <- paste("g", tmp_tax$Genus, sep = "__")
+
+tmp_tax %<>% tidy_taxonomy
+head(tmp_tax)
+```
+
+And then this. Excatly like the mock data. 
+
+```
+            Kingdom      Phylum             Class                   Order               Family
+Otu000001  k__Bacteria   p__Proteobacteria  c__Gammaproteobacteria  o__Vibrionales      f__Vibrionaceae  
+Otu000002  k__Bacteria   p__                c__                     o__                 f__
+Otu000003  k__Bacteria   p__Proteobacteria  c__Gammaproteobacteria  o__                 f__
+Otu000004  k__Bacteria   p__Bacteroidetes   c__Bacteroidia          o__Marinilabiliales f__Marinilabiliaceae  
+Otu000005  k__Bacteria   p__Proteobacteria  c__Alphaproteobacteria  o__Rhodobacterales  f__
+Otu000006  k__Bacteria   p__                c__                     o__                 f__
+```
+
+### B. Sequence Table
+
+Here is what the sequence table looks like in the mock data.
+
+```{r}
+#| eval: true
+#| echo: true
+otu_table_16S[1:6, 1:11]
+```
+
+These code block will return a properly formatted sequence table. 
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_st <- readr::read_delim("final.opti_mcc.shared",  delim = "\t")
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_st$numOtus <- NULL
+tmp_st$label <- NULL
+tmp_st <- tmp_st %>%
+  tidyr::pivot_longer(cols = c(-1), names_to = "tmp") %>%
+  tidyr::pivot_wider(names_from = c(1))
+
+tmp_st <- tibble::column_to_rownames(tmp_st, "tmp")
+```
+
+```{zsh}
+# only need to run this if reading in processed files
+# code adds a tab to the beginning of first line
+sed '1s/^/\t/' tmp_final.opti_mcc.fixed.shared > final.opti_mcc.fixed.shared
+```
+
+### C. Sample Table
+
+Here is what the sample table looks like in the mock data.
+
+```{r}
+#| eval: true
+#| echo: true
+head(sample_info_16S)
+```
+
+No problem. 
+
+```{r}
+#| echo: true
+#| eval: false
+samdf <- readRDS("../sampledata/files/tables/samdf.rds")
+
+samdf <- samdf %>% tibble::column_to_rownames("SampleID")
+samdf$SampleID <- rownames(samdf)
+samdf <- samdf %>% dplyr::relocate(SampleID)
+
+samdf <- samdf %>%
+  dplyr::filter(
+    stringr::str_starts(SampleID, "Control", negate = TRUE)
+    )
+```
+
+## Create a Microtable Object
+
+With these three files in hand we are now ready to create a microtable object.
+
+::: callout-note
+A microtable object contains an OTU table (taxa abundances), sample metadata, and taxonomy table (mapping between OTUs and higher-level taxonomic classifications).
+:::
+
+```{r}
+#| echo: true
+#| eval: false
+sample_info <- samdf
+tax_tab <- tmp_tax
+otu_tab <- tmp_st
+```
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_me <- microtable$new(sample_table = sample_info, 
+                         otu_table = otu_tab, 
+                         tax_table = tax_tab)
+tmp_me
+```
+
+```         
+microtable-class object:
+sample_table have 1849 rows and 13 columns
+otu_table have 119453 rows and 1849 columns
+tax_table have 119453 rows and 6 columns
+```
+
+### Add Representative Sequence
+
+We can also add representative sequences for each OTU/ASV. For this step, we use the mothur command `get.oturep`. 
+
+```{verbatim}
+get.oturep(column=final.dist, list=final.opti_mcc.list, count=final.count_table, fasta=final.fasta)
+```
+
+The fasta file it returns needs a little T.L.C.
+
+```
+You did not provide a label, using 0.03.
+0.03	119453
+
+Output File Names: 
+final.opti_mcc.0.03.rep.count_table
+final.opti_mcc.0.03.rep.fasta
+```
+
+For that we use a tool called SeqKit [@shen2016seqkit;shen2024seqkit2] for fasta defline manipulation.
+
+```{zsh}
+seqkit replace -p "\|.*" -r '' final.opti_mcc.0.03.rep.fasta > tmp2.fa
+seqkit replace -p ".*\\t" -r '' tmp2.fa > tmp3.fa
+seqkit replace -p "-" -r '$1' -s -w 0 tmp3.fa > otu_reps.fasta
+rm tmp*
+```
+
+```{r}
+#| echo: true
+#| eval: false
+rep_fasta <- Biostrings::readDNAStringSet("files_for_microeco/otu_reps.fasta")
+tmp_me$rep_fasta <- rep_fasta
+tmp_me$tidy_dataset()
+tmp_me
+```
+
+```{r}
+#| echo: false
+#| eval: false
+saveRDS(tax_tab, "files/rdata/tax_tab.rds")
+saveRDS(sample_info, "files/rdata/sample_info.rds")
+saveRDS(rep_fasta, "files/rdata/rep_fasta.rds")
+saveRDS(otu_tab, "files/rdata/otu_tab.rds")
+saveRDS(tmp_me, "files/rdata/me_otu_raw.rds")
+```
+
+```{r}
+#| echo: false
+#| eval: false
+tmp_me <- readRDS("files/rdata/me_otu_raw.rds")
+#sample_info <- readRDS("files/rdata/sample_info.rds")
+#tax_tab <- readRDS("files/rdata/tax_tab.rds")
+#otu_tab <- readRDS("files/rdata/otu_tab.rds")
+tmp_me$tidy_dataset()
+```
+
+```{r}
+#| echo: false
+#| eval: false
+me_otu_raw <- microeco::clone(tmp_me)
+```
+
+## Curate the Data Set
+
+Pretty much the last thing to do is remove  low-count samples.
+
+### Remove Low-Count Samples
+
+```{r}
+#| echo: true
+#| eval: false
+tmp_no_low <- microeco::clone(me_otu_raw)
+tmp_no_low$otu_table <- me_otu_raw$otu_table %>%
+          dplyr::select(where(~ is.numeric(.) && sum(.) >= 1000))
+tmp_no_low$tidy_dataset()
+tmp_no_low
+```
+
+```         
+41 taxa with 0 abundance are removed from the otu_table ...
+```
+
+```{r}
+#| echo: false
+#| eval: false
+me_otu_no_low <- microeco::clone(tmp_no_low)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+me_otu_no_low
+```
+
+```{r}
+#| echo: true
+#| eval: false
+me_otu <- microeco::clone(tmp_no_low)
+```
+
+## Summary
+
+Now time to summarize the data. For this we use the R package [miaverse](https://microbiome.github.io) [@felix2024mia].
+
+```{r}
+#| echo: false
+#| eval: false
+identical(rownames(me_otu_raw$sample_table), colnames(me_otu_raw$otu_table))
+identical(rownames(me_otu$sample_table), colnames(me_otu$otu_table))
+```
+
+First we do a little formatting to get our data compatible with mia.
+
+```{r}
+#| echo: true
+#| eval: false
+# https://github.com/microbiome/OMA/issues/202
+tmp_counts <- as.matrix(me_otu_raw$otu_table)
+tmp_assays <-  SimpleList(counts = tmp_counts)
+mia_me_otu_raw <- TreeSummarizedExperiment(assays = tmp_assays,
+                                colData = DataFrame(me_otu_raw$sample_table),
+                                rowData = DataFrame(me_otu_raw$tax_table))
+rm(list = ls(pattern = "tmp_"))
+tmp_counts <- as.matrix(me_otu$otu_table)
+tmp_assays <-  SimpleList(counts = tmp_counts)
+mia_me_otu <- TreeSummarizedExperiment(assays = tmp_assays,
+                                colData = DataFrame(me_otu$sample_table),
+                                rowData = DataFrame(me_otu$tax_table))
+mia_me_otu_raw_summ <- summary(mia_me_otu_raw, assay.type = "counts")
+mia_me_otu_summ <- summary(mia_me_otu, assay.type = "counts")
+rm(list = ls(pattern = "tmp_"))
+objects()
+```
+
+```{r}
+#| echo: false
+#| eval: false
+me_dataset <- c("original", "final"
+                )
+
+total_otus <- c(
+                nrow(me_otu_raw$tax_table), 
+                nrow(me_otu$tax_table)
+                )
+
+total_reads <- c(
+                sum(me_otu_raw$sample_sums()), 
+                sum(me_otu$sample_sums())
+                )
+
+total_samples <- c(
+                nrow(me_otu_raw$sample_table), 
+                nrow(me_otu$sample_table) 
+                )
+pipe_summary <- data.frame(cbind(me_dataset, total_otus, 
+                                 total_reads, total_samples
+                                 )
+                           )
+```
+
+| Metric                | Start                                      | End                                    |
+|----------------------|----------------------|-----------------------------|
+| Min. number reads     | `r mia_me_otu_raw_summ$samples[2]`         | `r mia_me_otu_summ$samples[2]`         |
+| Max. number reads     | `r mia_me_otu_raw_summ$samples[3]`         | `r mia_me_otu_summ$samples[3]`         |
+| Total number reads    | `r mia_me_otu_raw_summ$samples[1]`         | `r mia_me_otu_summ$samples[1]`         |
+| Avg number reads      | `r round(mia_me_otu_raw_summ$samples[5])`  | `r round(mia_me_otu_summ$samples[5])`  |
+| Median number reads   | `r mia_me_otu_raw_summ$samples[4]`         | `r mia_me_otu_summ$samples[4]`         |
+| Total OTUs            | `r mia_me_otu_raw_summ$features[1]`        | `r mia_me_otu_summ$features[1]`        |
+| Number singleton OTUs | `r mia_me_otu_raw_summ$features[2]`        | `r mia_me_otu_summ$features[2]`        |
+| Avg OTUs per sample.  | `r round(mia_me_otu_raw_summ$features[3])` | `r round(mia_me_otu_summ$features[3])` |
+
+We started off with `r nrow(me_otu_raw$tax_table)` OTUs and `r nrow(me_otu_raw$sample_table)` samples. After removing low-count samples, there were `r nrow(me_otu$tax_table)` OTUs and `r nrow(me_otu$sample_table)` samples remaining.
+
+```{r}
+#| echo: false
+#| eval: false
+objects()
+gdata::keep(me_otu, me_otu_no_low, me_otu_raw, 
+            mia_me_otu, mia_me_otu_raw, 
+            mia_me_otu_raw_summ, mia_me_otu_summ, 
+            pipe_summary,
+            sure = TRUE)
+save.image("files/rdata/otu_part2.rdata")
+```
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Data Availability {.appendix}
+
+{{< include /include/_data_availability.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+Sys.time()
+remove(list = ls())
+```

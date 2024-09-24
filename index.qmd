@@ -1,0 +1,102 @@
+---
+title: "Transisthmian Shrimp Microbiomes"
+sidebar: false
+css: ["assets/css/styles_index.css", "assets/css/analysis.css", "assets/css/styles.css"]
+toc: false
+code-tools: false
+---
+
+
+
+::: {.grid .step .column-page-right}
+::: {.g-col-lg-3 .g-col-12}
+## Workflows
+
+#### Choose your data type<br/>and get started{.fw-light}
+:::
+
+::: {.tool .g-col-lg-9 .g-col-12}
+
+<a href="docs/data/index.html" role="button" class="btn btn-outline-light">
+![](images/data_code.png){width="177" fig-alt="Data-code logo."}Data & Code
+</a>
+
+<a href="docs/pub/index.html" role="button" class="btn btn-outline-light">
+![](images/pub.png){width="177" fig-alt="Pub logo."}Publication
+</a>
+
+<a href="docs/ssu-workflows/index.html" role="button" class="btn btn-outline-light">
+![](images/16s_rrna.png){width="177" fig-alt="16S logo."}16S rRNA
+</a>
+
+<a href="docs/mg-workflows/index.html" role="button" class="btn btn-outline-light">
+![](images/metagenomic.png){width="177" fig-alt="Metagenomic logo."}Metagenomics
+</a>
+
+:::
+:::
+
+
+::: {.content-block}
+::: {.features}
+
+::: {.feature}
+### Data & Code
+Lorem ipsum dolor sit amet. Vel unde provident aut cumque quis et velit sequi non voluptas rerum eos tempora debitis aut eligendi dolores non nihil omnis. Aut debitis repudiandae cum nihil culpa ex magni expedita est dolor rerum aut voluptatum harum.
+
+::: {.learn-more}
+[Learn more »](docs/data/index.qmd)
+:::
+:::
+
+::: {.feature}
+### Publication Material
+Lorem ipsum dolor sit amet. Vel unde provident aut cumque quis et velit sequi non voluptas rerum eos tempora debitis aut eligendi dolores non nihil omnis. Aut debitis repudiandae cum nihil culpa ex magni expedita est dolor rerum aut voluptatum harum.
+
+::: {.learn-more}
+[Learn more »](docs/pub/index.qmd)
+
+:::
+:::
+
+::: {.feature}
+### 16S rRNA Workflows
+Lorem ipsum dolor sit amet. Vel unde provident aut cumque quis et velit sequi non voluptas rerum eos tempora debitis aut eligendi dolores non nihil omnis. Aut debitis repudiandae cum nihil culpa ex magni expedita est dolor rerum aut voluptatum harum.
+
+
+::: {.learn-more}
+[Learn more »](/docs/ssu-workflows/index.qmd)
+:::
+:::
+
+::: {.feature}
+### Metagenomic Workflows
+Lorem ipsum dolor sit amet. Vel unde provident aut cumque quis et velit sequi non voluptas rerum eos tempora debitis aut eligendi dolores non nihil omnis. Aut debitis repudiandae cum nihil culpa ex magni expedita est dolor rerum aut voluptatum harum.
+
+
+::: {.learn-more}
+[Learn more »](/docs/mg-workflows/index.qmd)
+:::
+:::
+
+::: {.feature}
+### Interactivity
+Lorem ipsum dolor sit amet. Vel unde provident aut cumque quis et velit sequi non voluptas rerum eos tempora debitis aut eligendi dolores non nihil omnis. Aut debitis repudiandae cum nihil culpa ex magni expedita est dolor rerum aut voluptatum harum.
+
+::: {.learn-more}
+[Learn more »](/docs/interactive/)
+:::
+:::
+
+::: {.feature}
+### Websites and Books
+Lorem ipsum dolor sit amet. Vel unde provident aut cumque quis et velit sequi non voluptas rerum eos tempora debitis aut eligendi dolores non nihil omnis. Aut debitis repudiandae cum nihil culpa ex magni expedita est dolor rerum aut voluptatum harum.
+
+
+::: {.learn-more}
+[Learn more »](/docs/websites/)
+:::
+:::
+
+:::
+:::

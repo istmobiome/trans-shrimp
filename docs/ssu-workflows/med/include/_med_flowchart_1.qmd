@@ -1,0 +1,14 @@
+```{mermaid}
+flowchart LR
+  A(Start with output</br>from align.seqs)
+  A --> B(Remove<br/>Negative<br/>Controls)
+  C("get.groups <br/> (NC Samples)")
+  C --> B
+  B --> D(remove.seqs)
+  B --> E(remove.groups)
+  D --> F
+  E --> F(chimera.vsearch)
+  F --> G(classify.seqs)
+  G --> H(remove.lineage)
+```
+

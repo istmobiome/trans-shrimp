@@ -1,0 +1,69 @@
+set.dir(output=/pool/genomics/stri_istmobiome/data/TRANS_SHRIMP/16S/MOTHUR/pipelineFiles_med/)
+
+system(cp pipelineFiles/PROCESSING_FILES/shrimp.trim.contigs.good.unique.good.filter.unique.fasta pipelineFiles_med/)
+system(cp pipelineFiles/PROCESSING_FILES/shrimp.trim.contigs.good.unique.good.filter.count_table pipelineFiles_med/)
+
+############################################################
+### Just copied the fasta and count files from last command
+############################################################
+
+############################################################
+### ############  FOR MED REMOVED PRECLUST #################
+############################################################
+
+############################################################
+### ############  REMOVE NEGATIVE CONTROL ##################
+### from https://forum.mothur.org/t/negative-control/2754/16
+############################################################
+
+get.groups(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.fasta, count=shrimp.trim.contigs.good.unique.good.filter.count_table, groups=Control_49-Control_23-Control_17-Control_24-Control_14-Control_44-Control_20-Control_33-Control_41-Control_29-Control_50-Control_22-Control_19-Control_18-Control_48-Control_13-Control_21-Control_16-Control_30-Control_5-Control_42-Control_25-Control_51-Control_40-Control_15-Control_36-Control_47-Control_27-Control_32-Control_8-Control_3-Control_4-Control_6-Control_45-Control_26-Control_46-Control_53-Control_7-Control_12-Control_10-Control_9-Control_35-Control_54-Control_2-Control_43-Control_1-Control_11-Control_52-Control_38-Control_34-Control_56-Control_37-Control_28-Control_57-Control_31-Control_39-Control_59-Control_55-Control_60-Control_58)
+rename.file(input=shrimp.trim.contigs.good.unique.good.filter.unique.pick.fasta, new=neg_control.fasta)
+rename.file(input=shrimp.trim.contigs.good.unique.good.filter.pick.count_table, new=neg_control.count_table)
+summary.seqs(fasta=neg_control.fasta, count=neg_control.count_table, processors=30)
+list.seqs(count=neg_control.count_table)
+
+########################################################################################################
+### modified neg_control.count_table: 
+### 1. remove first two rows
+### 2. in BBEdit run \t\d+,.*
+### 3. in R
+###     library(tidyverse)
+###     a <- read_tsv("neg_control.count_table")
+###     b <- read_tsv("shrimp.trim.contigs.good.unique.good.filter.count_table")
+###     e <- dplyr::left_join(a, b, by = "Representative_Sequence")
+###     write.table(e, "results.txt", row.names = FALSE, quote = FALSE, sep = "\t")
+### 4. Replace accnos file with new list. Removed sequences that were found less than 10% in Neg control
+########################################################################################################
+    
+remove.seqs(accnos=neg_control_subset.accnos, fasta=shrimp.trim.contigs.good.unique.good.filter.unique.fasta, count=shrimp.trim.contigs.good.unique.good.filter.count_table)
+count.groups(count=current)
+########################################################
+## ADDED this command to remove NC samples
+#
+
+## [ERROR]: Control_18 is not in your count table. Please correct.
+## [ERROR]: Control_5 is not in your count table. Please correct.
+
+remove.groups(count=shrimp.trim.contigs.good.unique.good.filter.pick.count_table, fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.fasta, groups=Control_1-Control_10-Control_11-Control_12-Control_13-Control_14-Control_15-Control_16-Control_17-Control_19-Control_2-Control_20-Control_21-Control_22-Control_23-Control_24-Control_25-Control_26-Control_27-Control_28-Control_29-Control_3-Control_30-Control_31-Control_32-Control_33-Control_34-Control_35-Control_36-Control_37-Control_38-Control_39-Control_4-Control_40-Control_41-Control_42-Control_43-Control_44-Control_45-Control_46-Control_47-Control_48-Control_49-Control_50-Control_51-Control_52-Control_53-Control_54-Control_55-Control_56-Control_57-Control_58-Control_59-Control_6-Control_60-Control_7-Control_8-Control_9)
+########################################################
+
+summary.seqs(fasta=current, count=current, processors=30)
+count.groups(count=current)
+
+########################################
+### NEGATIVE CONTROLS Should be GONE ###
+########################################
+
+chimera.vsearch(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.fasta, count=shrimp.trim.contigs.good.unique.good.filter.pick.pick.count_table, dereplicate=t, processors=30)
+summary.seqs(fasta=current, count=current, processors=30)
+count.groups(count=current)
+
+classify.seqs(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.fasta, count=shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.count_table, reference=reference_dbs/gsrdb.fasta, taxonomy=reference_dbs/gsrdb.tax, processors=30)
+remove.lineage(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.fasta, count=shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.count_table, taxonomy=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.gsrdb.wang.taxonomy, taxon=Chloroplast-Mitochondria-unknown-Eukaryota)
+
+summary.seqs(fasta=current, count=current, processors=30)
+summary.tax(taxonomy=current, count=current, processors=30)
+count.groups(count=current)
+
+##########################
+rename.file(fasta=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.pick.fasta, count=shrimp.trim.contigs.good.unique.good.filter.pick.pick.denovo.vsearch.pick.count_table, taxonomy=shrimp.trim.contigs.good.unique.good.filter.unique.pick.pick.denovo.vsearch.gsrdb.wang.pick.taxonomy, prefix=final_med)

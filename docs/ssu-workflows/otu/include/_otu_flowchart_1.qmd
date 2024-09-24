@@ -1,0 +1,9 @@
+```{mermaid}
+flowchart LR
+  A(make.file) --> B(make.contigs)
+  B --> C(screen.seqs<br/>unique.seqs)
+  C --> E(align.seqs)
+  F(pcr.seqs) --> E
+  E --> I(screen.seqs<br/>filter.seqs<br/>unique.seqs)
+  I --> J(pre.cluster)
+```

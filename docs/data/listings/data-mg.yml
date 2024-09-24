@@ -1,0 +1,29 @@
+- name: Sequence data
+  path: https://www.ebi.ac.uk/ena/browser/view/PRJEB36632
+  description: |
+    Raw metagenomic reads (forward and reverse) for 58 samples.
+
+- name: Sample data
+  path: include/all_metadata.txt
+  description: |
+    16S rRNA sample data
+
+- name: Anvi'o config file
+  path: include/scripts/mg/default_mg.json.zip
+  description: |
+    JSON-formatted configuration file for metagenomic workflow
+
+- name: Sample mapping file
+  path: include/scripts/mg/samples.txt.zip
+  description: |
+    File needed for workflow that maps fastq files sample names and co-assembly group
+
+- name: Hydra job scripts
+  path: include/scripts/mg/mg_hydra_scripts.zip
+  description: |
+    Hydra job scripts
+
+- name: QC report
+  path: include/scripts/mg/qc-report.txt.zip
+  description: |
+    Table showing the results of quality control filtering for each sample. 

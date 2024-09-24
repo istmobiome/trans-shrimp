@@ -1,0 +1,21 @@
+```{r}
+#| message: false
+#| echo: false
+#| eval: false
+#| results: hide
+#| code-fold: true
+knitr::opts_chunk$set(echo = FALSE, eval = FALSE)
+set.seed(919191)
+pacman::p_load(tidyverse, reactable,
+               kableExtra, magrittr, 
+               install = FALSE, update = FALSE)
+
+options(scipen = 999)
+knitr::opts_current$get(c(
+  "cache",
+  "cache.path",
+  "cache.rebuild",
+  "dependson",
+  "autodep"
+))
+```

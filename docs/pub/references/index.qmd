@@ -1,0 +1,33 @@
+---
+title: "Workflow References"
+description: |
+  Quick access to references for metagenomic and 16S RNA  processing. 
+metadata-files: 
+  - _metadata.yml  
+---
+
+
+::: {#references-listings .column-body-outset-right}
+:::
+
+{{< include _listing-footer.qmd >}}
+
+### References
+
+::: {#refs}
+:::
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+Sys.time()
+```
+
+
+

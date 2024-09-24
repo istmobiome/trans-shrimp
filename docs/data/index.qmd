@@ -1,0 +1,49 @@
+---
+title: "Data & Scripts"
+listing: 
+  id: asv-listing
+  contents: listings/data-asv.yml
+metadata-files: 
+  - listings/_metadata.yml
+---
+
+{{< include _listing-preamble.qmd >}}
+
+<br/>
+
+## ASV Data and Scripts {.unlisted}
+
+::: {#asv-listing .column-body-outset-right}
+:::
+
+{{< include include/_include_asv.qmd >}}
+
+{{< include _listing-footer.qmd >}}
+
+
+
+
+
+
+
+
+
+
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Data Availability {.appendix}
+
+{{< include /include/_data_availability.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+#| 
+
+Sys.time()
+```

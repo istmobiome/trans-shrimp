@@ -1,0 +1,10 @@
+::: column-body-outset-right
+{{< include _setup.qmd >}}
+
+Quick access to pipeline processing scripts and raw data. With these scripts and associated data you can run the processing steps for each analysis. 
+
+All sequence data is linked to projects on the [European Nucleotide Archive (ENA)](https://www.ebi.ac.uk/ena/browser/). The scripts and associated files can be downloaded as `.zip` archives by clicking the links. Or if you prefer, you can copy the scripts and files from the code blocks below.  
+
+:::
+
+{{< include _listing-chooser.qmd >}}

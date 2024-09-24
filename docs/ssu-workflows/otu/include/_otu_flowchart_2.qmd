@@ -1,0 +1,15 @@
+```{mermaid}
+flowchart LR
+title[Remove Negative Controls]
+style title fill:#ffffff,stroke:#333,stroke-width:0px,mermaid-font-size:2.8rem
+
+  L("get.groups <br/> (NC Samples)")
+  L --> M(remove.seqs)
+  L --> N(remove.groups)
+  M --> O(chimera.vsearch)
+  N --> O
+  O --> P(classify.seqs)
+  P --> Q(remove.lineage)
+  Q --> R(cluster.split)
+  Q --> S(dist.seqs)
+```

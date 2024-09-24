@@ -1,0 +1,528 @@
+---
+title: "2. Co-Assembly & Annotations"
+description: |
+  This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.
+format:
+  html:
+    code-fold: false
+    mermaid:
+      theme: forest
+    toc: true
+    toc-depth: 3
+lightbox: true
+---
+
+{{< include ../_setup.qmd >}}
+
+# Data Availability
+
+PENDING
+
+# The Workflow
+
+In this section of the workflow we begin with raw, paired-end Illumina data. We will use a Snakemake [@koster2012snakemake] workflow within the anvi'o [@eren2015anvi; @eren2021community] environment for most of the steps, though we will at times call on additional tools for specific steps. The overall structure of our workflow was modeled after the one described by Delmont & Eren on [Recovering Microbial Genomes from TARA Oceans Metagenomes](http://merenlab.org/data/tara-oceans-mags/) [@delmont2018nitrogen].
+
+The main steps of this workflow are:
+
+::: column-body-outset
+| Task                  | Tool/Description                                      | Input                  |
+|------------------|-------------------------------------|------------------|
+| QUALITY-FILTERING     | IU filter quality Minoche to QC trimmed reads.        | trimmed reads          |
+| CO-ASSEMBLY           | MEGAHIT to co-assemble metagenomic samples.           | QC reads               |
+| GENE CALLING          | PRODIGAL for gene calling. Contig db for results.     | assembled contigs      |
+| TAXONOMIC ANNOTATION  | KrakenUniq for short read classification.             | QC reads               |
+| RECRUITMENT           | BOWTIE2/SAMtools for mapping short reads to assembly. | QC reads, contigs db   |
+| PROFILING             | Profile mapping results. Store in profile dbs.        | BAM file               |
+| TAXONOMIC ANNOTATION  | KAIJU for classification of contigs.                  | contigs (dna format)     |
+| FUNCTIONAL ANNOTATION | Gene annotations against Pfams, COGS, KEGG, etc.      | genes (aa format)      |
+| MERGING               | Create single merged profile db.                      | individual profile dbs |
+:::
+
+{{< include include/_mg_flowchart_1.qmd >}}
+
+We have a total of four samples from two sites and two time periods---so one sample per site per time.
+
+-   *Cayo Roldan*: the site that went hypoxic. **WROL 1914** collected during the event and **WROL 1915** collected one month after the event.
+-   *Cayo Coral*: the site that was always normoxic. **WCCR 1913** collected during the event and **WCCR 1916** collected one month after the event.
+
+# Snakemake Workflow
+
+Thanks to the anvi'o implementation of Snakemake we can run many commands sequentially and/or simultaneously. There is plenty of good documentation on the anvi'o website about setting up Snakemake workflows [here](http://merenlab.org/2018/07/09/anvio-snakemake-workflows/) so we will refrain from any lengthy explanations.
+
+You can see all the settings we used and download our configs file [here](include/default_mg.json) or grab it from the folded code below. Some commands we chose not to run but they remain in the workflow for posterity.
+
+```{zsh}
+anvi-run-workflow --list-workflows
+```
+
+```         
+WARNING
+===============================================
+If you publish results from this workflow, please do not forget to cite
+snakemake (doi:10.1093/bioinformatics/bts480)
+
+HMM profiles .................................: 9 sources have been loaded: 
+Archaea_76 (76 genes, domain: archaea), 
+Bacteria_71 (71 genes, domain: bacteria), 
+Protista_83 (83 genes, domain: eukarya), 
+Ribosomal_RNA_12S (1 genes, domain: None), 
+Ribosomal_RNA_16S (3 genes, domain: None), 
+Ribosomal_RNA_18S (1 genes, domain: None), 
+Ribosomal_RNA_23S (2 genes, domain: None), 
+Ribosomal_RNA_28S (1 genes, domain: None),
+Ribosomal_RNA_5S (5 genes, domain: None)
+Available workflows ..........................: contigs, metagenomics, pangenomics, phylogenomics, trnaseq, ecophylo, sra_download
+```
+
+```{zsh}
+anvi-run-workflow --workflow metagenomics \
+                  --get-default-config default_mg.json  \
+                  --list-dependencies
+```
+
+You can find a description of the metagenomic workflow [here](https://anvio.org/help/main/workflows/metagenomics/).
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Show JSON-formatted configuration file."
+
+{{< include include/_default_mg.qmd >}}
+```
+
+Since we are doing a co-assembly, we need a separate file called `samples.txt`, which can be downloaded [here](include/samples.txt). This file tells anvi'o where to find the **raw** fastq files for each sample and what group the sample belongs to. The file is a four-column, tab-delimited file.
+
+| sample              | group | r1            | r2            |
+|---------------------|-------|---------------|---------------|
+| EP_ALPH_AREN_GL_P01 | EP    | forward reads | reverse reads |
+| EP_ALPH_AREN_HP_P01 | EP    | forward reads | reverse reads |
+| WA_ALPH_BOUV_GL_P02 | WA    | forward reads | reverse reads |
+| WA_ALPH_BOUV_HP_P02 | WA    | forward reads | reverse reads |
+
+Remember, there are 4 fastq files *per* direction (forward or reverse) *per* sample. So each comma separated list in the `r1` column needs four file names and the same with the `r2` column. And you must include *relative path names*.
+
+To see what will happen with the `config` file we can visualize the Snakemake workflow using a Directed acyclic graph (DAG) where edge connections represent dependencies and nodes represent commands. The workflow begins with trimmed reads and continues up to and including automatic binning of contigs. At the end of this workflow we then proceed with manual binning and MAG generation. We added nodes for VirSorter and Kaiju annotations since these are not part of the normal anvi'o workflow.
+
+```{zsh}
+anvi-run-workflow --workflow metagenomics \
+                  --save-workflow-graph \
+                  -c default_mg_for_dag.json
+```
+
+{{< include include/_DAG_CODE.qmd >}}
+
+```{r}
+#| eval: true
+#| echo: false
+#| fig-cap: |
+#|   Colors indicate broad divisions of workflow: 
+#|   sky blue, short-read prep & co-assembly; 
+#|   blueish green, short-read mapping to assembly; 
+#|   orange, taxonomic or functional classification; 
+#|   yellow, automatic binning; 
+#|   reddish purple, databases construction.
+#| fig-subcap:
+#|   - "DAG of the metagenomic workflow."
+knitr::include_graphics("include/dag.png")
+```
+
+And here are the commands we used to run the workflow.
+
+```{zsh}
+anvi-run-workflow -w metagenomics -c default_mg.json \
+                  --additional-params --jobs 28 \
+                  --resources nodes=28 \
+                  --keep-going \
+                  --rerun-incomplete --unlock
+
+anvi-run-workflow -w metagenomics -c default_mg.json \
+                  --additional-params --jobs 28 \
+                  --resources nodes=28 --keep-going --rerun-incomplete
+```
+
+If a Snakemake job fails the default behavior is to lock the workflow and, because large jobs can fail for a lot of reasons, we decided to always include an identical command first with the `--unlock` flag. This will unlock the workflow and then the second command will execute. You can find an explanation of this post on [anvi'o snakemake workflows](http://merenlab.org/2018/07/09/anvio-snakemake-workflows/#how-can-i-restart-a-failed-job).
+
+## Snakemake Citations
+
+There are many tools used in the workflow that need to be cited.
+
+| Job               | Tool                                                         | Reference                                    |
+|----------------|--------------------------------|------------------------|
+| WORKFLOW          | [Snakemake](https://snakemake.readthedocs.io/en/stable/)     | [@koster2012snakemake]                       |
+| QUALITY-FILTERING | [Illumina Utils](https://github.com/merenlab/illumina-utils) | [@eren2013filtering; @minoche2011evaluation] |
+| CO-ASSEMBLY       | [Megahit](https://github.com/voutcn/megahit)                 | [@li2015megahit]                             |
+| GENE CALLING      | [Prodigal](https://github.com/hyattpd/Prodigal)              | [@hyatt2010prodigal]                         |
+| RECRUITMENT       | [BOWTIE2](https://github.com/BenLangmead/bowtie2)            | [@langmead2012bowtie]                          |
+|                   | [SAMtools](http://samtools.sourceforge.net/)                 | [@li2009samtools]                            |
+| CLASSIFICATION    | [CENTRIFUGE](https://github.com/DaehwanKimLab/centrifuge)    | [@kim2016centrifuge]                         |
+
+Also, there are a few tools that we ran outside of the Snakemake workflow. Results from these steps need to be added to the individual `PROFILE.db`'s, merged `PROFILE.db`, or `CONTIGS.db`. Therefore, before the `anvi-merge` portion of the Snakemake workflow finished, we killed the job, ran the accessory analyses described below, and then restarted the workflow to finish the missing step. Cumbersome, yes, but it got the job done.
+
+# Workflow Results
+
+When the workflow is complete, you should see the following directories within your project folder. 
+
+Directory names and descriptions:
+
+-   **00_LOGS/**: Individual log files for each step of the snakemake workflow.
+-   **01_QC/**: Merged forward (R1) & reverse (R2) QC'ed fastq files. QC STATS file for each sample. `qc-report.txt` file, a summary table of all QC results.
+-   **02_FASTA/**: Contig fasta files and reformat reports for each assembly.
+-   **03_CONTIGS/**: An annotated contig database for each assembly.
+-   **04_MAPPING/**: Short read BAM files.
+-   **05_ANVIO_PROFILE/**: Profile database for each sample.
+-   **06_MERGED/**: Single merged profile database.
+
+The `contigs.db` contains all taxonomic and functional annotations. The `profile.db` contains information on coverage, detection, etc.
+
+## QC Report
+
+```{r}
+#| echo: false
+#| eval: true
+#| message: false
+#| warning: false
+qc_report <- readr::read_delim("include/qc-report.txt")
+```
+
+```{r}
+#| echo: false
+#| eval: true
+reactable(
+    qc_report, defaultColDef = colDef(
+        header = function(value) gsub("_", " ", value, fixed = TRUE),
+        cell = function(value) format(value, nsmall = 0),
+        align = "center", filterable = FALSE, sortable = TRUE,
+        resizable = TRUE, footerStyle = list(fontWeight = "bold")
+    ),
+    columns = list(
+        sample = colDef(
+            name = "SampleID", sticky = "left", style = list(borderRight = "1px solid #eee"),
+            headerStyle = list(borderRight = "1px solid #eee"),
+            align = "left", minWidth = 150, footer = "Total reads"
+        )
+    ),
+    searchable = TRUE, defaultPageSize = 5, pageSizeOptions = c(5, 10, 50, nrow(qc_report)),
+    showPageSizeOptions = TRUE, highlight = TRUE, bordered = TRUE,
+    striped = TRUE, compact = FALSE, wrap = FALSE, showSortable = TRUE,
+    fullWidth = TRUE, theme = reactableTheme(style = list(fontSize = "0.8em"))
+) %>%
+    reactablefmtr::add_subtitle(
+        "QC report for all samples after filtering and trimming raw reads.", font_size = 15
+    )
+```
+
+{{< downloadthis include/qc-report.txt dname=all_metadata label="Download QC data. " icon=table type=info class=data-button id=qc-report >}}
+
+# Annotations
+
+This part of the workflow contains information for ancillary annotations (i.e., outside the Snakmake workflow). We will mainly cover taxonomic annotations as most functional annotations (e.g., KEGG, COG, Pfam, etc.) are run in the workflow.
+
+## Taxonomic 
+
+In this section we discuss taxonomic classification of short reads, contigs, and gene calls. We go through the steps of analyzing the data and getting the results into anvi'o databases. 
+
+
+### Short-reads with Kraken2
+
+In this section we use Kraken2 [@wood2019kraken2] to classify the **short reads**. Our goal is to classify short-reads, generate an input file for anvi'o, and create [Krona plots](https://github.com/marbl/Krona/wiki) for data visualization. Brace yourself.
+
+::: {.callout-important}
+Since Kraken2 annotation is performed on individual samples and the results are imported into the individual `profile.db`'s we will need to re-merge the all `profile.db` after these steps are completed. The merging step is basically the last step of the Snakemake workflow. 
+:::
+
+
+```{zsh}
+conda activate kraken2
+for sample in `cat sampleskraken2.txt`
+do
+    kraken2 --paired 01_QC/$sample-QUALITY_PASSED_R1.fastq.gz  \
+                     01_QC/$sample-QUALITY_PASSED_R2.fastq.gz \
+                     --db kraken2_db/ \
+                     --use-names \
+                     --threads $NSLOTS \
+                     --output $sample-kraken.out \
+                     --report $sample-kraken-report.txt
+done
+conda deactivate 
+```
+
+After this is finished we should have two files for each sample--a `.out` file containing the results of the Kraken2 annotation and a `.report.txt` file that summarizes the results. 
+
+First, we generate the file that anvi'o needs--the format is very specific. For this task we use [KrakenTool](https://github.com/jenniferlu717/KrakenTools)--a suite of very handy scripts to Kraken 2 data. We will use a tool called [`kreport2mpa.py`](https://github.com/jenniferlu717/KrakenTools?tab=readme-ov-file#kreport2mpapy), which takes a Kraken report file and prints out a MPA (MetaPhlAn)-style TEXT file. 
+
+```{zsh}
+conda activate krakentools
+for sample in `cat sampleskraken2.txt`
+do
+    kreport2mpa.py -r $sample-kraken-report.txt -o $sample-kraken-mpa.txt    
+done
+conda deactivate 
+```
+
+Easy as that. Now we can import all MPA files into their respective contig databases. Here we had to split the sample list by co-assembly because I could not figure out an easier way. 
+
+```{zsh}
+for sample in `cat EP_list.txt`
+do 
+    anvi-import-taxonomy-for-layers \
+                   -p 05_ANVIO_PROFILE/EP/$sample/PROFILE.db \
+                   --parse krakenuniq \
+                   -i 07_TAXONOMY/KRAKEN_TAXONOMY/$sample-kraken-mpa.txt
+done
+
+for sample in `cat WA_list.txt`
+do 
+    anvi-import-taxonomy-for-layers \
+                   -p 05_ANVIO_PROFILE/WA/$sample/PROFILE.db \
+                   --parse krakenuniq -i \
+                   07_TAXONOMY/KRAKEN_TAXONOMY/$sample-kraken-mpa.txt
+done
+```
+
+Rad. With this done we can re-merge the profile databases. 
+
+```{zsh}
+anvi-merge 05_ANVIO_PROFILE/WA/*/PROFILE.db \
+          -c 03_CONTIGS/WA-contigs.db \
+          -o 06_MERGED/WA
+anvi-merge 05_ANVIO_PROFILE/EP/*/PROFILE.db \
+          -c 03_CONTIGS/EP-contigs.db \
+          -o 06_MERGED/EP
+```
+
+Alright, time to make some Krona plots. This is a two-steo process. First, we use two scripts from  [metaWRAP](https://github.com/bxlab/metaWRAP). The first, called `kraken2_translate.py`, is used to generate full taxonomic lineages from a taxid. The input file for this is the output of the Kraken2 annotation. The next script is called `kraken_to_krona.py` which takes the output of the first script (translated Kraken file) and parses it into a format that Krona can use to produce plots.
+
+```{zsh}
+conda activate metawrap
+for sample in `cat sampleskraken2.txt`
+do
+    kraken2_translate.py kraken2_db $sample-kraken.out $sample-kraken.trans
+    kraken_to_krona.py $sample-kraken.trans > $KRAKEN/$sample-kraken.krona
+done
+conda deactivate 
+```
+
+Once that is complete, we can use the output files and a script called `ktImportText` from the Krona package to produce HTML Krona plots for each sample. 
+
+```{zsh}
+conda activate krona
+for sample in `cat sampleskraken2.txt`
+do
+    ktImportText $sample-kraken.krona -o $sample-kraken.krona.html
+done
+conda deactivate 
+```
+
+A plot for every sample. How great is that?
+
+### VirSorter Annotation
+
+To classify any viral sequences, we ran [VirSorter2](https://github.com/jiarong/VirSorter2) [@guo2021virsorter2] on contigs from the co-assembly using our newly created `contig.db`. First, we need something for VirSorter2 to classify. For that we export fasta files from each anvi'o co-assembly. 
+
+```{zsh}
+anvi-export-contigs -c 03_CONTIGS/WA-contigs.db \
+                    -o 03_CONTIGS/WA-splits.fa \ 
+                    --splits-mode --no-wrap
+anvi-export-contigs -c 03_CONTIGS/EP-contigs.db \
+                    -o 03_CONTIGS/EP-splits.fa \
+                    --splits-mode --no-wrap
+```
+
+And the code we used to run VirSorter2.
+
+```{zsh}
+conda activate virsorter2
+virsorter run --seqfile 03_CONTIGS/WA-splits.fa \
+              --working-dir WA/ \
+              --keep-original-seq \
+              --prep-for-dramv \
+              --hallmark-required-on-short \
+              --db-dir virsorter2_db 
+virsorter run --seqfile 03_CONTIGS/EP-splits.fa \
+              --working-dir EP/ \
+              --keep-original-seq \
+              --prep-for-dramv \
+              --hallmark-required-on-short \
+              --db-dir virsorter2_db
+conda deactivate
+```
+
+Now, to get Virsorter2 annotations into the anvi'o contig databases there are a few special steps that need to be taken. Please [see this post](https://github.com/simroux/VirSorter2_to_Anvio) and associated `virsorter_to_anvio.py` script for more details. Here we will only include the code with minimal explanation. Too long...
+
+First we export two tables that the `virsorter_to_anvio.py` script needs for import. 
+
+```{zsh}
+anvi-export-table 03_CONTIGS/WA-contigs.db  --table splits_basic_info \
+                  --output-file WA_splits_basic_info.txt
+anvi-export-table 03_CONTIGS/EP-contigs.db  --table splits_basic_info \
+                  --output-file EP_splits_basic_info.txt
+
+anvi-export-gene-calls -c 03_CONTIGS/WA-contigs.db \
+                       --output-file WA_all_gene_calls.txt \
+                       --gene-caller prodigal
+anvi-export-gene-calls -c 03_CONTIGS/EP-contigs.db \
+                       --output-file EP_all_gene_calls.txt \
+                       --gene-caller prodigal
+```
+
+Time to get messy. At the time of this writing,  the `gene_calls` file exported from anvi'o is a 10-column tab-delimited text file. The `virsorter_to_anvio.py` script needs only 8 of these, and they need to be in a specific order. No problem, we can use [`awk`](https://www.gnu.org/software/gawk/manual/gawk.html). 
+
+::: {.column-margin}
+These are the column values needed by the `virsorter_to_anvio.py` script:`gene_callers_id`, `contig`, `start`, `stop`, `direction`, `partial`, `source`, `version`
+:::
+
+```{zsh}
+awk 'BEGIN {FS="\t"; OFS="\t"} {print $1, $2, $3, $4, $5, $6, $8, $9}' WA_all_gene_calls.txt
+awk 'BEGIN {FS="\t"; OFS="\t"} {print $1, $2, $3, $4, $5, $6, $8, $9}' EP_all_gene_calls.txt
+```
+
+After this we run the parsing script. 
+
+```{zsh}
+virsorter_to_anvio.py -i WA/ -s WA/WA_splits_basic_info.txt \
+                      -n WA/WA_all_gene_calls.txt \
+                      -d virsorter2_db \
+                      -A WA/WA_virsorter_additional_info.txt \
+                      -C WA/WA_virsorter_collection.txt \
+                      -F WA/WA_virsorter_annotations.txt
+
+virsorter_to_anvio.py -i EP/ -s EP/EP_splits_basic_info.txt \
+                      -n EP/EP_all_gene_calls.txt \
+                      -d virsorter2_db \
+                      -A EP/EP_virsorter_additional_info.txt \
+                      -C EP/EP_virsorter_collection.txt \
+                      -F EP/EP_virsorter_annotations.txt
+```
+
+And import the resulting files to anvi'o
+
+```{zsh}
+anvi-import-misc-data WA-virsorter_additional_info.txt 
+                      -p 06_MERGED/WA/PROFILE.db  
+                      --target-data-table items
+anvi-import-misc-data EP-virsorter_additional_info.txt 
+                      -p 06_MERGED/EP/PROFILE.db  
+                      --target-data-table items
+
+anvi-import-collection WA-virsorter_collection.txt 
+                      -c 03_CONTIGS/WA-contigs.db 
+                      -p 06_MERGED/WA/PROFILE.db 
+                      -C VIRSORTER2
+anvi-import-collection EP-virsorter_collection.txt 
+                      -c 03_CONTIGS/EP-contigs.db 
+                      -p 06_MERGED/EP/PROFILE.db
+                      -C VIRSORTER2
+```
+
+VirSorter2 annotation complete. 
+
+## Kaiju Annotation
+
+Here we use [Kaiju](https://github.com/bioinformatics-centre/kaiju) [@menzel2016kaiju] to classify gene calls. We do this against the [progenomes databases](https://github.com/bioinformatics-centre/kaiju?tab=readme-ov-file#creating-the-kaiju-index), a r epresentative set of genomes from the [proGenomes](http://progenomes.embl.de/) database and viruses from the NCBI RefSeq database. We describe the contruction of this database [here](../setup/index.html#kaiju). 
+
+Start by grabbing gene call fasta files. 
+
+```{zsh}
+anvi-get-sequences-for-gene-calls -c 03_CONTIGS/EP-contigs.db -o EP_gene_calls.fna
+anvi-get-sequences-for-gene-calls -c 03_CONTIGS/WA-contigs.db -o WA_gene_calls.fna
+```
+
+
+```{zsh}
+conda activate kaiju
+kaiju -t kaiju_db/nodes.dmp \
+      -f kaiju_db/kaiju_db_progenomes.fmi \
+      -i EP_gene_calls.fna \ 
+      -o EP_kaiju_nr.out \
+      -z $NSLOTS -v
+
+kaiju -t kaiju_db/nodes.dmp \
+      -f kaiju_db/kaiju_db_progenomes.fmi \
+      -i WA_gene_calls.fna \
+      -o WA_kaiju_nr.out \
+      -z $NSLOTS -v
+
+kaiju-addTaxonNames -t kaiju_db/nodes.dmp \
+                    -n kaiju_db/names.dmp \
+                    -i EP_kaiju_nr.out \
+                    -o EP_kaiju_nr.names \
+                    -r superkingdom,phylum,order,class,family,genus,species
+
+kaiju-addTaxonNames -t kaiju_db/nodes.dmp 
+                    -n kaiju_db/names.dmp \
+                    -i WA_kaiju_nr.out \
+                    -o WA_kaiju_nr.names \ 
+                    -r superkingdom,phylum,order,class,family,genus,species
+conda deactivate
+```
+
+Import the output to anvi'o.
+
+```{zsh}
+anvi-import-taxonomy-for-genes -c 03_CONTIGS/EP-contigs.db \
+                               -p kaiju \
+                               -i EP_kaiju_nr.names 
+
+anvi-import-taxonomy-for-genes -c 03_CONTIGS/WA-contigs.db \
+                               -p kaiju \
+                               -i WA_kaiju_nr.names
+```
+
+And generate Krona plots of the data. A little dance between the Kaiju and Krona environments. 
+
+```{zsh}
+conda activate kaiju
+kaiju2krona -t kaiju_db/nodes.dmp \
+            -n kaiju_db/names.dmp \
+            -i $KAIJU/WA_kaiju_nr.out \
+            -o WA_kaiju_nr.out.krona
+
+kaiju2krona -t kaiju_db/nodes.dmp \
+            -n kaiju_db/names.dmp \
+            -i EP_kaiju_nr.out \
+            -o EP_kaiju_nr.out.krona
+conda deactivate
+```
+
+```{zsh}
+conda activate krona
+ktImportText -o WA_kaiju_nr.out.html WA_kaiju_nr.out.krona
+ktImportText -o EP_kaiju_nr.out.html EP_kaiju_nr.out.krona
+conda deactivate 
+```
+
+```{zsh}
+conda activate kaiju
+
+kaiju2table -t kaiju_db/nodes.dmp \
+            -n kaiju_db/names.dmp \
+            -r class \
+            -l phylum,class,order,family \
+            -o WA_kaiju_nr.out.summary WA_kaiju_nr.out \
+kaiju2table -t kaiju_db/nodes.dmp \
+            -n kaiju_db/names.dmp \
+            -r class \
+            -l phylum,class,order,family \
+            -o EP_kaiju_nr.out.summary EP_kaiju_nr.out
+
+conda deactivate
+```
+
+Kaiju done.
+
+#### Source Code {.appendix}
+
+{{< include /include/_access_code.qmd >}}
+
+#### Data Availability {.appendix}
+
+{{< include /include/_data_availability.qmd >}}
+
+#### Last updated on {.appendix}
+
+```{r}
+#| echo: false
+#| eval: true
+Sys.time()
+```

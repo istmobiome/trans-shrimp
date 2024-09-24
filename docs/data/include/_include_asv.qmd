@@ -1,0 +1,109 @@
+## ASV Processing 
+
+### Individual Runs 
+
+Processing scripts for ASV analysis of individual sequencing runs using [dada2](https://github.com/benjjneb/dada2). In total, 16S rRNA sequencing was performed on 6 sequencing runs. In the first workflow of the pipeline, runs are processed separately for error rates, dereplication, and ASV inference. At the end of each workflow, forward and reverse reads are merged. 
+
+::: panel-tabset
+
+## BCS_26
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run **BCS_26**"
+
+{{< include include/scripts/asv/_BCS_26.R >}}
+```
+
+## BCS_28
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run **BCS_28**"
+
+{{< include include/scripts/asv/_BCS_28.R >}}
+```
+
+## BCS_29
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run **BCS_29**"
+
+{{< include include/scripts/asv/_BCS_29.R >}}
+```
+
+## BCS_30
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run **BCS_30**"
+
+{{< include include/scripts/asv/_BCS_30.R >}}
+```
+
+## BCS_34
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run **BCS_34**"
+
+{{< include include/scripts/asv/_BCS_34.R >}}
+```
+
+## BCS_35
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run **BCS_35**"
+
+{{< include include/scripts/asv/_BCS_35.R >}}
+```
+:::
+
+```{bash}
+#| code-fold: false
+#| eval: false
+#| echo: true
+conda activate R
+Rscript BCS_26.R
+Rscript BCS_28.R
+Rscript BCS_29.R
+Rscript BCS_30.R
+Rscript BCS_34.R
+Rscript BCS_35.R
+```
+
+### Merged Runs
+
+Once these workflows finish, we then merge the 6 sequence tables together and proceed with chimera removal and taxonomic classification. 
+
+```{bash}
+#| code-fold: true
+#| eval: false
+#| echo: true
+#| code-summary: "Processing script for run merged runs"
+
+{{< include include/scripts/asv/_merge_asv_pipeline.R >}}
+```
+
+```{bash}
+#| eval: false
+#| echo: true
+conda activate R
+Rscript 2.dada2_pipeline.R
+```
+
+In the resources listed above, we include a table that summarizes read changes for each sample through the pipeline. 
