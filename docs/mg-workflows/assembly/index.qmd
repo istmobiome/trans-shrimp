@@ -4,11 +4,8 @@ description: |
   This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.
 format:
   html:
-    code-fold: false
     mermaid:
       theme: forest
-    toc: true
-    toc-depth: 3
 lightbox: true
 ---
 
@@ -18,7 +15,7 @@ lightbox: true
 
 PENDING
 
-# The Workflow
+# The Pipeline
 
 In this section of the workflow we begin with raw, paired-end Illumina data. We will use a Snakemake [@koster2012snakemake] workflow within the anvi'o [@eren2015anvi; @eren2021community] environment for most of the steps, though we will at times call on additional tools for specific steps. The overall structure of our workflow was modeled after the one described by Delmont & Eren on [Recovering Microbial Genomes from TARA Oceans Metagenomes](http://merenlab.org/data/tara-oceans-mags/) [@delmont2018nitrogen].
 
@@ -40,10 +37,7 @@ The main steps of this workflow are:
 
 {{< include include/_mg_flowchart_1.qmd >}}
 
-We have a total of four samples from two sites and two time periods---so one sample per site per time.
-
--   *Cayo Roldan*: the site that went hypoxic. **WROL 1914** collected during the event and **WROL 1915** collected one month after the event.
--   *Cayo Coral*: the site that was always normoxic. **WCCR 1913** collected during the event and **WCCR 1916** collected one month after the event.
+We have a total of 58 samples ...DETAILS
 
 # Snakemake Workflow
 
@@ -159,7 +153,7 @@ There are many tools used in the workflow that need to be cited.
 
 Also, there are a few tools that we ran outside of the Snakemake workflow. Results from these steps need to be added to the individual `PROFILE.db`'s, merged `PROFILE.db`, or `CONTIGS.db`. Therefore, before the `anvi-merge` portion of the Snakemake workflow finished, we killed the job, ran the accessory analyses described below, and then restarted the workflow to finish the missing step. Cumbersome, yes, but it got the job done.
 
-# Workflow Results
+# Pipeline Output
 
 When the workflow is complete, you should see the following directories within your project folder. 
 
@@ -174,45 +168,6 @@ Directory names and descriptions:
 -   **06_MERGED/**: Single merged profile database.
 
 The `contigs.db` contains all taxonomic and functional annotations. The `profile.db` contains information on coverage, detection, etc.
-
-## QC Report
-
-```{r}
-#| echo: false
-#| eval: true
-#| message: false
-#| warning: false
-qc_report <- readr::read_delim("include/qc-report.txt")
-```
-
-```{r}
-#| echo: false
-#| eval: true
-reactable(
-    qc_report, defaultColDef = colDef(
-        header = function(value) gsub("_", " ", value, fixed = TRUE),
-        cell = function(value) format(value, nsmall = 0),
-        align = "center", filterable = FALSE, sortable = TRUE,
-        resizable = TRUE, footerStyle = list(fontWeight = "bold")
-    ),
-    columns = list(
-        sample = colDef(
-            name = "SampleID", sticky = "left", style = list(borderRight = "1px solid #eee"),
-            headerStyle = list(borderRight = "1px solid #eee"),
-            align = "left", minWidth = 150, footer = "Total reads"
-        )
-    ),
-    searchable = TRUE, defaultPageSize = 5, pageSizeOptions = c(5, 10, 50, nrow(qc_report)),
-    showPageSizeOptions = TRUE, highlight = TRUE, bordered = TRUE,
-    striped = TRUE, compact = FALSE, wrap = FALSE, showSortable = TRUE,
-    fullWidth = TRUE, theme = reactableTheme(style = list(fontSize = "0.8em"))
-) %>%
-    reactablefmtr::add_subtitle(
-        "QC report for all samples after filtering and trimming raw reads.", font_size = 15
-    )
-```
-
-{{< downloadthis include/qc-report.txt dname=all_metadata label="Download QC data. " icon=table type=info class=data-button id=qc-report >}}
 
 # Annotations
 
@@ -230,7 +185,6 @@ In this section we use Kraken2 [@wood2019kraken2] to classify the **short reads*
 ::: {.callout-important}
 Since Kraken2 annotation is performed on individual samples and the results are imported into the individual `profile.db`'s we will need to re-merge the all `profile.db` after these steps are completed. The merging step is basically the last step of the Snakemake workflow. 
 :::
-
 
 ```{zsh}
 conda activate kraken2

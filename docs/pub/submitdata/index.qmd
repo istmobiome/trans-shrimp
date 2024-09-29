@@ -2,6 +2,9 @@
 title: "Submitting Data"
 description: |
   In this section you can find information on submitting sequence data to public archives.
+title-block-banner: false
+bread-crumbs: false
+page-navigation: false
 ---
 
 ## Archived Sequence Data

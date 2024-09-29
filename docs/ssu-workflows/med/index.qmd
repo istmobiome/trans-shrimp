@@ -6,9 +6,6 @@ format:
   html:
     mermaid:
       theme: neutral
-    toc: true
-    toc-depth: 3
-image: "image.jpg"    
 ---
 
 {{< include ../_setup.qmd >}}

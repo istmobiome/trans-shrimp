@@ -6,8 +6,6 @@ format:
   html:
     mermaid:
       theme: neutral
-    toc: true
-    toc-depth: 3
 ---
 
 {{< include ../_setup.qmd >}}

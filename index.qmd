@@ -1,7 +1,7 @@
 ---
 title: "Transisthmian Shrimp Microbiomes"
 sidebar: false
-css: ["assets/css/styles_index.css", "assets/css/analysis.css", "assets/css/styles.css"]
+css: ["assets/css/chooser.css", "assets/css/learn_more.css",  "assets/css/styles.css"]
 toc: false
 code-tools: false
 ---

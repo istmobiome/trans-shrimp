@@ -1,0 +1,159 @@
+---
+title: "3. Assembly & Annotation Results"
+description: |
+  This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.
+format:
+  html:
+    mermaid:
+      theme: forest
+lightbox: true
+---
+
+{{< include ../_setup.qmd >}}
+
+## QC Results
+
+The first thing we should do is look at the results of the initial QC step. For each sample, anvi’o spits out individual quality control reports. Thankfully anvi’o also concatenates those files into one table. This table contains information like the number of pairs analyzed, the total pairs passed, etc.
+
+```{r}
+#| echo: false
+#| eval: false
+#| message: false
+#| warning: false
+qc_report <- readr::read_delim("include/qc-report.txt")
+qc_report[17:ncol(qc_report)] <- NULL
+```
+
+```{r}
+#| echo: false
+#| eval: false
+reactable(
+    qc_report, defaultColDef = colDef(
+        header = function(value) gsub("_", " ", value, fixed = TRUE),
+        cell = function(value) format(value, nsmall = 0),
+        align = "center", filterable = FALSE, sortable = TRUE,
+        resizable = TRUE, footerStyle = list(fontWeight = "bold")
+    ),
+    columns = list(
+        sample = colDef(
+            name = "SampleID", sticky = "left", style = list(borderRight = "1px solid #eee"),
+            headerStyle = list(borderRight = "1px solid #eee"),
+            align = "left", minWidth = 200),
+        `number of pairs analyzed` = colDef(name = "no. pairs analyzed"),
+        `total pairs passed` = colDef(name = "no. pairs passed"),
+        `total pairs passed (percent of all pairs)` = colDef(name = "no. pairs passed (% of all pairs)"),
+        `total pair_1 trimmed` = colDef(name = "no. pair_1 trimmed"),
+        `total pair_1 trimmed (percent of all passed pairs)` = colDef(name = "no. pair_1 trimmed (% of all passed pairs)"),
+        `total pair_2 trimmed` = colDef(name = "no. pair_2 trimmed"),
+        `total pair_2 trimmed (percent of all passed pairs)`  = colDef(name = "no. pair_2 trimmed (% of all passed pairs)"),
+        `total pairs failed`  = colDef(name = "no. pairs failed"),
+        `total pairs failed (percent of all pairs)`  = colDef(name = "no. pairs failed (% of all pairs)"),
+        `pairs failed due to pair_1` = colDef(name = "pairs failed due to pair_1"),
+        `pairs failed due to pair_1 (percent of all failed pairs)` = colDef(name = "pairs failed due to pair_1 (% of all failed pairs)"),
+        `pairs failed due to pair_2` = colDef(name = "pairs failed due to pair_2"),
+        `pairs failed due to pair_2 (percent of all failed pairs)` = colDef(name = "pairs failed due to pair_2 (% of all failed pairs)"),
+        `pairs failed due to both` = colDef(name = "pairs failed due to both"),
+        `pairs failed due to both (percent of all failed pairs)` = colDef(name = "pairs failed due to both (% of all failed pairs)")
+    ),
+    searchable = TRUE, defaultPageSize = 5, pageSizeOptions = c(5, 10, 25, nrow(qc_report)),
+    showPageSizeOptions = TRUE, highlight = TRUE, bordered = TRUE,
+    striped = TRUE, compact = FALSE, wrap = TRUE, showSortable = TRUE,
+    fullWidth = TRUE, theme = reactableTheme(style = list(fontSize = "0.8em"))
+) %>%
+    reactablefmtr::add_subtitle(
+        "QC report for all samples after filtering and trimming raw reads.", font_size = 15
+    )
+```
+
+{{< downloadthis include/qc-report.txt dname=all_metadata label="Download QC data." icon=table type=info class=data-button id=qc-report >}}
+
+## Assembly Results
+
+Next we can look at the results of the co-assembly, the number of HMM hits, and the estimated number of predicted genomes. These data not only give us a general idea of assembly quality but will also help us decide parameters for automatic clustering down the road.
+
+We can use anvi’o to generate a simple table of contig stats for this assembly.
+
+```{zsh}
+anvi-display-contigs-stats PAN-contigs.db \
+                           --output-file contig-stats.txt \
+                           --report-as-text
+```
+
+```{r}
+#| echo: false
+#| eval: false
+#| message: false
+#| warning: false
+results <- readr::read_delim("include/layer_additional_data.txt")
+results <- results %>% 
+  dplyr::select(item_name, total_num_reads, 
+                total_reads_mapped, num_INDELs_reported, 
+                num_SCVs_reported, num_SNVs_reported, 
+                percent_mapped
+                )
+```
+
+```{r}
+#| echo: false
+#| eval: false
+reactable(
+    results, defaultColDef = colDef(
+        header = function(value) gsub("_", " ", value, fixed = TRUE),
+        cell = function(value) format(value, nsmall = 0),
+        align = "center", filterable = FALSE, sortable = TRUE,
+        resizable = TRUE, footerStyle = list(fontWeight = "bold")
+    ),
+    columns = list(
+        item_name = colDef(
+            name = "SampleID", sticky = "left", style = list(borderRight = "1px solid #eee"),
+            headerStyle = list(borderRight = "1px solid #eee"),
+            align = "left", minWidth = 200),
+        total_num_reads = colDef(name = "total no. reads"),
+        total_reads_kept = colDef(name = "no. reads kept"),
+        total_reads_mapped = colDef(name = "no. reads mapped"),
+        num_INDELs_reported = colDef(name = "no. INDELs reported"),
+        num_SCVs_reported = colDef(name = "no. SCVs reported"),
+        num_SNVs_reported = colDef(name = "no. SNVs reported"),
+        percent_mapped = colDef(name = "% mapped")
+    ),
+    searchable = TRUE, defaultPageSize = 5, pageSizeOptions = c(5, 10, 25, nrow(results)),
+    showPageSizeOptions = TRUE, highlight = TRUE, bordered = TRUE,
+    striped = TRUE, compact = FALSE, wrap = TRUE, showSortable = TRUE,
+    fullWidth = TRUE, theme = reactableTheme(style = list(fontSize = "0.8em"))
+) %>%
+    reactablefmtr::add_subtitle(
+        "QC report for all samples after filtering and trimming raw reads.", font_size = 15
+    )
+```
+
+```{r}
+#| echo: false
+#| eval: false
+#| message: false
+#| warning: false
+taxa_sum <- readr::read_delim("include/layer_additional_data.txt")
+taxa_sum <- taxa_sum %>% 
+  dplyr::select(item_name, starts_with("t_phylum"))
+colnames(taxa_sum) <- gsub("t_phylum!", "", colnames(taxa_sum))
+taxa_sum <- taxa_sum %>% tibble::column_to_rownames("item_name")
+taxa_sum <- data.frame(t(taxa_sum))
+taxa_sum <- taxa_sum %>% tibble::rownames_to_column("Taxa")
+```
+
+## Short-read Taxonomy
+
+Since the Kraken2 classification was performed BEFORE the assembly we can look at the Krona plots for each individual sample. Here samples are separated by site.
+
+```{zsh}
+#| echo: true
+#| eval: false
+anvi-export-table PROFILE.db --table layer_additional_data \
+                             --output-file  layer_additional_data.txt \
+                             --index item_name \
+                             --columns data_key \
+                             --values data_value \
+                             --matrix-format
+```
+
+
+

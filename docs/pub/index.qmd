@@ -1,6 +1,5 @@
 ---
 title: "Publication Material"
-css: ["/assets/css/styles_index.css", "/assets/css/styles.css"]
 listing:
   field-display-names:
     title: "Paper"

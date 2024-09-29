@@ -2,11 +2,6 @@
 title: "1. Sample Metadata"
 description: |
   Workflow for wrangling sample metadata and generating informative sample names.
-format:
-  html:
-    toc: true
-    toc-depth: 3
-image: "image.jpg"
 ---
 
 {{< include ../_setup.qmd >}}

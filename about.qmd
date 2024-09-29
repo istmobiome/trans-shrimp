@@ -632,9 +632,18 @@ web.Rproj
 public_build/
 ```
 
-Now, copy all of the files from `public_build/` to `public/`.
+::: {.callout-not}
+If you using macOS you may want to remove the `.DS_Store` directories before pushihng your build to GitHub. 
+:::
 
 ```{zsh}
+find . -name ".DS_Store" -print -delete
+```
+
+Now, remove everything from `public` and copy over all of the files from `public_build/`.
+
+```{zsh}
+rm -r public/*
 cp -r public_build/* public/
 ```
 

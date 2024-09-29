@@ -7,7 +7,7 @@
   text-align: center;
   margin-right: 10px;
   margin-top: 10px;
-  color: inherit;
+  color: inherit; 
   width: 102px;
   font-size: 0.8em;
 }
@@ -98,7 +98,7 @@
 
 .tool a[role="button"] {
   width: 200px;
-  color: rgb(55, 58, 60);
+  color: rgb(55, 58, 60); 
   text-align: center;
   border: 1px solid rgb(222, 226, 230);
   border-radius: 10px;

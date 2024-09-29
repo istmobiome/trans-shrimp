@@ -1,0 +1,15 @@
+{
+  "hash": "96d0c16892a0f5600b90b97221b3d97d",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"3. Assembly & Annotation Results\"\ndescription: |\n  This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.\nformat:\n  html:\n    mermaid:\n      theme: forest\nlightbox: true\n---\n\n::: {.cell}\n\n```{.r .cell-code  code-fold=\"true\" code-summary=\"Click here for libraries and setup information.\"}\nknitr::opts_chunk$set(echo = TRUE, eval = FALSE)\nset.seed(919191)\nlibrary(ggplot2); packageVersion(\"ggplot2\")\nlibrary(Biostrings); packageVersion(\"Biostrings\")\npacman::p_load(tidyverse, gridExtra, grid,\n               formatR, reactable, gdata, patchwork,\n               kableExtra, magrittr, \n               install = FALSE, update = FALSE)\n\noptions(scipen = 999)\nknitr::opts_current$get(c(\n  \"cache\",\n  \"cache.path\",\n  \"cache.rebuild\",\n  \"dependson\",\n  \"autodep\"\n))\n#root <- find_root(has_file(\"_quarto.yml\"))\n#source(file.path(root, \"assets\", \"functions.R\"))\n```\n:::\n\n\n\n\n\n## QC Results\n\nThe first thing we should do is look at the results of the initial QC step. For each sample, anvi’o spits out individual quality control reports. Thankfully anvi’o also concatenates those files into one table. This table contains information like the number of pairs analyzed, the total pairs passed, etc.\n\n\n\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n{{< downloadthis include/qc-report.txt dname=all_metadata label=\"Download QC data.\" icon=table type=info class=data-button id=qc-report >}}\n\n\n\n\n\n\n## Assembly Results\n\nNext we can look at the results of the co-assembly, the number of HMM hits, and the estimated number of predicted genomes. These data not only give us a general idea of assembly quality but will also help us decide parameters for automatic clustering down the road.\n\nWe can use anvi’o to generate a simple table of contig stats for this assembly.\n\n\n\n\n::: {.cell}\n\n```{.zsh .cell-code}\nanvi-display-contigs-stats PAN-contigs.db \\\n                           --output-file contig-stats.txt \\\n                           --report-as-text\n```\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n::: {.cell}\n\n:::\n\n\n\n\n## Short-read Taxonomy\n\nSince the Kraken2 classification was performed BEFORE the assembly we can look at the Krona plots for each individual sample. Here samples are separated by site.\n\n\n\n\n::: {.cell}\n\n```{.zsh .cell-code}\nanvi-export-table PROFILE.db --table layer_additional_data \\\n                             --output-file  layer_additional_data.txt \\\n                             --index item_name \\\n                             --columns data_key \\\n                             --values data_value \\\n                             --matrix-format\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

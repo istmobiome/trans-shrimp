@@ -1,0 +1,18 @@
+/*-- scss:defaults --*/
+$link-color: #248CFC;
+$code-color: #BF2727;
+
+/*-- scss:rules --*/
+.dark-mode,
+.dark-light .cell-output-display figure,
+.dark-light .cell-output-display img
+{ display: none; }
+
+.light-mode,
+.dark-light .cell-output-display + .cell-output-display figure ,
+.dark-light .cell-output-display + .cell-output-display img
+{ display: block; }
+
+.light-mode { display: block; }
+.dark-mode { display: none; }
+

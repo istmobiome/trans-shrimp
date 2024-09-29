@@ -2,11 +2,6 @@
 title: "3. OTU Workflow"
 description: |
   Workflows for processing 16S rRNA shrimp and environmental sample data sets using paired end reads, beginning with raw fastq files, ending with sequence and taxonomy tables.
-format:
-  html:
-    toc: true
-    toc-depth: 3
-image: "image.jpg"
 ---
 
 {{< include ../_setup.qmd >}}
@@ -14,6 +9,7 @@ image: "image.jpg"
 ::: {.column-margin}
 {{< include /include/_chunk_colors.qmd >}}
 :::
+
 
 ```{r}
 #| echo: false
@@ -128,6 +124,7 @@ write_delim(seqmatch, "seqmatch.txt", delim = "\t")
 saveRDS(seqmatch, "seqmatch.rds")
 #save.image("seqmatch_workflow.rdata")
 ```
+
 ```{r}
 seqmatch <- readRDS("files/rdata/seqmatch.rds")
 seqmatch$MED_NODE <- paste("MED", seqmatch$MED_NODE, sep ="")
@@ -165,8 +162,58 @@ print(result)
 seqmatch
 ```
 
+```{r}
+#| echo: false
+#| eval: false
+
+# Library
+library(networkD3)
+library(dplyr)
+ 
+tmp_links <- seqmatch %>% dplyr::rename("source" = 1) %>% 
+  dplyr::rename(., "value" = 2) %>%
+  dplyr::rename(., "target" = 3)
+
+tmp_links <- filter(tmp_links, source != "NO_OTU")
+tmp_links <- tmp_links %>% group_by(target) %>% filter(value > 1000)
+
+tmp_nodes <- data.frame(
+  name = c(as.character(tmp_links$source), 
+  as.character(tmp_links$target)) %>% unique()
+)  
+
+tmp_links$IDsource <- match(tmp_links$source, tmp_nodes$name)-1 
+tmp_links$IDtarget <- match(tmp_links$target, tmp_nodes$name)-1
+
+
+
+p <- sankeyNetwork(Links = tmp_links, Nodes = tmp_nodes,
+              Source = "IDsource", Target = "IDtarget",
+              Value = "value", NodeID = "name", 
+              sinksRight = FALSE)
+p
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ```{r}
+#| echo: false
+#| eval: false
+
 me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu000003")
 me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu010978")
 me_otu_pb$tax_table %>% filter(row.names(me_otu_pb$tax_table) %in% "Otu012751")
@@ -184,6 +231,9 @@ input_ids %>%
 ```
 
 ```{r}
+#| echo: false
+#| eval: false
+
 me_asv_tmp <- clone(me_asv)
 me_otu_tmp <- clone(me_otu)
 me_med_tmp <- clone(me_med)
@@ -272,6 +322,9 @@ me_asv_pb$tax_table
 
 
 ```{r}
+#| echo: false
+#| eval: false
+
 objects()
 me_med_pb
 # remember first clone the whole dataset

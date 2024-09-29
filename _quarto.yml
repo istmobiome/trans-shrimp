@@ -12,12 +12,11 @@ project:
     - "!sandbox/"
     - "!public/"
     - "!hack_code/"
-    - "!page_build/"
     - "!files/"
     - "!public_build/"
-    - "!archive_code/"
     - "!README.md"
     - "!paper/*/*.qmd"
+    - "!.DS_Store"
 
 website:
   title: "TransIsthmian Shrimp"
@@ -27,6 +26,7 @@ website:
   repo-url: https://github.com/istmobiome/trans-shrimp/
   repo-actions: [edit, issue, source]
   page-navigation: true
+  reader-mode: true
   back-to-top-navigation: false
   search:
     location: navbar
@@ -36,7 +36,6 @@ website:
     title: false
     background: light
     left:
-  #    - text: "Home"
       - icon: home
         href: index.html
       - text: "Data & Scripts"
@@ -47,26 +46,7 @@ website:
         href: docs/mg-workflows/index.html
       - text: "Paper"
         href: docs/pub/index.html
-#      - text: "A. Processing"
-#        menu:
-#          - text: "Workflows"
-#            href: docs/ssu-workflows/index.html
-#          - text: "---------"
-#          - text: "1. Sample Data"
-#            href: docs/ssu-workflows/sampledata/index.html
-#          - text: "2. ASV"
-#            href: docs/ssu-workflows/asv/index.html
-#          - text: "3. OTU"
-#            href: docs/ssu-workflows/otu/index.html
-#          - text: "4. MED"
-#            href: docs/ssu-workflows/med/index.html
     right:
-#      - text: "DATA"
-#        href: data-availability.html
-#      - text: PAPER
-#        href: pub.html
-#      - text: "SOM"
-#        href: som.html
       - icon: github
         href: https://github.com/istmobiome/trans-shrimp/
         aria-label: TransI-Shrimp
@@ -90,6 +70,7 @@ website:
           contents:
             - docs/mg-workflows/setup/index.qmd
             - docs/mg-workflows/assembly/index.qmd
+            - docs/mg-workflows/aa-results/index.qmd
         - section: "Publication Material"
           href: docs/pub/index.qmd
           contents:
@@ -109,7 +90,7 @@ format:
       toggle: false
       caption: none
     toc: true
-    toc-depth: 2
+    toc-depth: 3
     appendix-style: default
     title-block-banner: '#113858'
     title-block-style: default
@@ -118,4 +99,5 @@ format:
       body-width:	850px
       margin-width:	275px
 
-    #title-block-banner-color: '#414141'
+    #title-block-banner-color: '#EFEFEF'
+freeze: true
