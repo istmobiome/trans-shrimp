@@ -200,6 +200,11 @@ window.Quarto = {
 </ul>
 </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
 </div>
       </div> <!-- /container-fluid -->
     </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
@@ -276,6 +281,12 @@ window.Quarto = {
  <span class="menu-text">2. Co-Assembly &amp; Annotations</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../docs/mg-workflows/aa-results/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. Assembly &amp; Annotation Results</span></a>
+  </div>
+</li>
       </ul>
 </li>
         <li class="sidebar-item sidebar-item-section">
@@ -324,7 +335,7 @@ window.Quarto = {
 
 </header><div class="column-body-outset-right">
 <p>Quick access to pipeline processing scripts and raw data. With these scripts and associated data you can run the processing steps for each analysis.</p>
-<p>All sequence data is linked to projects on the <a href="https://www.ebi.ac.uk/ena/browser/">European Nucleotide Archive (ENA)</a>. The scripts and associated files can be downloaded as <code>.zip</code> archives by clicking the links. Or if you prefer, you can copy the scripts and files from the code blocks below.</p>
+<p>All sequence data is linked to projects on the <a href="https://www.ebi.ac.uk/ena/browser/">European Nucleotide Archive (ENA)</a>. The scripts and associated files can be downloaded as <code>.zip</code> archives by clicking the links. Or if you prefer, you can copy the scripts directly from the code blocks below.</p>
 </div>
 <div class="column-page-inset-right">
 
@@ -390,22 +401,26 @@ window.Quarto = {
 <ul id="index-chooser" class="nav nav-tabs" role="tablist">
 <li class="nav-item" role="presentation">
     <a class="nav-link" href="data-asv.html">
-      <i class="bi bi-database-fill"></i>16S rRNA ASV processing
+      <i class="bi bi-database-fill"></i>
+      16S rRNA ASV processing
     </a>
   </li>
   <li class="nav-item" role="presentation">
     <a class="nav-link" href="data-otu.html">
-      <i class="bi bi-database-fill"></i>16S rRNA OTU processing
+      <i class="bi bi-database-fill"></i>
+      16S rRNA OTU processing
     </a>
   </li>
   <li class="nav-item" role="presentation">
     <a class="nav-link" href="data-med.html">
-      <i class="bi bi-database-fill"></i>16S rRNA MED processing
+      <i class="bi bi-database-fill"></i>
+      16S rRNA MED processing
     </a>
   </li>
   <li class="nav-item" role="presentation">
     <a class="nav-link" href="data-mg.html">
-      <i class="bi bi-database-fill"></i>Metagenomic processing
+      <i class="bi bi-database-fill"></i>
+      Metagenomic processing
     </a>
   </li>
 </ul>
@@ -1576,7 +1591,7 @@ No matching items
 </div></section><section id="last-updated-on" class="level4 appendix"><h2 class="anchored quarto-appendix-heading">Last updated on</h2><div class="quarto-appendix-contents">
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2024-09-24 13:23:58 PDT"</code></pre>
+<pre><code>[1] "2024-09-29 11:01:33 PDT"</code></pre>
 </div>
 </div>
 

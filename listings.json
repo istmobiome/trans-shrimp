@@ -4,12 +4,31 @@
     "items": []
   },
   {
-    "listing": "/docs/data/data-mg.html",
+    "listing": "/docs/data/index.html",
     "items": []
   },
   {
-    "listing": "/docs/data/data-asv.html",
+    "listing": "/docs/data/data-otu.html",
     "items": []
+  },
+  {
+    "listing": "/docs/pub/references/index.html",
+    "items": []
+  },
+  {
+    "listing": "/docs/pub/index.html",
+    "items": [
+      "/docs/pub/submitdata/index.html",
+      "/docs/pub/references/index.html"
+    ]
+  },
+  {
+    "listing": "/docs/mg-workflows/index.html",
+    "items": [
+      "/docs/mg-workflows/setup/index.html",
+      "/docs/mg-workflows/assembly/index.html",
+      "/docs/mg-workflows/aa-results/index.html"
+    ]
   },
   {
     "listing": "/docs/ssu-workflows/index.html",
@@ -22,29 +41,11 @@
     ]
   },
   {
-    "listing": "/docs/mg-workflows/index.html",
-    "items": [
-      "/docs/mg-workflows/setup/index.html",
-      "/docs/mg-workflows/assembly/index.html"
-    ]
-  },
-  {
-    "listing": "/docs/pub/index.html",
-    "items": [
-      "/docs/pub/submitdata/index.html",
-      "/docs/pub/references/index.html"
-    ]
-  },
-  {
-    "listing": "/docs/pub/references/index.html",
+    "listing": "/docs/data/data-asv.html",
     "items": []
   },
   {
-    "listing": "/docs/data/data-otu.html",
-    "items": []
-  },
-  {
-    "listing": "/docs/data/index.html",
+    "listing": "/docs/data/data-mg.html",
     "items": []
   }
 ]

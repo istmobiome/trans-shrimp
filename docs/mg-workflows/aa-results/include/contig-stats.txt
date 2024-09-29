@@ -1,0 +1,31 @@
+contigs_db	PAN
+Total Length	317994590
+Num Contigs	210726
+Num Contigs > 100 kb	4
+Num Contigs > 50 kb	33
+Num Contigs > 20 kb	264
+Num Contigs > 10 kb	907
+Num Contigs > 5 kb	3575
+Num Contigs > 2.5 kb	13015
+Longest Contig	142591
+Shortest Contig	1000
+Num Genes (prodigal)	363034
+L50	68908
+L75	135055
+L90	179499
+N50	1324
+N75	1113
+N90	1038
+Archaea_76	729
+Bacteria_71	1444
+Protista_83	81
+Ribosomal_RNA_12S	0
+Ribosomal_RNA_16S	10
+Ribosomal_RNA_18S	3
+Ribosomal_RNA_23S	17
+Ribosomal_RNA_28S	4
+Ribosomal_RNA_5S	0
+Transfer_RNAs	2225
+archaea (Archaea_76)	0
+bacteria (Bacteria_71)	20
+eukarya (Protista_83)	0

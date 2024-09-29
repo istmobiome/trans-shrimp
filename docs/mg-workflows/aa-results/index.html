@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="description" content="This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.">
+<title>3. Assembly &amp; Annotation Results – TransIsthmian Shrimp</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<link href="../../../docs/pub/index.html" rel="next">
+<link href="../../../docs/mg-workflows/assembly/index.html" rel="prev">
+<script src="../../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/quarto-contrib/downloadthis-1.9.1/downloadthis.css" rel="stylesheet"><script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script><style>
+
+      .quarto-title-block .quarto-title-banner {
+        background: #113858;
+      }
+</style>
+<link rel="stylesheet" href="../../../assets/css/styles.css">
+</head>
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner"><nav class="navbar navbar-expand-lg " data-bs-theme="dark"><div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../../assets/icon.png" alt="" class="navbar-logo"></a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="../../../index.html"> <i class="bi bi-home" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="../../../docs/data/index.html" aria-current="page"> 
+<span class="menu-text">Data &amp; Scripts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../docs/ssu-workflows/index.html"> 
+<span class="menu-text">16S rRNA</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../docs/mg-workflows/index.html"> 
+<span class="menu-text">Metagenomics</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../docs/pub/index.html"> 
+<span class="menu-text">Paper</span></a>
+  </li>  
+</ul>
+<ul class="navbar-nav navbar-nav-scroll ms-auto">
+<li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/istmobiome/trans-shrimp/"> <i class="bi bi-github" role="img" aria-label="TransI-Shrimp">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="../../../about.html"> <i class="bi bi-lightbulb-fill" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+</div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav><nav class="quarto-secondary-nav"><div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/mg-workflows/index.html">Metagenomics</a></li><li class="breadcrumb-item"><a href="../../../docs/mg-workflows/aa-results/index.html">3. Assembly &amp; Annotation Results</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav></header><!-- content --><header id="title-block-header" class="quarto-title-block default page-columns page-full"><div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../docs/mg-workflows/index.html">Metagenomics</a></li><li class="breadcrumb-item"><a href="../../../docs/mg-workflows/aa-results/index.html">3. Assembly &amp; Annotation Results</a></li></ol></nav>
+      <div class="quarto-title-block"><div><h1 class="title">3. Assembly &amp; Annotation Results</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+                  <div>
+        <div class="description">
+          <p>This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.</p>
+        </div>
+      </div>
+                </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto"><div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/data/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data &amp; Scripts</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/ssu-workflows/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">16S rRNA Processing</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/sampledata/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. Sample Metadata</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/asv/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. ASV Workflow</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/otu/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">3. OTU Workflow</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/ssu-workflows/med/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">4. MED Workflow</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/mg-workflows/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Metagenomics</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/mg-workflows/setup/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">1. Annotation Databases</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/mg-workflows/assembly/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">2. Co-Assembly &amp; Annotations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/mg-workflows/aa-results/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">3. Assembly &amp; Annotation Results</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../../docs/pub/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Publication Material</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">
+<li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/pub/references/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Workflow References</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../docs/pub/submitdata/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Submitting Data</span></a>
+  </div>
+</li>
+      </ul>
+</li>
+    </ul>
+</div>
+</nav><div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active"><h2 id="toc-title">On this page</h2>
+   
+  <ul>
+<li><a href="#qc-results" id="toc-qc-results" class="nav-link active" data-scroll-target="#qc-results">QC Results</a></li>
+  <li><a href="#assembly-results" id="toc-assembly-results" class="nav-link" data-scroll-target="#assembly-results">Assembly Results</a></li>
+  <li><a href="#short-read-taxonomy" id="toc-short-read-taxonomy" class="nav-link" data-scroll-target="#short-read-taxonomy">Short-read Taxonomy</a></li>
+  </ul><div class="toc-actions"><ul><li><a href="https://github.com/istmobiome/trans-shrimp/edit/main/docs/mg-workflows/aa-results/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/istmobiome/trans-shrimp/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/istmobiome/trans-shrimp/blob/main/docs/mg-workflows/aa-results/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content"><div class="cell">
+<details class="code-fold"><summary>Click here for libraries and setup information.</summary><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r code-with-copy"><code class="sourceCode R"><span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_chunk</a></span><span class="op">$</span><span class="fu">set</span><span class="op">(</span>echo <span class="op">=</span> <span class="cn">TRUE</span>, eval <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html">set.seed</a></span><span class="op">(</span><span class="fl">919191</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html">packageVersion</a></span><span class="op">(</span><span class="st">"ggplot2"</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://bioconductor.org/packages/Biostrings">Biostrings</a></span><span class="op">)</span>; <span class="fu"><a href="https://rdrr.io/r/utils/packageDescription.html">packageVersion</a></span><span class="op">(</span><span class="st">"Biostrings"</span><span class="op">)</span></span>
+<span><span class="fu">pacman</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/pacman/man/p_load.html">p_load</a></span><span class="op">(</span><span class="va">tidyverse</span>, <span class="va">gridExtra</span>, <span class="va">grid</span>,</span>
+<span>               <span class="va">formatR</span>, <span class="va">reactable</span>, <span class="va">gdata</span>, <span class="va">patchwork</span>,</span>
+<span>               <span class="va">kableExtra</span>, <span class="va">magrittr</span>, </span>
+<span>               install <span class="op">=</span> <span class="cn">FALSE</span>, update <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/options.html">options</a></span><span class="op">(</span>scipen <span class="op">=</span> <span class="fl">999</span><span class="op">)</span></span>
+<span><span class="fu">knitr</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/knitr/man/opts_chunk.html">opts_current</a></span><span class="op">$</span><span class="fu">get</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"cache"</span>,</span>
+<span>  <span class="st">"cache.path"</span>,</span>
+<span>  <span class="st">"cache.rebuild"</span>,</span>
+<span>  <span class="st">"dependson"</span>,</span>
+<span>  <span class="st">"autodep"</span></span>
+<span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#root &lt;- find_root(has_file("_quarto.yml"))</span></span>
+<span><span class="co">#source(file.path(root, "assets", "functions.R"))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="qc-results" class="level2"><h2 class="anchored" data-anchor-id="qc-results">QC Results</h2>
+<p>The first thing we should do is look at the results of the initial QC step. For each sample, anvi’o spits out individual quality control reports. Thankfully anvi’o also concatenates those files into one table. This table contains information like the number of pairs analyzed, the total pairs passed, etc.</p>
+<p><a href="#qc-report" onclick="fetch('data:text/plain;base64,c2FtcGxlCW51bWJlciBvZiBwYWlycyBhbmFseXplZAl0b3RhbCBwYWlycyBwYXNzZWQJdG90YWwgcGFpcnMgcGFzc2VkIChwZXJjZW50IG9mIGFsbCBwYWlycykJdG90YWwgcGFpcl8xIHRyaW1tZWQJdG90YWwgcGFpcl8xIHRyaW1tZWQgKHBlcmNlbnQgb2YgYWxsIHBhc3NlZCBwYWlycykJdG90YWwgcGFpcl8yIHRyaW1tZWQJdG90YWwgcGFpcl8yIHRyaW1tZWQgKHBlcmNlbnQgb2YgYWxsIHBhc3NlZCBwYWlycykJdG90YWwgcGFpcnMgZmFpbGVkCXRvdGFsIHBhaXJzIGZhaWxlZCAocGVyY2VudCBvZiBhbGwgcGFpcnMpCXBhaXJzIGZhaWxlZCBkdWUgdG8gcGFpcl8xCXBhaXJzIGZhaWxlZCBkdWUgdG8gcGFpcl8xIChwZXJjZW50IG9mIGFsbCBmYWlsZWQgcGFpcnMpCXBhaXJzIGZhaWxlZCBkdWUgdG8gcGFpcl8yCXBhaXJzIGZhaWxlZCBkdWUgdG8gcGFpcl8yIChwZXJjZW50IG9mIGFsbCBmYWlsZWQgcGFpcnMpCXBhaXJzIGZhaWxlZCBkdWUgdG8gYm90aAlwYWlycyBmYWlsZWQgZHVlIHRvIGJvdGggKHBlcmNlbnQgb2YgYWxsIGZhaWxlZCBwYWlycykJRkFJTEVEX1JFQVNPTl9QCUZBSUxFRF9SRUFTT05fUCAocGVyY2VudCBvZiBhbGwgZmFpbGVkIHBhaXJzKQlGQUlMRURfUkVBU09OX04JRkFJTEVEX1JFQVNPTl9OIChwZXJjZW50IG9mIGFsbCBmYWlsZWQgcGFpcnMpCUZBSUxFRF9SRUFTT05fQzMzCUZBSUxFRF9SRUFTT05fQzMzIChwZXJjZW50IG9mIGFsbCBmYWlsZWQgcGFpcnMpCkVQX0FMUEhfQVJFTl9HTF9QMDEJMzYxOTE1OAkzMzg5MTMyCTkzLjY0CTAJMC4wMAkzMjIJMC4wMQkyMzAwMjYJNi4zNgkzNzA4MQkxNi4xMgkxNTY5NTkJNjguMjQJMzU5ODYJMTUuNjQJMAkwCTAJMAkwCTAKRVBfQUxQSF9BUkVOX0hQX1AwMQkzNjUwMzUwCTM0MjY1MDYJOTMuODcJMAkwLjAwCTM1MAkwLjAxCTIyMzg0NAk2LjEzCTQwNjkxCTE4LjE4CTE0MzEwOAk2My45Mwk0MDA0NQkxNy44OQkwCTAJMAkwCTAJMApFUF9BTFBIX0FSRU5fTUdfUDAxCTM2NTM2NTcJMzM5NjE3MAk5Mi45NQkwCTAuMDAJNDE2CTAuMDEJMjU3NDg3CTcuMDUJMzU1OTEJMTMuODIJMTc2OTIzCTY4LjcxCTQ0OTczCTE3LjQ3CTAJMAkwCTAJMAkwCkVQX0FMUEhfRkFTQ19HTF9QMDQJMzY1MTQ4NwkyOTUyMDAxCTgwLjg0CTAJMC4wMAkwCTAuMDAJNjk5NDg2CTE5LjE2CTUyNDUwCTcuNTAJNjA0MDE4CTg2LjM1CTQzMDE4CTYuMTUJMAkwCTAJMAkwCTAKRVBfQUxQSF9GQVNDX0hQX1AwNAkzNjMyODA0CTM0MjMzNjcJOTQuMjMJMAkwLjAwCTMzNwkwLjAxCTIwOTQzNwk1Ljc3CTQ3OTE3CTIyLjg4CTEzMjQ3OQk2My4yNQkyOTA0MQkxMy44NwkwCTAJMAkwCTAJMApFUF9BTFBIX0ZBU0NfTUdfUDA0CTM2NTIxNjIJMzQ3NzkyOQk5NS4yMwkwCTAuMDAJMjc0CTAuMDEJMTc0MjMzCTQuNzcJMzgxOTAJMjEuOTIJMTExMTYxCTYzLjgwCTI0ODgyCTE0LjI4CTAJMAkwCTAJMAkwCkVQX0FMUEhfSEVQSF9NR19QMDYJMzU0NTgzNgkzMjk4ODc1CTkzLjA0CTAJMC4wMAkzMTQJMC4wMQkyNDY5NjEJNi45Ngk0MTE2MwkxNi42NwkxNjU3MDMJNjcuMTAJNDAwOTUJMTYuMjQJMAkwCTAJMAkwCTAKRVBfQUxQSF9IWUVZX0dMX1AxMAkzNjUzMDMyCTM0MTk2MzkJOTMuNjEJMAkwLjAwCTIzOAkwLjAxCTIzMzM5Mwk2LjM5CTQxMzQ4CTE3LjcyCTE2NDk5OAk3MC43MAkyNzA0NwkxMS41OQkwCTAJMAkwCTAJMApFUF9BTFBIX0hZRVlfSFBfUDEwCTM1NzAxNzQJMzM0OTE5NQk5My44MQkwCTAuMDAJNTAwCTAuMDEJMjIwOTc5CTYuMTkJNDA0MjYJMTguMjkJMTU0NzAwCTcwLjAxCTI1ODUzCTExLjcwCTAJMAkwCTAJMAkwCkVQX0FMUEhfSFlFWV9NR19QMTAJMzUxMzU5MQkzMzEyMDcxCTk0LjI2CTAJMC4wMAkyOTYJMC4wMQkyMDE1MjAJNS43NAkzNTAxNgkxNy4zOAkxNDI1NTEJNzAuNzQJMjM5NTMJMTEuODkJMAkwCTAJMAkwCTAKRVBfQUxQSF9KQVZJX0dMX1AwMgkzNTI3NjExCTMzMjgyNTUJOTQuMzUJMAkwLjAwCTYxNAkwLjAyCTE5OTM1Ngk1LjY1CTQzOTgyCTIyLjA2CTEyMTUyOQk2MC45NgkzMzg0NQkxNi45OAkwCTAJMAkwCTAJMApFUF9BTFBIX0pBVklfSFBfUDAyCTM2NTkxNTYJMzQ2MTA2NQk5NC41OQkwCTAuMDAJNDQ0CTAuMDEJMTk4MDkxCTUuNDEJNDM0MzEJMjEuOTIJMTIyNDUyCTYxLjgyCTMyMjA4CTE2LjI2CTAJMAkwCTAJMAkwCkVQX0FMUEhfSkFWSV9NR19QMDIJMzU5OTQ2NAkzMzkzOTcyCTk0LjI5CTAJMC4wMAkyMjYJMC4wMQkyMDU0OTIJNS43MQkzNTgzNgkxNy40NAkxNDczMDgJNzEuNjkJMjIzNDgJMTAuODgJMAkwCTAJMAkwCTAKRVBfQUxQSF9NSUxMX0dMX1AwOAkzNTk1MzM1CTMzOTQxNzMJOTQuNDAJMAkwLjAwCTM5OQkwLjAxCTIwMTE2Mgk1LjYwCTQyOTIyCTIxLjM0CTEyMzgyNQk2MS41NQkzNDQxNQkxNy4xMQkwCTAJMAkwCTAJMApFUF9BTFBIX01JTExfSFBfUDA4CTM1ODI1NjEJMzM2OTk2NQk5NC4wNwkwCTAuMDAJMzQwCTAuMDEJMjEyNTk2CTUuOTMJNDIxNTUJMTkuODMJMTQ2NDEyCTY4Ljg3CTI0MDI5CTExLjMwCTAJMAkwCTAJMAkwCkVQX0FMUEhfTUlMTF9NR19QMDgJMzYyMTc4MwkzNDQxMjYwCTk1LjAyCTAJMC4wMAkyMTgJMC4wMQkxODA1MjMJNC45OAkzODQwNAkyMS4yNwkxMTEwNzgJNjEuNTMJMzEwNDEJMTcuMjAJMAkwCTAJMAkwCTAKRVBfQUxQSF9QQU5BX0dMX1AwNwkzNTExMjEwCTI4MTM3OTIJODAuMTQJMAkwLjAwCTAJMC4wMAk2OTc0MTgJMTkuODYJNjI1ODQJOC45Nwk1ODA1MDUJODMuMjQJNTQzMjkJNy43OQkwCTAJMAkwCTAJMApFUF9BTFBIX1BBTkFfSFBfUDA3CTM1MDIxMzQJMzMwNzU3Ngk5NC40NAkwCTAuMDAJNDg4CTAuMDEJMTk0NTU4CTUuNTYJMzAzMDQJMTUuNTgJMTQ0MDIyCTc0LjAzCTIwMjMyCTEwLjQwCTAJMAkwCTAJMAkwCkVQX0FMUEhfUEFOQV9NR19QMDcJMzUxMjA3MQkzMzc3NDEyCTk2LjE3CTAJMC4wMAkwCTAuMDAJMTM0NjU5CTMuODMJMzU5MDcJMjYuNjcJNzIxNDQJNTMuNTgJMjY2MDgJMTkuNzYJMAkwCTAJMAkwCTAKRVBfQUxQSF9ST1NUX0dMX1AwNQkzNTU4MjE2CTMwNjA0MTMJODYuMDEJMAkwLjAwCTAJMC4wMAk0OTc4MDMJMTMuOTkJNDI0MDEJOC41Mgk0MjU0ODUJODUuNDcJMjk5MTcJNi4wMQkwCTAJMAkwCTAJMApFUF9BTFBIX1JPU1RfSFBfUDA1CTM1OTczOTEJMzQxOTkxOAk5NS4wNwkwCTAuMDAJNDQ4CTAuMDEJMTc3NDczCTQuOTMJNDEzMDIJMjMuMjcJMTExMDE5CTYyLjU2CTI1MTUyCTE0LjE3CTAJMAkwCTAJMAkwCkVQX0FMUEhfUk9TVF9NR19QMDUJMzYxNzY4MAkyOTA0MzI0CTgwLjI4CTAJMC4wMAkwCTAuMDAJNzEzMzU2CTE5LjcyCTM5MjY5CTUuNTAJNjMyOTQ5CTg4LjczCTQxMTM4CTUuNzcJMAkwCTAJMAkwCTAKRVBfQUxQSF9TQVhJX0dMX1AwOQkzNTUwNjk0CTMzNTEyMDEJOTQuMzgJMAkwLjAwCTI4NgkwLjAxCTE5OTQ5Mwk1LjYyCTM4Njg1CTE5LjM5CTEyODA4Mwk2NC4yMAkzMjcyNQkxNi40MAkwCTAJMAkwCTAJMApFUF9BTFBIX1NBWElfSFBfUDA5CTM2NTM0MTgJMzQ3MzkyNgk5NS4wOQkwCTAuMDAJMzczCTAuMDEJMTc5NDkyCTQuOTEJMzcxMTQJMjAuNjgJMTE1ODUyCTY0LjU0CTI2NTI2CTE0Ljc4CTAJMAkwCTAJMAkwCkVQX0FMUEhfU0FYSV9NR19QMDkJMzY0ODQ0OAkzNDY4OTk3CTk1LjA4CTAJMC4wMAkyNDYJMC4wMQkxNzk0NTEJNC45MgkzODMwOAkyMS4zNQkxMDg4ODEJNjAuNjcJMzIyNjIJMTcuOTgJMAkwCTAJMAkwCTAKRVBfQUxQSF9VVFJJX0dMX1AwMwkzNTg0MzYyCTMzNjE5ODUJOTMuODAJMAkwLjAwCTMxMQkwLjAxCTIyMjM3Nwk2LjIwCTM3ODg1CTE3LjA0CTE1OTQ2Mgk3MS43MQkyNTAzMAkxMS4yNgkwCTAJMAkwCTAJMApFUF9BTFBIX1VUUklfSFBfUDAzCTM1NTU4MTgJMzQ0MTcxNQk5Ni43OQkwCTAuMDAJMAkwLjAwCTExNDEwMwkzLjIxCTM4NzgyCTMzLjk5CTU1MTgxCTQ4LjM2CTIwMTQwCTE3LjY1CTAJMAkwCTAJMAkwCkVQX0FMUEhfVVRSSV9NR19QMDMJMzY0NDAxOAkyNjI1NTgwCTcyLjA1CTAJMC4wMAkwCTAuMDAJMTAxODQzOAkyNy45NQkzOTgwNgkzLjkxCTkyMDY5Mwk5MC40MAk1NzkzOQk1LjY5CTAJMAkwCTAJMAkwCldBX0FMUEhfQk9VVl9HTF9QMDIJMzU1NTgxOAkyODMxMjE2CTc5LjYyCTAJMC4wMAkwCTAuMDAJNzI0NjAyCTIwLjM4CTQ4MDM3CTYuNjMJNjM1NTc3CTg3LjcxCTQwOTg4CTUuNjYJMAkwCTAJMAkwCTAKV0FfQUxQSF9CT1VWX0hQX1AwMgkzNTU4MjE2CTMzNjY4MzcJOTQuNjIJMAkwLjAwCTMxMgkwLjAxCTE5MTM3OQk1LjM4CTQ0NzY1CTIzLjM5CTExNTg0MAk2MC41MwkzMDc3NAkxNi4wOAkwCTAJMAkwCTAJMApXQV9BTFBIX0JPVVZfTUdfUDAyCTM2MTM3NTQJMzMxODE1Ngk5MS44MgkwCTAuMDAJMjcxCTAuMDEJMjk1NTk4CTguMTgJNDMzNzcJMTQuNjcJMTgwNTQ4CTYxLjA4CTcxNjczCTI0LjI1CTAJMAkwCTAJMAkwCldBX0FMUEhfQ1JJU19HTF9QMDMJMzUxMTIxMAkzMzk0MjM2CTk2LjY3CTAJMC4wMAkwCTAuMDAJMTE2OTc0CTMuMzMJMzYxNTIJMzAuOTEJNTc5NzkJNDkuNTcJMjI4NDMJMTkuNTMJMAkwCTAJMAkwCTAKV0FfQUxQSF9DUklTX0hQX1AwMwkzNTMwMDY4CTMzMTYyNTMJOTMuOTQJMAkwLjAwCTQ2NAkwLjAxCTIxMzgxNQk2LjA2CTM0ODkyCTE2LjMyCTE1MjY4Mgk3MS40MQkyNjI0MQkxMi4yNwkwCTAJMAkwCTAJMApXQV9BTFBIX0NSSVNfTUdfUDAzCTM1NTcyMjEJMzM5MjEyMgk5NS4zNgkwCTAuMDAJOTgJMC4wMAkxNjUwOTkJNC42NAk0Mjk2NwkyNi4wMgk5NTcxMgk1Ny45NwkyNjQyMAkxNi4wMAkwCTAJMAkwCTAJMApXQV9BTFBIX0ZMT1JfR0xfUDA2CTM1MjgwNzgJMzM0NjE1MQk5NC44NAkwCTAuMDAJMTczCTAuMDEJMTgxOTI3CTUuMTYJMzgwODQJMjAuOTMJMTExNjIxCTYxLjM1CTMyMjIyCTE3LjcxCTAJMAkwCTAJMAkwCldBX0FMUEhfRkxPUl9IUF9QMDYJMzY0NDAxOAkzNDczOTcyCTk1LjMzCTAJMC4wMAkzMDEJMC4wMQkxNzAwNDYJNC42Nwk0NjU0MQkyNy4zNwkxMDE4MzcJNTkuODkJMjE2NjgJMTIuNzQJMAkwCTAJMAkwCTAKV0FfQUxQSF9GTE9SX01HX1AwNgkzNTA5NzM1CTMzMTg2NjQJOTQuNTYJMAkwLjAwCTMyCTAuMDAJMTkxMDcxCTUuNDQJMzM5MTQJMTcuNzUJMTM1MTQ3CTcwLjczCTIyMDEwCTExLjUyCTAJMAkwCTAJMAkwCldBX0FMUEhfRk9STV9HTF9QMDcJMzY1MjE2MgkyOTQxOTcwCTgwLjU1CTAJMC4wMAkwCTAuMDAJNzEwMTkyCTE5LjQ1CTU4NzYzCTguMjcJNTk5MjI3CTg0LjM4CTUyMjAyCTcuMzUJMAkwCTAJMAkwCTAKV0FfQUxQSF9GT1JNX0hQX1AwNwkzNTY1NTc4CTMzMzM1MjMJOTMuNDkJMAkwLjAwCTMyNQkwLjAxCTIzMjA1NQk2LjUxCTM5NjgzCTE3LjEwCTE2NTUwMQk3MS4zMgkyNjg3MQkxMS41OAkwCTAJMAkwCTAJMApXQV9BTFBIX0ZPUk1fTUdfUDA3CTM2MjQ5NDUJMzM2ODQyMgk5Mi45MgkwCTAuMDAJMTc4CTAuMDEJMjU2NTIzCTcuMDgJNDA5MDgJMTUuOTUJMTg1MTA5CTcyLjE2CTMwNTA2CTExLjg5CTAJMAkwCTAJMAkwCldBX0FMUEhfTlVUVF9HTF9QMDgJMzYxNzY4MAkzNDAwMTQ2CTkzLjk5CTAJMC4wMAkxOTIJMC4wMQkyMTc1MzQJNi4wMQkzODAxNAkxNy40NwkxNTUzMDkJNzEuNDAJMjQyMTEJMTEuMTMJMAkwCTAJMAkwCTAKV0FfQUxQSF9OVVRUX0hQX1AwOAkzNjUxNDg3CTM0MzYyOTIJOTQuMTEJMAkwLjAwCTMwNgkwLjAxCTIxNTE5NQk1Ljg5CTQ0MzgzCTIwLjYyCTE0MzUwMAk2Ni42OAkyNzMxMgkxMi42OQkwCTAJMAkwCTAJMApXQV9BTFBIX05VVFRfTUdfUDA4CTM1MDk5MzQJMzI5NjQzOAk5My45MgkwCTAuMDAJMjE3CTAuMDEJMjEzNDk2CTYuMDgJMzcwMTMJMTcuMzQJMTQ5MzYxCTY5Ljk2CTI3MTIyCTEyLjcwCTAJMAkwCTAJMAkwCldBX0FMUEhfUENOU19HTF9QMDQJMzU4MjU2MQkyOTkyNjQ2CTgzLjUzCTAJMC4wMAkwCTAuMDAJNTg5OTE1CTE2LjQ3CTQ5OTEyCTguNDYJNTAzNzc2CTg1LjQwCTM2MjI3CTYuMTQJMAkwCTAJMAkwCTAKV0FfQUxQSF9QQ05TX0hQX1AwNAkzNTM1ODU4CTMzNDc5NjcJOTQuNjkJMAkwLjAwCTkwMAkwLjAzCTE4Nzg5MQk1LjMxCTM5NDEwCTIwLjk3CTEyNDExNwk2Ni4wNgkyNDM2NAkxMi45NwkwCTAJMAkwCTAJMApXQV9BTFBIX1BDTlNfTUdfUDA0CTM2NTkwNDAJMzQxOTY1Nwk5My40NgkwCTAuMDAJMTM3CTAuMDAJMjM5MzgzCTYuNTQJNDkyMTkJMjAuNTYJMTYzMTU3CTY4LjE2CTI3MDA3CTExLjI4CTAJMAkwCTAJMAkwCldBX0FMUEhfUENXU19HTF9QMDUJMzU0NTgzNgkyNzc0MjI5CTc4LjI0CTAJMC4wMAkwCTAuMDAJNzcxNjA3CTIxLjc2CTM5Mjg3CTUuMDkJNjg3NjA1CTg5LjExCTQ0NzE1CTUuODAJMAkwCTAJMAkwCTAKV0FfQUxQSF9QQ1dTX0hQX1AwNQkzNTQyMDg0CTMxMjI0NjQJODguMTUJMAkwLjAwCTAJMC4wMAk0MTk2MjAJMTEuODUJNTE3ODQJMTIuMzQJMzM2ODg3CTgwLjI4CTMwOTQ5CTcuMzgJMAkwCTAJMAkwCTAKV0FfQUxQSF9QQ1dTX01HX1AwNQkzNjU5MDQwCTI4NjkzODgJNzguNDIJMAkwLjAwCTAJMC4wMAk3ODk2NTIJMjEuNTgJNDEzMzQJNS4yMwk3MDAyNjkJODguNjgJNDgwNDkJNi4wOAkwCTAJMAkwCTAJMApXQV9BTFBIX1NJTVVfR0xfUDA5CTM2NDg0NDgJMjY3MDg4OQk3My4yMQkwCTAuMDAJMAkwLjAwCTk3NzU1OQkyNi43OQk0MTMwOQk0LjIzCTg3NDA5Nwk4OS40Mgk2MjE1Mwk2LjM2CTAJMAkwCTAJMAkwCldBX0FMUEhfU0lNVV9IUF9QMDkJMzYzMzA2MAkzNTE5MzE5CTk2Ljg3CTEJMC4wMAkwCTAuMDAJMTEzNzQxCTMuMTMJMzU2NzYJMzEuMzcJNTI1NjkJNDYuMjIJMjU0OTYJMjIuNDIJMAkwCTAJMAkwCTAKV0FfQUxQSF9TSU1VX01HX1AwOQkzNjMzMDM1CTM0MjcyNTIJOTQuMzQJMAkwLjAwCTUyNAkwLjAyCTIwNTc4Mwk1LjY2CTM0ODMwCTE2LjkzCTE0NDE5Mgk3MC4wNwkyNjc2MQkxMy4wMAkwCTAJMAkwCTAJMApXQV9BTFBIX1ZFUlJfR0xfUDEwCTM1NDQzNDkJMzM1MzM2Mgk5NC42MQkwCTAuMDAJMjY4CTAuMDEJMTkwOTg3CTUuMzkJMzgwODcJMTkuOTQJMTI4OTI4CTY3LjUxCTIzOTcyCTEyLjU1CTAJMAkwCTAJMAkwCldBX0FMUEhfVkVSUl9IUF9QMTAJMzUyNTMzMAkzMzIwMzM2CTk0LjE5CTAJMC4wMAk0MjMJMC4wMQkyMDQ5OTQJNS44MQk0MDkxMQkxOS45NgkxMzg3MjEJNjcuNjcJMjUzNjIJMTIuMzcJMAkwCTAJMAkwCTAKV0FfQUxQSF9WRVJSX01HX1AxMAkzNjA5ODg5CTM0MTc2MzMJOTQuNjcJMAkwLjAwCTE5MwkwLjAxCTE5MjI1Ngk1LjMzCTM3MDYwCTE5LjI4CTEyNzgwOAk2Ni40OAkyNzM4OAkxNC4yNQkwCTAJMAkwCTAJMApXQV9BTFBIX1dFQlNfR0xfUDAxCTM1MjUzMzAJMjM3ODg2Mwk2Ny40OAkxCTAuMDAJMAkwLjAwCTExNDY0NjcJMzIuNTIJNjU1ODUJNS43MgkxMDA5MTA2CTg4LjAyCTcxNzc2CTYuMjYJMAkwCTAJMAkwCTAKV0FfQUxQSF9XRUJTX0hQX1AwMQkzNTQyMDg0CTMzMDM2NzcJOTMuMjcJMAkwLjAwCTk4CTAuMDAJMjM4NDA3CTYuNzMJMzg2NDEJMTYuMjEJMTcwMjk1CTcxLjQzCTI5NDcxCTEyLjM2CTAJMAkwCTAJMAkwCldBX0FMUEhfV0VCU19NR19QMDEJMzU3NDIyMwkzMzQyNjcyCTkzLjUyCTAJMC4wMAk2NgkwLjAwCTIzMTU1MQk2LjQ4CTM3OTY4CTE2LjQwCTE2ODUwNgk3Mi43NwkyNTA3NwkxMC44MwkwCTAJMAkwCTAJMAo=').then(res => res.blob()).then(blob => {
+      const downloadURL = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      document.body.appendChild(a);
+      a.href = downloadURL;
+      a.download = 'all_metadata.txt'; a.click();
+      window.URL.revokeObjectURL(downloadURL);
+      document.body.removeChild(a);
+        });"><button class="btn btn-info downloadthis  data-button" id="qc-report"><i class="bi bi-table"></i> Download QC data. </button></a></p>
+</section><section id="assembly-results" class="level2"><h2 class="anchored" data-anchor-id="assembly-results">Assembly Results</h2>
+<p>Next we can look at the results of the co-assembly, the number of HMM hits, and the estimated number of predicted genomes. These data not only give us a general idea of assembly quality but will also help us decide parameters for automatic clustering down the road.</p>
+<p>We can use anvi’o to generate a simple table of contig stats for this assembly.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode zsh code-with-copy"><code class="sourceCode zsh"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">anvi-display-contigs-stats</span> PAN-contigs.db <span class="dt">\</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>                           <span class="at">--output-file</span> contig-stats.txt <span class="dt">\</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">--report-as-text</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section><section id="short-read-taxonomy" class="level2"><h2 class="anchored" data-anchor-id="short-read-taxonomy">Short-read Taxonomy</h2>
+<p>Since the Kraken2 classification was performed BEFORE the assembly we can look at the Krona plots for each individual sample. Here samples are separated by site.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode zsh code-with-copy"><code class="sourceCode zsh"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">anvi-export-table</span> PROFILE.db <span class="at">--table</span> layer_additional_data <span class="dt">\</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--output-file</span>  layer_additional_data.txt <span class="dt">\</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--index</span> item_name <span class="dt">\</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--columns</span> data_key <span class="dt">\</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--values</span> data_value <span class="dt">\</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--matrix-format</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+<!-- -->
+
+</section></main><!-- /main --><script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/istmobiome\.github\.io\/trans-shrimp\/");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><nav class="page-navigation"><div class="nav-page nav-page-previous">
+      <a href="../../../docs/mg-workflows/assembly/index.html" class="pagination-link" aria-label="2. Co-Assembly &amp; Annotations">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">2. Co-Assembly &amp; Annotations</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../../docs/pub/index.html" class="pagination-link" aria-label="Publication Material">
+        <span class="nav-page-text">Publication Material</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb4" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "3. Assembly &amp; Annotation Results"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> |</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">  This section describes the steps we took to co-assemble the metagenomic samples, classify taxonomy, and assign functions.</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">  html:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">    mermaid:</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">      theme: forest</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="an">lightbox:</span><span class="co"> true</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>{{&lt; include ../_setup.qmd &gt;}}</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="fu">## QC Results</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>The first thing we should do is look at the results of the initial QC step. For each sample, anvi’o spits out individual quality control reports. Thankfully anvi’o also concatenates those files into one table. This table contains information like the number of pairs analyzed, the total pairs passed, etc.</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>qc_report <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_delim</span>(<span class="st">"include/qc-report.txt"</span>)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>qc_report[<span class="dv">17</span><span class="sc">:</span><span class="fu">ncol</span>(qc_report)] <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="fu">reactable</span>(</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>    qc_report, <span class="at">defaultColDef =</span> <span class="fu">colDef</span>(</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>        <span class="at">header =</span> <span class="cf">function</span>(value) <span class="fu">gsub</span>(<span class="st">"_"</span>, <span class="st">" "</span>, value, <span class="at">fixed =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>        <span class="at">cell =</span> <span class="cf">function</span>(value) <span class="fu">format</span>(value, <span class="at">nsmall =</span> <span class="dv">0</span>),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">"center"</span>, <span class="at">filterable =</span> <span class="cn">FALSE</span>, <span class="at">sortable =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">resizable =</span> <span class="cn">TRUE</span>, <span class="at">footerStyle =</span> <span class="fu">list</span>(<span class="at">fontWeight =</span> <span class="st">"bold"</span>)</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">list</span>(</span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>        <span class="at">sample =</span> <span class="fu">colDef</span>(</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>            <span class="at">name =</span> <span class="st">"SampleID"</span>, <span class="at">sticky =</span> <span class="st">"left"</span>, <span class="at">style =</span> <span class="fu">list</span>(<span class="at">borderRight =</span> <span class="st">"1px solid #eee"</span>),</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a>            <span class="at">headerStyle =</span> <span class="fu">list</span>(<span class="at">borderRight =</span> <span class="st">"1px solid #eee"</span>),</span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>            <span class="at">align =</span> <span class="st">"left"</span>, <span class="at">minWidth =</span> <span class="dv">200</span>),</span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">number of pairs analyzed</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pairs analyzed"</span>),</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pairs passed</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pairs passed"</span>),</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pairs passed (percent of all pairs)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pairs passed (% of all pairs)"</span>),</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pair_1 trimmed</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pair_1 trimmed"</span>),</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pair_1 trimmed (percent of all passed pairs)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pair_1 trimmed (% of all passed pairs)"</span>),</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pair_2 trimmed</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pair_2 trimmed"</span>),</span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pair_2 trimmed (percent of all passed pairs)</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pair_2 trimmed (% of all passed pairs)"</span>),</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pairs failed</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pairs failed"</span>),</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">total pairs failed (percent of all pairs)</span><span class="st">`</span>  <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. pairs failed (% of all pairs)"</span>),</span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">pairs failed due to pair_1</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"pairs failed due to pair_1"</span>),</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">pairs failed due to pair_1 (percent of all failed pairs)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"pairs failed due to pair_1 (% of all failed pairs)"</span>),</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">pairs failed due to pair_2</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"pairs failed due to pair_2"</span>),</span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">pairs failed due to pair_2 (percent of all failed pairs)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"pairs failed due to pair_2 (% of all failed pairs)"</span>),</span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">pairs failed due to both</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"pairs failed due to both"</span>),</span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">pairs failed due to both (percent of all failed pairs)</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"pairs failed due to both (% of all failed pairs)"</span>)</span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a>    <span class="at">searchable =</span> <span class="cn">TRUE</span>, <span class="at">defaultPageSize =</span> <span class="dv">5</span>, <span class="at">pageSizeOptions =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">25</span>, <span class="fu">nrow</span>(qc_report)),</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a>    <span class="at">showPageSizeOptions =</span> <span class="cn">TRUE</span>, <span class="at">highlight =</span> <span class="cn">TRUE</span>, <span class="at">bordered =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a>    <span class="at">striped =</span> <span class="cn">TRUE</span>, <span class="at">compact =</span> <span class="cn">FALSE</span>, <span class="at">wrap =</span> <span class="cn">TRUE</span>, <span class="at">showSortable =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a>    <span class="at">fullWidth =</span> <span class="cn">TRUE</span>, <span class="at">theme =</span> <span class="fu">reactableTheme</span>(<span class="at">style =</span> <span class="fu">list</span>(<span class="at">fontSize =</span> <span class="st">"0.8em"</span>))</span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a>    reactablefmtr<span class="sc">::</span><span class="fu">add_subtitle</span>(</span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>        <span class="st">"QC report for all samples after filtering and trimming raw reads."</span>, <span class="at">font_size =</span> <span class="dv">15</span></span>
+<span id="cb4-69"><a href="#cb4-69" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-70"><a href="#cb4-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-71"><a href="#cb4-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-72"><a href="#cb4-72" aria-hidden="true" tabindex="-1"></a>{{&lt; downloadthis include/qc-report.txt dname=all_metadata label="Download QC data." icon=table type=info class=data-button id=qc-report &gt;}}</span>
+<span id="cb4-73"><a href="#cb4-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-74"><a href="#cb4-74" aria-hidden="true" tabindex="-1"></a><span class="fu">## Assembly Results</span></span>
+<span id="cb4-75"><a href="#cb4-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-76"><a href="#cb4-76" aria-hidden="true" tabindex="-1"></a>Next we can look at the results of the co-assembly, the number of HMM hits, and the estimated number of predicted genomes. These data not only give us a general idea of assembly quality but will also help us decide parameters for automatic clustering down the road.</span>
+<span id="cb4-77"><a href="#cb4-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" aria-hidden="true" tabindex="-1"></a>We can use anvi’o to generate a simple table of contig stats for this assembly.</span>
+<span id="cb4-79"><a href="#cb4-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-82"><a href="#cb4-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{zsh}</span></span>
+<span id="cb4-83"><a href="#cb4-83" aria-hidden="true" tabindex="-1"></a><span class="ex">anvi-display-contigs-stats</span> PAN-contigs.db <span class="dt">\</span></span>
+<span id="cb4-84"><a href="#cb4-84" aria-hidden="true" tabindex="-1"></a>                           <span class="at">--output-file</span> contig-stats.txt <span class="dt">\</span></span>
+<span id="cb4-85"><a href="#cb4-85" aria-hidden="true" tabindex="-1"></a>                           <span class="at">--report-as-text</span></span>
+<span id="cb4-86"><a href="#cb4-86" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-87"><a href="#cb4-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-90"><a href="#cb4-90" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-91"><a href="#cb4-91" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb4-92"><a href="#cb4-92" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb4-93"><a href="#cb4-93" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb4-94"><a href="#cb4-94" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb4-95"><a href="#cb4-95" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_delim</span>(<span class="st">"include/layer_additional_data.txt"</span>)</span>
+<span id="cb4-96"><a href="#cb4-96" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> results <span class="sc">%&gt;%</span> </span>
+<span id="cb4-97"><a href="#cb4-97" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(item_name, total_num_reads, </span>
+<span id="cb4-98"><a href="#cb4-98" aria-hidden="true" tabindex="-1"></a>                total_reads_mapped, num_INDELs_reported, </span>
+<span id="cb4-99"><a href="#cb4-99" aria-hidden="true" tabindex="-1"></a>                num_SCVs_reported, num_SNVs_reported, </span>
+<span id="cb4-100"><a href="#cb4-100" aria-hidden="true" tabindex="-1"></a>                percent_mapped</span>
+<span id="cb4-101"><a href="#cb4-101" aria-hidden="true" tabindex="-1"></a>                )</span>
+<span id="cb4-102"><a href="#cb4-102" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-103"><a href="#cb4-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-106"><a href="#cb4-106" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-107"><a href="#cb4-107" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb4-108"><a href="#cb4-108" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb4-109"><a href="#cb4-109" aria-hidden="true" tabindex="-1"></a><span class="fu">reactable</span>(</span>
+<span id="cb4-110"><a href="#cb4-110" aria-hidden="true" tabindex="-1"></a>    results, <span class="at">defaultColDef =</span> <span class="fu">colDef</span>(</span>
+<span id="cb4-111"><a href="#cb4-111" aria-hidden="true" tabindex="-1"></a>        <span class="at">header =</span> <span class="cf">function</span>(value) <span class="fu">gsub</span>(<span class="st">"_"</span>, <span class="st">" "</span>, value, <span class="at">fixed =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-112"><a href="#cb4-112" aria-hidden="true" tabindex="-1"></a>        <span class="at">cell =</span> <span class="cf">function</span>(value) <span class="fu">format</span>(value, <span class="at">nsmall =</span> <span class="dv">0</span>),</span>
+<span id="cb4-113"><a href="#cb4-113" aria-hidden="true" tabindex="-1"></a>        <span class="at">align =</span> <span class="st">"center"</span>, <span class="at">filterable =</span> <span class="cn">FALSE</span>, <span class="at">sortable =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-114"><a href="#cb4-114" aria-hidden="true" tabindex="-1"></a>        <span class="at">resizable =</span> <span class="cn">TRUE</span>, <span class="at">footerStyle =</span> <span class="fu">list</span>(<span class="at">fontWeight =</span> <span class="st">"bold"</span>)</span>
+<span id="cb4-115"><a href="#cb4-115" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-116"><a href="#cb4-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">list</span>(</span>
+<span id="cb4-117"><a href="#cb4-117" aria-hidden="true" tabindex="-1"></a>        <span class="at">item_name =</span> <span class="fu">colDef</span>(</span>
+<span id="cb4-118"><a href="#cb4-118" aria-hidden="true" tabindex="-1"></a>            <span class="at">name =</span> <span class="st">"SampleID"</span>, <span class="at">sticky =</span> <span class="st">"left"</span>, <span class="at">style =</span> <span class="fu">list</span>(<span class="at">borderRight =</span> <span class="st">"1px solid #eee"</span>),</span>
+<span id="cb4-119"><a href="#cb4-119" aria-hidden="true" tabindex="-1"></a>            <span class="at">headerStyle =</span> <span class="fu">list</span>(<span class="at">borderRight =</span> <span class="st">"1px solid #eee"</span>),</span>
+<span id="cb4-120"><a href="#cb4-120" aria-hidden="true" tabindex="-1"></a>            <span class="at">align =</span> <span class="st">"left"</span>, <span class="at">minWidth =</span> <span class="dv">200</span>),</span>
+<span id="cb4-121"><a href="#cb4-121" aria-hidden="true" tabindex="-1"></a>        <span class="at">total_num_reads =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"total no. reads"</span>),</span>
+<span id="cb4-122"><a href="#cb4-122" aria-hidden="true" tabindex="-1"></a>        <span class="at">total_reads_kept =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. reads kept"</span>),</span>
+<span id="cb4-123"><a href="#cb4-123" aria-hidden="true" tabindex="-1"></a>        <span class="at">total_reads_mapped =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. reads mapped"</span>),</span>
+<span id="cb4-124"><a href="#cb4-124" aria-hidden="true" tabindex="-1"></a>        <span class="at">num_INDELs_reported =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. INDELs reported"</span>),</span>
+<span id="cb4-125"><a href="#cb4-125" aria-hidden="true" tabindex="-1"></a>        <span class="at">num_SCVs_reported =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. SCVs reported"</span>),</span>
+<span id="cb4-126"><a href="#cb4-126" aria-hidden="true" tabindex="-1"></a>        <span class="at">num_SNVs_reported =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"no. SNVs reported"</span>),</span>
+<span id="cb4-127"><a href="#cb4-127" aria-hidden="true" tabindex="-1"></a>        <span class="at">percent_mapped =</span> <span class="fu">colDef</span>(<span class="at">name =</span> <span class="st">"% mapped"</span>)</span>
+<span id="cb4-128"><a href="#cb4-128" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb4-129"><a href="#cb4-129" aria-hidden="true" tabindex="-1"></a>    <span class="at">searchable =</span> <span class="cn">TRUE</span>, <span class="at">defaultPageSize =</span> <span class="dv">5</span>, <span class="at">pageSizeOptions =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">25</span>, <span class="fu">nrow</span>(results)),</span>
+<span id="cb4-130"><a href="#cb4-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">showPageSizeOptions =</span> <span class="cn">TRUE</span>, <span class="at">highlight =</span> <span class="cn">TRUE</span>, <span class="at">bordered =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-131"><a href="#cb4-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">striped =</span> <span class="cn">TRUE</span>, <span class="at">compact =</span> <span class="cn">FALSE</span>, <span class="at">wrap =</span> <span class="cn">TRUE</span>, <span class="at">showSortable =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-132"><a href="#cb4-132" aria-hidden="true" tabindex="-1"></a>    <span class="at">fullWidth =</span> <span class="cn">TRUE</span>, <span class="at">theme =</span> <span class="fu">reactableTheme</span>(<span class="at">style =</span> <span class="fu">list</span>(<span class="at">fontSize =</span> <span class="st">"0.8em"</span>))</span>
+<span id="cb4-133"><a href="#cb4-133" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-134"><a href="#cb4-134" aria-hidden="true" tabindex="-1"></a>    reactablefmtr<span class="sc">::</span><span class="fu">add_subtitle</span>(</span>
+<span id="cb4-135"><a href="#cb4-135" aria-hidden="true" tabindex="-1"></a>        <span class="st">"QC report for all samples after filtering and trimming raw reads."</span>, <span class="at">font_size =</span> <span class="dv">15</span></span>
+<span id="cb4-136"><a href="#cb4-136" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-137"><a href="#cb4-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-138"><a href="#cb4-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-141"><a href="#cb4-141" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-142"><a href="#cb4-142" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb4-143"><a href="#cb4-143" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb4-144"><a href="#cb4-144" aria-hidden="true" tabindex="-1"></a><span class="co">#| message: false</span></span>
+<span id="cb4-145"><a href="#cb4-145" aria-hidden="true" tabindex="-1"></a><span class="co">#| warning: false</span></span>
+<span id="cb4-146"><a href="#cb4-146" aria-hidden="true" tabindex="-1"></a>taxa_sum <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_delim</span>(<span class="st">"include/layer_additional_data.txt"</span>)</span>
+<span id="cb4-147"><a href="#cb4-147" aria-hidden="true" tabindex="-1"></a>taxa_sum <span class="ot">&lt;-</span> taxa_sum <span class="sc">%&gt;%</span> </span>
+<span id="cb4-148"><a href="#cb4-148" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(item_name, <span class="fu">starts_with</span>(<span class="st">"t_phylum"</span>))</span>
+<span id="cb4-149"><a href="#cb4-149" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(taxa_sum) <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"t_phylum!"</span>, <span class="st">""</span>, <span class="fu">colnames</span>(taxa_sum))</span>
+<span id="cb4-150"><a href="#cb4-150" aria-hidden="true" tabindex="-1"></a>taxa_sum <span class="ot">&lt;-</span> taxa_sum <span class="sc">%&gt;%</span> tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="st">"item_name"</span>)</span>
+<span id="cb4-151"><a href="#cb4-151" aria-hidden="true" tabindex="-1"></a>taxa_sum <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">t</span>(taxa_sum))</span>
+<span id="cb4-152"><a href="#cb4-152" aria-hidden="true" tabindex="-1"></a>taxa_sum <span class="ot">&lt;-</span> taxa_sum <span class="sc">%&gt;%</span> tibble<span class="sc">::</span><span class="fu">rownames_to_column</span>(<span class="st">"Taxa"</span>)</span>
+<span id="cb4-153"><a href="#cb4-153" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-154"><a href="#cb4-154" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-155"><a href="#cb4-155" aria-hidden="true" tabindex="-1"></a><span class="fu">## Short-read Taxonomy</span></span>
+<span id="cb4-156"><a href="#cb4-156" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-157"><a href="#cb4-157" aria-hidden="true" tabindex="-1"></a>Since the Kraken2 classification was performed BEFORE the assembly we can look at the Krona plots for each individual sample. Here samples are separated by site.</span>
+<span id="cb4-158"><a href="#cb4-158" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-161"><a href="#cb4-161" aria-hidden="true" tabindex="-1"></a><span class="in">```{zsh}</span></span>
+<span id="cb4-162"><a href="#cb4-162" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: true</span></span>
+<span id="cb4-163"><a href="#cb4-163" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb4-164"><a href="#cb4-164" aria-hidden="true" tabindex="-1"></a><span class="ex">anvi-export-table</span> PROFILE.db <span class="at">--table</span> layer_additional_data <span class="dt">\</span></span>
+<span id="cb4-165"><a href="#cb4-165" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--output-file</span>  layer_additional_data.txt <span class="dt">\</span></span>
+<span id="cb4-166"><a href="#cb4-166" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--index</span> item_name <span class="dt">\</span></span>
+<span id="cb4-167"><a href="#cb4-167" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--columns</span> data_key <span class="dt">\</span></span>
+<span id="cb4-168"><a href="#cb4-168" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--values</span> data_value <span class="dt">\</span></span>
+<span id="cb4-169"><a href="#cb4-169" aria-hidden="true" tabindex="-1"></a>                             <span class="at">--matrix-format</span></span>
+<span id="cb4-170"><a href="#cb4-170" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-171"><a href="#cb4-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-172"><a href="#cb4-172" aria-hidden="true" tabindex="-1"></a></span>
+</code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer"><div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Copyright 2024 <a href="https://metacrobe.github.io/">metacrobe</a> &amp; <a href="https://istmobiome.rbind.io/">The Istmobiome Project</a>. Site constructed using <a href="https://quarto.org/">Quarto</a>.</p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/istmobiome/trans-shrimp/edit/main/docs/mg-workflows/aa-results/index.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/istmobiome/trans-shrimp/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li><li><a href="https://github.com/istmobiome/trans-shrimp/blob/main/docs/mg-workflows/aa-results/index.qmd" class="toc-action"><i class="bi empty"></i>View source</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+</body></html>
