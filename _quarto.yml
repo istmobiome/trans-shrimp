@@ -20,7 +20,7 @@ project:
 
 website:
   title: "TransIsthmian Shrimp"
-  #favicon: "assets/favicon.ico"
+  #favicon: "_assets/favicon.ico"
   page-footer: "© Copyright 2024 [metacrobe](https://metacrobe.github.io/) & [The Istmobiome Project](https://istmobiome.rbind.io/). Site constructed using [Quarto](https://quarto.org/)."
   site-url: https://istmobiome.github.io/trans-shrimp/
   repo-url: https://github.com/istmobiome/trans-shrimp/
@@ -32,7 +32,7 @@ website:
     location: navbar
     type: overlay
   navbar:
-    logo: "assets/icon.png"
+    logo: "_assets/icon.png"
     title: false
     background: light
     left:
@@ -76,12 +76,14 @@ website:
           contents:
             - docs/pub/references/index.qmd
             - docs/pub/submitdata/index.qmd
-bibliography: assets/cite.bib
+bibliography: _assets/cite.bib
 
 format:
   html:
-    theme: cosmo
-    css: assets/css/styles.css
+    theme: 
+      light: flatly
+      dark: darkly
+    css: _assets/css/styles.css
     code-copy: true
     code-link: true
     code-overflow: scroll
@@ -92,7 +94,7 @@ format:
     toc: true
     toc-depth: 3
     appendix-style: default
-    title-block-banner: '#113858'
+    #title-block-banner: '#113858'
     title-block-style: default
     grid:
       sidebar-width:	175px
@@ -101,3 +103,6 @@ format:
 
     #title-block-banner-color: '#EFEFEF'
 freeze: true
+
+#filters:
+#  - auto-dark

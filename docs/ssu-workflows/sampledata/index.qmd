@@ -96,6 +96,9 @@ tmp_meta <- tmp_meta %>%
   mutate(Species_group = str_replace_all(Species_group, "\\. ", "_")) %>%
   mutate(Species_group = str_replace_all(Species_group, " ", "_")) %>%
   mutate(Species_complex = str_replace_all(Species_complex, "\\. ", "_"))  %>%
+  mutate(Habitat = str_replace_all(Habitat, " +", "_")) %>%
+  mutate(Site = str_replace_all(Site, " +", "_")) %>%
+  mutate(Site_2 = str_replace_all(Site_2, " +", "_")) %>%
   mutate(Plate = str_replace_all(Plate, " ", "_"))
 tmp_meta <- tmp_meta %>%
   mutate(Taxon = str_replace_all(Taxon, c(
@@ -313,15 +316,13 @@ tmp_envr <- tmp_envr %>%
                           Species_code, 
                           Tissue_code, 
                           ID, 
-                          sep = "_")
-         )
+                          sep = "_"))
 tmp_shrmp <- tmp_shrmp %>%
   mutate(SampleID = paste(Ocean_code, 
                           Species_code, 
                           Tissue_code, 
                           ID, 
-                          sep = "_")
-         )
+                          sep = "_"))
 ```
 
 And combine the three modified data frames. 
@@ -577,6 +578,7 @@ samdf <- data.frame(SampleID = samptab$SampleID,
                     TISSUE = samptab$Tissue_code,
                     ID = samptab$ID, 
                     SITE = samptab$Site, 
+                    SITE2 = samptab$Site_2, 
                     HABITAT = samptab$Habitat, 
                     TAXON = samptab$Taxon, 
                     PAIR = samptab$Species_pair, 

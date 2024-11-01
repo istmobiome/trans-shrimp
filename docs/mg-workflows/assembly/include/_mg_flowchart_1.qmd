@@ -5,12 +5,12 @@ flowchart LR
   C --> D(Map Reads<br/>Bowtie & <br/>Samtools)
   C --> E(fa:fa-database Contigs DB <br/> EP & WA)
   D --> F(fa:fa-database Profile DBs<br/> all samples)
-  E --> G("Gene Annotations <br/> (e.g. HMMS, PFam, <br/>COG, etc.)")
+  E --> G("Gene Annotations <br/> (e.g. HMMS, PFam,<br/>COG, etc.)")
   E --> H("Classify contigs <br/> (Kaiju)")
   F --> I(fa:fa-database Merge  <br/> Profile DBs <br/> EP & WA)
   G --> J(fa:fa-database Annotated <br/>Contigs DBs <br/> EP & WA)
   H --> J
   I --> K
-  J --> K("Analysis <br/> (e.g., binning,<br/>MAGS<br/>,Phylogenomics,<br/>etc.)")
+  J --> K("Analysis <br/> (e.g., binning,<br/>MAGS,<br/>Phylogenomics,<br/>etc.)")
 ```
 

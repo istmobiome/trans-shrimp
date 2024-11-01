@@ -10,6 +10,11 @@ description: |
 {{< include /include/_chunk_colors.qmd >}}
 :::
 
+```{r}
+library(rgexf)
+library(XML)
+lesmi <- read.gexf("topology_from_gephi.gexf")
+```
 
 ```{r}
 #| echo: false
@@ -33,7 +38,7 @@ objects()
 #| echo: false
 #| eval: false
 dir.create(file.path("compare","include", "tables"), recursive = TRUE)
-save.image("compare/files/rdata/compare_load.rdata")
+save.image("files/rdata/compare_load.rdata")
 ```
 
 ```{r}
@@ -45,6 +50,24 @@ load("files/rdata/original_me_objects.rdata")
 #load("files/rdata/compare_part1.rdata")
 objects()
 ```
+
+```{r}
+me_med$sample_table
+me_med_pair <- me_med$merge_samples("HABITAT")
+me_med_pair$sample_table
+d1 <- clone(me_med)
+d1$tidy_dataset()
+d1$cal_betadiv()
+d1$beta_diversity
+t1 <- trans_beta$new(dataset = d1, group = "SPECIES", measure = "bray")
+t1$cal_ordination(method = "PCoA")
+# t1$res_ordination is the ordination result list
+class(t1$res_ordination)
+# plot the PCoA result with confidence ellipse
+t1$plot_ordination(plot_color = "HABITAT",  plot_type = c("point", "ellipse"))
+
+```
+
 
 ```{r}
 library(Biostrings)
@@ -126,12 +149,11 @@ saveRDS(seqmatch, "seqmatch.rds")
 ```
 
 ```{r}
-seqmatch <- readRDS("files/rdata/seqmatch.rds")
+seqmatch <- S("files/rdata/seqmatch.rds")
 seqmatch$MED_NODE <- paste("MED", seqmatch$MED_NODE, sep ="")
 #seqmatch$UNIQUE_ID <- paste0(seqmatch$MED_NODE, "-", seqmatch$MOTHUR_OTU)
 seqmatch
 ```
-
 
 ```{r}
 # Load necessary packages
@@ -142,13 +164,15 @@ calculate_summary <- function(data) {
   
   sum_non_max <- sum(data$COUNT[data$COUNT != max_val])
   adjusted_sum_non_max <- sum_non_max - ifelse(length(no_otu_val) > 0, no_otu_val, 0)
+  sum_med = sum_non_max + max_val
   
   data.frame(
     max_value = max_val,
     combined_others = paste(data$MOTHUR_OTU[order(-data$COUNT)], collapse = ", "),
     no_otu_value = ifelse(length(no_otu_val) > 0, no_otu_val, NA),
     sum_non_max_values = sum_non_max,
-    adjusted_sum_non_max = adjusted_sum_non_max
+    adjusted_sum_non_max = adjusted_sum_non_max,
+    sum_med = sum_med
   )
 }
 
@@ -160,6 +184,91 @@ result <- seqmatch %>%
 
 print(result)
 seqmatch
+#31510
+#32420
+```
+
+```{r}
+# Load the stringr package
+library(stringr)
+
+# Function to remove 'NO_OTU' and count 'Otu'
+count_otu <- function(column) {
+  sapply(column, function(cell) {
+    # Remove 'NO_OTU' from the cell
+    cell_cleaned <- str_replace_all(cell, "NO_OTU", "")
+    # Count occurrences of 'Otu' in the cleaned cell
+    count_otu <- str_count(cell_cleaned, "Otu")
+    return(count_otu)
+  })
+}
+
+# Specify the column to search
+result$Otu_Count <- count_otu(result$combined_others)
+
+# View the modified data frame with the count of 'Otu'
+print(result)
+```
+
+```{r}
+library(ggalluvial)
+tmp_links <- seqmatch %>% dplyr::rename("source" = 1) %>% 
+  dplyr::rename(., "value" = 2) %>%
+  dplyr::rename(., "target" = 3)
+tmp_links <- filter(tmp_links, source != "NO_OTU")
+tmp_min_val <- 200000
+tmp_links <- tmp_links %>% group_by(target) %>% filter(value > tmp_min_val)
+
+is_alluvia_form(tmp_links, axes = 1:3, silent = TRUE)
+
+ggplot(as.data.frame(tmp_links),
+       aes(y = value, axis1 = source, axis2 = target)) +
+  geom_alluvium() +
+  geom_stratum(width = 1/12, fill = "black", color = "grey") +
+  geom_label(stat = "stratum", aes(label = after_stat(stratum))) +
+  scale_x_discrete(limits = c("source", "target"), expand = c(.05, .05)) +
+  scale_fill_brewer(type = "qual", palette = "Set1") +
+  ggtitle("UC Berkeley admissions and rejections, by sex and department")
+```
+
+
+```{r}
+tmp_med_totals <- result[c("MED_NODE", "sum_med")]
+tmp_med_totals <- tmp_med_totals %>% dplyr::rename("name" = 1) %>% 
+  dplyr::rename(., "size" = 2)
+```
+
+```{r}
+tmp_links <- seqmatch %>% dplyr::rename("source" = 1) %>% 
+  dplyr::rename(., "value" = 2) %>%
+  dplyr::rename(., "target" = 3)
+tmp_links <- filter(tmp_links, source != "NO_OTU")
+```
+
+```{r}
+tmp_otu_node <- tmp_links[c("source", "value")]
+tmp_otu_node <- tmp_otu_node %>% dplyr::rename("name" = 1) %>% 
+  dplyr::rename(., "size" = 2)
+```
+
+```{r}
+tmp_nodes <- rbind(tmp_otu_node, tmp_med_totals)
+
+```
+
+
+```{r}
+tmp_min_val <- 10000
+tmp_links <- tmp_links %>% group_by(target) %>% filter(value > tmp_min_val)
+tmp_nodes <- tmp_nodes %>% filter(size > tmp_min_val)
+```
+
+```{r}
+tmp_nodes <- tmp_nodes %>%
+  group_by(name) %>%
+  summarise(size = sum(size), .groups = 'drop')
+dplyr::filter(tmp_nodes, grepl("Otu000054", name))
+
 ```
 
 ```{r}
@@ -169,29 +278,52 @@ seqmatch
 # Library
 library(networkD3)
 library(dplyr)
- 
-tmp_links <- seqmatch %>% dplyr::rename("source" = 1) %>% 
-  dplyr::rename(., "value" = 2) %>%
-  dplyr::rename(., "target" = 3)
+library(ggplot2)
+library(ggsankey)
 
-tmp_links <- filter(tmp_links, source != "NO_OTU")
-tmp_links <- tmp_links %>% group_by(target) %>% filter(value > 1000)
+#tmp_links$size <- (tmp_links$value / max(tmp_links$value)) * 20  # Scale factor
 
-tmp_nodes <- data.frame(
-  name = c(as.character(tmp_links$source), 
-  as.character(tmp_links$target)) %>% unique()
-)  
+#tmp_nodes <- data.frame(
+#  name = c(as.character(tmp_links$source), 
+#  as.character(tmp_links$target)) %>% unique()
+#)  
 
 tmp_links$IDsource <- match(tmp_links$source, tmp_nodes$name)-1 
 tmp_links$IDtarget <- match(tmp_links$target, tmp_nodes$name)-1
 
-
-
-p <- sankeyNetwork(Links = tmp_links, Nodes = tmp_nodes,
-              Source = "IDsource", Target = "IDtarget",
-              Value = "value", NodeID = "name", 
-              sinksRight = FALSE)
+p <- sankeyNetwork(Links = tmp_links, 
+                   Nodes = tmp_nodes,
+                   Source = "IDsource", 
+                   Target = "IDtarget",
+                   Value = "value", 
+                   NodeID = "name", 
+                   sinksRight = FALSE)
 p
+library(ggsankeyfier)
+data("ecosystem_services")
+pivot_stages_longer(
+  ecosystem_services,
+  stages_from,
+  values_from,
+  additional_aes_from,
+  invert_nodes = FALSE
+)
+
+
+library(htmlwidgets)
+saveWidget(p, file = paste0(getwd(), "sankeyBasic1.html"))
+webshot("sankeyBasic1.html","sn.png", vwidth = 1000, vheight = 900)
+
+# create the network object
+tmp_links
+network <- igraph::graph_from_data_frame(d = tmp_links, directed = F)
+plot(network)
+
+tmp_gexf <- rgexf::igraph.to.gexf(network)
+plot(tmp_gexf)
+# plot it
+plot(network)
+ecosystem_services_pivot1
 ```
 
 
@@ -199,6 +331,31 @@ p
 
 
 
+```{r}
+df <- mtcars %>%
+  make_long(cyl, vs, am, gear, carb)
+df
+ggplot(df, aes(x = x, 
+               next_x = next_x, 
+               node = node, 
+               next_node = next_node,
+               fill = factor(node))) +
+  geom_sankey() +
+  scale_fill_discrete(drop=FALSE)
+
+ggplot(tmp_links, aes(x = source, 
+               next_x = target, 
+               node = IDsource, 
+               next_node = IDtarget,
+               fill = factor(IDsource))) +
+  geom_sankey() +
+  scale_fill_discrete(drop = FALSE)
+df
+tmp_links
+print(result)
+seqmatch
+
+```
 
 
 
@@ -386,19 +543,24 @@ g1
 
 
 
+```{r}
+load("files/rdata/compare_load.rdata")
+objects()
+```
 
 
 
 
 
 ```{r}
+library(tidyverse)
 me_ds <- c("me_asv", "me_otu", "me_med")
 for (j in me_ds) {
   tmp_get <- get(j)
   tmp_ds <- microeco::clone(tmp_get)
   tmp_ds_df <- tmp_ds$otu_table
 
-  tmp_type <- str_replace(rownames(tmp_ds_df)[1], "\\d+", "")
+  tmp_type <- stringr::str_replace(rownames(tmp_ds_df)[1], "\\d+", "")
   tmp_type <- paste(tmp_type, "_ID", sep = "")
 
   tmp_ds_df <- tmp_ds_df %>% 
@@ -426,6 +588,7 @@ for (j in me_ds) {
   rm(list = ls(pattern = "tmp_"))
 }
 objects(pattern = "_df")
+me_med_df
 ```
 
 
@@ -465,13 +628,14 @@ for (j in me_ds) {
   rm(list = ls(pattern = "tmp_"))
 }
 objects()
+me_asv_df
 ```
 
 ```{r}
 me_ds <- c("me_asv_df", "me_otu_df", "me_med_df")
 for (j in me_ds) {
   tmp_get <- get(j)
-  tmp_ds_df <- tmp_get %>% filter(perc_reads_in_ES > 1 | perc_samp_in_ES > 1)
+  tmp_ds_df <- tmp_get %>% filter(perc_reads_in_ES > 10 | perc_samp_in_ES > 10)
   tmp_name_df <- str_replace(j, "_df", "_env")
   assign(tmp_name_df, tmp_ds_df)
   
@@ -481,32 +645,55 @@ for (j in me_ds) {
   rm(list = ls(pattern = "tmp_"))
 }
 objects()
+me_med_env
+```
 
+
+```{r}
 me_ds <- c("me_asv", "me_otu", "me_med")
 for (j in me_ds) {
   tmp_get <- get(j)
   tmp_es <- microeco::clone(tmp_get)
-  tmp_rem <- get(purrr::map_chr(j, ~ paste0(., "_env_rem")))
-  tmp_es$otu_table <- tmp_es$otu_table %>% 
-        filter(row.names(tmp_es$otu_table)  tmp_rem)
   tmp_es$tidy_dataset()
+  tmp_rem <- get(purrr::map_chr(j, ~ paste0(., "_env_rem")))
+  tmp_es <- tmp_es$otu_table %>% dplyr::filter(row.names(tmp_es$otu_table) %in%  tmp_rem)
   tmp_name <- purrr::map_chr(j, ~ paste0(., "_es"))
   assign(tmp_name, tmp_es)
   rm(list = ls(pattern = "tmp_"))
 }
+objects(pattern = "med")
+me_med_es
+me_med_df
+me_med_env_rem
 
-objects(pattern = "_es")
+```
 
+```{r}
 tmp_asv <- me_asv_es$merge_samples("TAXON")
 tmp_asv$otu_table
 tmp_med <- me_med_es$merge_samples("TAXON")
 tmp_med$tax_table
 tmp_otu <- me_otu_es$merge_samples("TAXON")
 tmp_otu$otu_table
-me_asv_env
+me_med_env
 
 ```
 
+```{r}
+library(decontam)
+load("files/rdata/compare_load.rdata")
+objects()
+
+tmp_me <- microeco::clone(me_med)
+tmp_me$tidy_dataset()
+tmp_me$sample_table$is.neg <- tmp_me$sample_table$TAXON == "Environmental"
+
+tmp_me_ps <- file2meco::meco2phyloseq(tmp_me)
+
+tmp_decon <- isContaminant(tmp_me_ps, method = "prevalence", neg = "is.neg", threshold = 0.00001, normalize = TRUE)
+tmp_decon
+table(tmp_decon$contaminant)
+```
 
 ```{r}
 #| echo: false

@@ -4,7 +4,7 @@ description: |
   Notes on how this site was created using Quarto & hosted with GitHub Pages.
 format:
   html:
-    css: ["/assets/css/styles_about.css", "/assets/css/styles.css"]
+    css: ["/_assets/css/styles_about.css", "/_assets/css/styles.css"]
     toc: true
     toc-depth: 3
 execute:
@@ -12,7 +12,7 @@ execute:
     eval: false
     warning: false
     message: false
-lightbox: true
+lightbox: auto
 ---
 
 ## Overview 

@@ -114,7 +114,7 @@ Now it is time to combine the sequence tables from each run together into one me
 #| label: begin-p-2
 remove(list = ls())
 #root <- find_root(has_file("_quarto.yml"))
-#source(file.path(root, "assets", "functions.R"))
+#source(file.path(root, "_assets", "functions.R"))
 load("files/rdata/asv_part2.rdata")
 objects()
 ```
@@ -126,7 +126,7 @@ objects()
 #| results: hide
 remove(list = ls())
 root <- find_root(has_file("_quarto.yml"))
-#source(file.path(root, "assets", "functions.R"))
+#source(file.path(root, "_assets", "functions.R"))
 #load("files/rdata/4.dada2.pipeline.rdata")
 #tax_silva <- tax_silva_v138.consensus
 #tax_itgdb <- readRDS("files/rdata/4.tax_itgdb.consensus.rds")

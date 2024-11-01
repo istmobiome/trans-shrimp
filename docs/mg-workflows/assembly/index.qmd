@@ -74,7 +74,7 @@ anvi-run-workflow --workflow metagenomics \
                   --list-dependencies
 ```
 
-You can find a description of the metagenomic workflow [here](https://anvio.org/help/main/workflows/metagenomics/).
+You can find a description of the metagenomic workflow [on the anvi'o website](https://anvio.org/help/main/workflows/metagenomics/).
 
 ```{bash}
 #| code-fold: true

@@ -29,7 +29,7 @@ We set up our run in the same way as the mothur pipeline.
 #| results: hide
 remove(list = ls())
 #root <- find_root(has_file("_quarto.yml"))
-#source(file.path(root, "assets", "functions.R"))
+#source(file.path(root, "_assets", "functions.R"))
 load("files/rdata/med_part2.rdata")
 objects()
 ```
@@ -606,12 +606,6 @@ pipe_summary <- data.frame(cbind(me_dataset, total_meds,
 | Avg MEDs per sample.  | `r round(mia_me_med_raw_summ$features[3])` | `r round(mia_me_med_summ$features[3])` |
 
 We started off with `r nrow(me_med_raw$tax_table)` MEDs and `r nrow(me_med_raw$sample_table)` samples. After removing low-count samples, there were `r nrow(me_med$tax_table)` MEDs and `r nrow(me_med$sample_table)` samples remaining.
-
-```{r}
-#| echo: true
-#| eval: false
-head(get_taxa_unique(ps_moth, "Family"), 16)
-```
 
 ```{r}
 #| echo: false

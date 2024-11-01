@@ -1,7 +1,7 @@
 ---
 title: "Transisthmian Shrimp Microbiomes"
 sidebar: false
-css: ["assets/css/chooser.css", "assets/css/learn_more.css",  "assets/css/styles.css"]
+css: ["_assets/css/chooser.css", "_assets/css/learn_more.css",  "_assets/css/styles.css"]
 toc: false
 code-tools: false
 ---
@@ -18,7 +18,7 @@ code-tools: false
 ::: {.tool .g-col-lg-9 .g-col-12}
 
 <a href="docs/data/index.html" role="button" class="btn btn-outline-light">
-![](images/data_code.png){width="177" fig-alt="Data-code logo."}Data & Code
+![](images/data_code.png){width="177" fig-alt="Data-code logo."}Data & Scripts
 </a>
 
 <a href="docs/pub/index.html" role="button" class="btn btn-outline-light">

@@ -9,10 +9,15 @@
 /********************************/
 
 body {
-  color: #414141;
-/*  line-height: 1.7;
-  font-size: 17px; */
-  background-color: #FEFEFE;
+/*  color: #414141;*/
+/*  line-height: 1.7;*/
+  font-size: 1em; 
+  font-family: 'Source Sans Pro', 'Work Sans';
+  /*background-color: #FEFEFE;*/
+}
+
+strong {
+  font-weight: bolder;
 }
 
 /********************************/
@@ -75,7 +80,7 @@ h3 {
 /********************************/
 
 a {
-  color: #39729E;
+  color: #248cfc;
   text-decoration: none;
 }
 
@@ -93,8 +98,8 @@ table.quarto-listing-table a {
 
 pre.sourceCode.r {
   margin-top: 0px;
-  color: #333333;
-  background-color: #E8E8E8;
+  /*color: #333333;*/
+  /*background-color: #E8E8E8;*/
   border-radius: 3px;
   font-size: 0.95em;
   font-family: 'Monaco', 'PT Mono', monospace;
@@ -119,8 +124,8 @@ code.sourceCode.R {
 /** Controls bash code  **/
 pre.sourceCode.bash {
   margin-top: 0px;
-  color: #333333;
-  background-color: #E8E8E8;
+  /*color: #333333;*/
+  /*background-color: #E8E8E8;*/
   border-radius: 3px;
   font-size: 0.95em;
   font-family: 'Monaco', 'PT Mono', monospace;
@@ -140,8 +145,8 @@ code.sourceCode.bash {
 /** Controls shell code  **/
 pre.sourceCode.zsh {
   margin-top: 0px;
-  color: #333333;
-  background-color: #E8E8E8;
+  /*color: #333333;*/
+  /*background-color: #E8E8E8;*/
   border-radius: 3px;
   font-size: 0.95em;
   font-family: 'Monaco', 'PT Mono', monospace;
@@ -161,8 +166,8 @@ code.sourceCode.zsh {
 /** Controls verbatim code  **/
 pre.sourceCode {
   margin-top: 0px;
-  color: #333333;
-  background-color: #E8E8E8;
+  /*color: #333333;*/
+  /*background-color: #E8E8E8;*/
   border-radius: 3px;
   font-size: 0.95em;
   font-family: 'Monaco', 'PT Mono', monospace;
@@ -182,7 +187,7 @@ code.sourceCode {
 /** Controls code output **/
 pre code {
   margin-top: 0px;
-   color: #333333;
+   /*color: #333333;*/
    font-size: 0.95em;
    border: 1px solid #ccc;
    overflow-x: scroll !important;
@@ -197,12 +202,20 @@ p code:not(.sourceCode), li code:not(.sourceCode), td code:not(.sourceCode) {
   font-family: 'Monaco', 'PT Mono', monospace;
   }
 
+code {
+  color: #9954bb;
+  font-size: 0.90em;
+ }
 /********************************/
 /* controls NAV BAR             */
 /********************************/
  
 .navbar-brand > img {
   max-height: 31px;
+}
+
+.sidebar nav {
+  font: 'Source Sans Pro';
 }
 
 /********************************/

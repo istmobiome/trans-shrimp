@@ -238,7 +238,7 @@ nc_tmp2
 And then we calculate row sums to get the number of NC and non-NC samples containing these reads. 
 
 ```{r}
-#| echo: false
+#| echo: true
 #| eval: false
 tmp_1 <- data.frame(rowSums(tmp_nc_read_dist != 0))
 tmp_2 <- dplyr::select(tmp_nc_read_dist, contains("Control"))
@@ -314,7 +314,7 @@ Now we remove any repseqs where:
 -   The percent of NC samples containing the ASV was greater than 10% of total samples.
 
 ```{r}
-#| echo: false
+#| echo: true
 #| eval: false
 nc_remove <- tmp_nc_check %>% 
   filter(perc_in_neg > 10 | perc_in_neg_samp > 10)

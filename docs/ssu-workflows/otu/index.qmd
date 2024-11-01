@@ -31,7 +31,7 @@ In this next part of the workflow our main goal is to create a *microtable objec
 #| results: hide
 remove(list = ls())
 #root <- find_root(has_file("_quarto.yml"))
-#source(file.path(root, "assets", "functions.R"))
+#source(file.path(root, "_assets", "functions.R"))
 load("files/rdata/otu_part2.rdata")
 objects()
 ```
@@ -100,6 +100,7 @@ OTU_1556 k__Bacteria  p__Acidobacteria  c__Acidobacteria      o__Subgroup 17
 OTU_32   k__Archaea   p__Miscellaneous  c__                   o__
 OTU_706  k__Bacteria  p__Actinobacteria c__Actinobacteria     o__Frankiales
 ```
+
 Our taxonomy file (below) needs a little wrangling to be properly formatted. 
 
 ```{r}
