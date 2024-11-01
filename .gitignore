@@ -13,6 +13,6 @@ public/
 files/
 public_build/
 sandbox/
-_freeze/
+_freeze
 
 /.quarto/
