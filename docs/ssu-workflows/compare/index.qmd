@@ -531,6 +531,68 @@ g1
 
 
 
+```{r}
+library(MicrobiotaProcess)
+objects()
+ps_med <- file2meco::meco2phyloseq(me_med)
+mpse_med <- ps_med %>% as.MPSE() 
+mpse_med %<>% 
+    mp_cal_alpha(.abundance=Abundance)
+mpse_med
+
+
+f1 <- mpse_med %>% 
+      mp_plot_alpha(
+        .group=OCEAN, 
+        .alpha=c(Observe, Chao1, ACE, Shannon, Simpson, Pielou)
+      ) +
+      scale_fill_manual(values=c("#00A087FF", "#3C5488FF"), guide="none") +
+      scale_color_manual(values=c("#00A087FF", "#3C5488FF"), guide="none")
+
+f2 <- mpse_med %>%
+      mp_plot_alpha(
+        .alpha=c(Observe, Chao1, ACE, Shannon, Simpson, Pielou)
+      )
+
+f1 / f2
+
+h1 <- mpse_med %>%
+         mp_plot_abundance(
+           .abundance = RareAbundance,
+           .group = OCEAN,
+           taxa.class = Phylum,
+           relative = TRUE,
+           topn = 20,
+           geom = 'heatmap',
+           features.dist = 'euclidean',
+           features.hclust = 'average',
+           sample.dist = 'bray',
+           sample.hclust = 'average'
+         )
+
+h2 <- mpse_med %>%
+          mp_plot_abundance(
+            .abundance = RareAbundance,
+            .group = OCEAN,
+            taxa.class = Phylum,
+            relative = FALSE,
+            topn = 20,
+            geom = 'heatmap',
+            features.dist = 'euclidean',
+            features.hclust = 'average',
+            sample.dist = 'bray',
+            sample.hclust = 'average'
+          )
+
+mpse_med %<>% 
+    mp_decostand(.abundance=Abundance)
+mpse_med
+
+mpse_med %<>% mp_cal_dist(.abundance=hellinger, distmethod="bray")
+mpse_med
+p1 <- mpse_med %>% mp_plot_dist(.distmethod = bray)
+p1
+```
 
 
 
